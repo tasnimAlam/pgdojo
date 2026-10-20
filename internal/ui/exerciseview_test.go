@@ -169,7 +169,11 @@ func TestExerciseDiscussionAndClear(t *testing.T) {
 	if v := view(m).editor.Value(); v != "" {
 		t.Errorf("editor not cleared: %q", v)
 	}
-	m = drive(m, keys("esc", "d")...)
+	m = drive(m, keys("esc", "d")...) // d alone does nothing
+	if view(m).disc != nil {
+		t.Fatal("d must not open the discussion")
+	}
+	m = drive(m, keys("D")...)
 	if out := screenText(m); !strings.Contains(out, "Discussion") || !strings.Contains(out, "scroll") {
 		t.Errorf("discussion not shown:\n%s", out)
 	}

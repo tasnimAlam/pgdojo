@@ -646,7 +646,7 @@ func (s *exerciseView) resultPane(w, h int) string {
 		var foot []string
 		if s.chk.Passed() {
 			lines = append(lines, t.Banner(t.PassBanner, fmt.Sprintf("✓ Correct: all %s match the expected result", plural(len(s.chk.Want.Rows), "row")), inner), "")
-			foot = []string{"", t.Dim.Render("Press n for the next exercise or d to read the discussion.")}
+			foot = []string{"", t.Dim.Render("Press n for the next exercise or D to read the discussion.")}
 		} else {
 			title += " · " + s.view.String()
 			lines = append(lines, t.Banner(t.FailBanner, "✗ Not quite: "+s.chk.Diff.Reason(), inner), "")

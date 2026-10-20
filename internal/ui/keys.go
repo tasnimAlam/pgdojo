@@ -68,7 +68,7 @@ func NewKeyMap(vim bool) KeyMap {
 
 		Hint:       b([]string{"H", "shift+h"}, "H", "next hint"),
 		Answer:     b([]string{"a"}, "a", "reveal answer"),
-		Discussion: b([]string{"d"}, "d", "discussion"),
+		Discussion: b([]string{"D", "shift+d"}, "D", "discussion"),
 		Schema:     b([]string{"s"}, "s", "toggle schema"),
 	}
 }
