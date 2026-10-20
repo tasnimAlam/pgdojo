@@ -35,9 +35,5 @@ func (m Model) helpOverlay(under string) string {
 	h := min(lipgloss.Height(body)+2, m.height)
 	modal := t.PaneColored("", body, w, h, t.P.Accent, t.Accent)
 
-	x, y := max((m.width-w)/2, 0), max((m.height-h)/2, 0)
-	return lipgloss.NewCompositor(
-		lipgloss.NewLayer(t.Dimmed(under)),
-		lipgloss.NewLayer(modal).X(x).Y(y).Z(1),
-	).Render()
+	return t.Overlay(under, modal, m.width, m.height)
 }

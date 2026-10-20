@@ -3,6 +3,7 @@ package ui
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"charm.land/bubbles/v2/key"
@@ -88,16 +89,16 @@ func New(d *Deps) Model {
 	return Model{deps: d, stack: []Screen{newCategories(d)}, width: 80, height: 24}
 }
 
-func (m Model) Init() tea.Cmd { return tea.Batch(m.top().Init(), m.ping()) }
+func (m Model) Init() tea.Cmd { return tea.Batch(m.top().Init(), m.ping(true)) }
 
 func (m Model) top() Screen { return m.stack[len(m.stack)-1] }
 
-func (m Model) ping() tea.Cmd {
+func (m Model) ping(loop bool) tea.Cmd {
 	c := m.deps.Checker
 	return func() tea.Msg {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 		defer cancel()
-		return pingMsg{err: c.Ping(ctx)}
+		return pingMsg{err: c.Ping(ctx), loop: loop}
 	}
 }
 
@@ -148,10 +149,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		}
+		if !msg.loop {
+			return m, nil
+		}
 		return m, tea.Tick(pingInterval, func(time.Time) tea.Msg { return pingTickMsg{} })
 
 	case pingTickMsg:
-		return m, m.ping()
+		return m, m.ping(true)
+
+	case pingNowMsg:
+		return m, m.ping(false)
 
 	case columnsMsg:
 		m.deps.columns[msg.key] = msg
@@ -195,8 +202,20 @@ func (m Model) push(s Screen) (tea.Model, tea.Cmd) {
 	return m, s.Init()
 }
 
+// Smallest terminal the layouts are designed for.
+const minWidth, minHeight = 60, 16
+
 func (m Model) View() tea.View {
-	content := m.top().View()
+	var content string
+	if m.width < minWidth || m.height < minHeight {
+		t := m.deps.Theme
+		msg := t.Warn.Render("Terminal too small") + "\n" + t.Dim.Render(fmt.Sprintf(
+			"pgex needs at least %d×%d, this window is %d×%d.\nEnlarge it or reduce the font size.", minWidth, minHeight, m.width, m.height))
+		v := tea.NewView(lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, msg))
+		v.AltScreen = true
+		return v
+	}
+	content = m.top().View()
 	if m.help {
 		content = m.helpOverlay(content)
 	}

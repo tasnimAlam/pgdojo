@@ -217,3 +217,13 @@ func (t Theme) Dimmed(view string) string {
 func (t Theme) Banner(st lipgloss.Style, text string, w int) string {
 	return st.Width(w).Render(ansi.Truncate(" "+text, w, "…"))
 }
+
+// Overlay centers modal over a dimmed copy of under, which is w×h cells.
+func (t Theme) Overlay(under, modal string, w, h int) string {
+	x := max((w-lipgloss.Width(modal))/2, 0)
+	y := max((h-lipgloss.Height(modal))/2, 0)
+	return lipgloss.NewCompositor(
+		lipgloss.NewLayer(t.Dimmed(under)),
+		lipgloss.NewLayer(modal).X(x).Y(y).Z(1),
+	).Render()
+}

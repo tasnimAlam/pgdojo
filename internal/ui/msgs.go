@@ -13,8 +13,16 @@ type (
 	backMsg struct{}
 )
 
-// pingMsg reports the result of a connectivity check.
-type pingMsg struct{ err error }
+// pingMsg reports the result of a connectivity check. loop is set for the
+// periodic ping, which schedules the next one.
+type pingMsg struct {
+	err  error
+	loop bool
+}
+
+// pingNowMsg asks the root to check connectivity once, e.g. after a run
+// failed to reach the database.
+type pingNowMsg struct{}
 
 // pingTickMsg schedules the next ping.
 type pingTickMsg struct{}

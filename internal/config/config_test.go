@@ -39,4 +39,7 @@ func TestLoadDefaults(t *testing.T) {
 	if _, err := Load(Flags{ConfigPath: "/nonexistent/pgex.toml"}); err == nil {
 		t.Error("explicit missing config path should fail")
 	}
+	if _, err := Load(Flags{Accent: "teal"}); err == nil {
+		t.Error("invalid accent should fail")
+	}
 }

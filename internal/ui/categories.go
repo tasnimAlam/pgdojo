@@ -9,6 +9,7 @@ import (
 
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/list"
+	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 
@@ -21,6 +22,10 @@ type categories struct {
 	d    *Deps
 	list list.Model
 	w, h int
+
+	resetting bool            // the "type reset" prompt is open
+	input     textinput.Model // for the reset confirmation
+	note      string          // result of the last reset
 }
 
 type catItem struct {
@@ -35,14 +40,16 @@ func newCategories(d *Deps) *categories {
 	for i := range d.Catalog.Categories {
 		items[i] = catItem{i, &d.Catalog.Categories[i]}
 	}
-	s := &categories{d: d}
+	s := &categories{d: d, input: textinput.New()}
+	s.input.Prompt = "> "
+	s.input.Placeholder = "reset"
 	s.list = newList(d, items, catDelegate{d})
 	return s
 }
 
 func (s *categories) Init() tea.Cmd { return nil }
 
-func (s *categories) Capturing() bool { return s.list.SettingFilter() }
+func (s *categories) Capturing() bool { return s.list.SettingFilter() || s.resetting }
 
 func (s *categories) SetSize(w, h int) {
 	s.w, s.h = w, h
@@ -57,8 +64,19 @@ func (s *categories) widths() (left, right int) {
 }
 
 func (s *categories) Update(msg tea.Msg) (Screen, tea.Cmd) {
+	if n, ok := msg.(noteMsg); ok {
+		s.note = n.text
+		return s, nil
+	}
+	if s.resetting {
+		return s, s.updateReset(msg)
+	}
 	if k, ok := msg.(tea.KeyPressMsg); ok && !s.list.SettingFilter() {
 		switch {
+		case key.Matches(k, s.d.Keys.Reset):
+			s.resetting, s.note = true, ""
+			s.input.SetValue("")
+			return s, s.input.Focus()
 		case key.Matches(k, s.d.Keys.Open):
 			if it, ok := s.list.SelectedItem().(catItem); ok {
 				return s, func() tea.Msg { return openCategoryMsg{it.index} }
@@ -76,7 +94,55 @@ func (s *categories) Update(msg tea.Msg) (Screen, tea.Cmd) {
 	return s, cmd
 }
 
+// updateReset handles the reset prompt: typing "reset" and enter erases
+// all progress; anything else cancels.
+func (s *categories) updateReset(msg tea.Msg) tea.Cmd {
+	k, ok := msg.(tea.KeyPressMsg)
+	if !ok {
+		var cmd tea.Cmd
+		s.input, cmd = s.input.Update(msg)
+		return cmd
+	}
+	switch k.String() {
+	case "esc":
+		s.resetting, s.note = false, "Reset cancelled."
+		return nil
+	case "enter":
+		s.resetting = false
+		s.input.Blur()
+		if s.input.Value() != "reset" {
+			s.note = "Reset cancelled: type the word reset to confirm."
+			return nil
+		}
+		p := s.d.Progress
+		return func() tea.Msg {
+			if err := p.Reset(); err != nil {
+				return noteMsg{"Could not reset progress: " + err.Error()}
+			}
+			return noteMsg{"All progress was reset."}
+		}
+	}
+	var cmd tea.Cmd
+	s.input, cmd = s.input.Update(msg)
+	return cmd
+}
+
 func (s *categories) View() string {
+	out := s.view()
+	if !s.resetting {
+		return out
+	}
+	t := s.d.Theme
+	w := min(s.w-4, 60)
+	lines := wrap("This erases solved status, attempts and hints for every exercise. Your saved drafts are kept.", w-4, t.Text)
+	lines = append(lines, "")
+	lines = append(lines, wrap("Type reset and press enter to confirm, or esc to cancel.", w-4, t.Dim)...)
+	lines = append(lines, "", s.input.View())
+	modal := t.PaneColored("Reset all progress", strings.Join(lines, "\n"), w, len(lines)+2, t.P.Fail, t.Fail.Bold(true))
+	return t.Overlay(out, modal, s.w, s.h)
+}
+
+func (s *categories) view() string {
 	t := s.d.Theme
 	solved, total := 0, 0
 	for _, c := range s.d.Catalog.Categories {
@@ -126,7 +192,11 @@ func (s *categories) View() string {
 	if total > 0 {
 		pct = solved * 100 / total
 	}
-	return joinScreen(header, body, t.Footer(help, t.Dim.Render(fmt.Sprintf("%d%%", pct)), s.w))
+	status := t.Dim.Render(fmt.Sprintf("%d%%", pct))
+	if s.note != "" {
+		status = t.Warn.Render(s.note) + "  " + status
+	}
+	return joinScreen(header, body, t.Footer(help, status, s.w))
 }
 
 func (s *categories) detail(w, h int) string {

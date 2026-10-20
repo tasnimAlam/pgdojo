@@ -35,6 +35,19 @@ const (
 	confirmClear
 )
 
+// overlayKind is a pane shown as a modal in the narrow layout, where the
+// left column doesn't fit.
+type overlayKind int
+
+const (
+	overlayNone overlayKind = iota
+	overlaySchema
+	overlayHint
+)
+
+// narrowWidth is the width below which panes stack vertically.
+const narrowWidth = 110
+
 // resultMode is what the result pane is showing.
 type resultMode int
 
@@ -73,8 +86,9 @@ type exerciseView struct {
 	seq     int
 	spin    spinner.Model
 
-	disc *viewport.Model // discussion overlay when non-nil
-	note string          // transient footer message
+	overlay overlayKind     // narrow layout: schema or hint shown on top
+	disc    *viewport.Model // discussion overlay when non-nil
+	note    string          // transient footer message
 }
 
 func newExerciseView(d *Deps, ex exercise.Exercise) *exerciseView {
@@ -156,10 +170,28 @@ func (s *exerciseView) layout() (lw, rw, bh, editorH int) {
 	return
 }
 
+func (s *exerciseView) narrow() bool { return s.w < narrowWidth }
+
+// narrowHeights splits the body between question, editor and result.
+func (s *exerciseView) narrowHeights() (qH, editorH, resultH int) {
+	bh := bodyHeight(s.h)
+	qH = min(len(s.questionLines(s.w-4))+2, bh/3)
+	rest := bh - qH
+	editorH = max(5, rest*2/5)
+	return qH, editorH, rest - editorH
+}
+
 func (s *exerciseView) SetSize(w, h int) {
 	s.w, s.h = w, h
-	_, rw, bh, editorH := s.layout()
-	s.editor.SetSize(rw-4, editorH-2)
+	if s.narrow() {
+		_, editorH, _ := s.narrowHeights()
+		s.editor.SetSize(w-4, editorH-2)
+	} else {
+		_, rw, _, editorH := s.layout()
+		s.editor.SetSize(rw-4, editorH-2)
+		s.overlay = overlayNone
+	}
+	bh := bodyHeight(h)
 	if s.disc != nil {
 		s.disc.SetWidth(w - 4)
 		s.disc.SetHeight(bh - 2)
@@ -204,7 +236,7 @@ func (s *exerciseView) finish(msg checkDoneMsg) tea.Cmd {
 	case msg.err != nil:
 		s.mode, s.errTitle = resError, "Could not reach the database"
 		s.errText = "Start it with 'make db-up', then run again. Check the setup with 'pgex doctor'."
-		return nil
+		return func() tea.Msg { return pingNowMsg{} } // refresh the header status
 	}
 	s.mode, s.chk = resCheck, msg.chk
 	if msg.chk.UserErr == nil && !msg.chk.Passed() {
@@ -328,6 +360,9 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 	}
 
 	switch {
+	case key.Matches(msg, k.Back) && s.overlay != overlayNone:
+		s.overlay = overlayNone
+		return nil
 	case key.Matches(msg, k.Back):
 		if s.mode == resAnswer {
 			s.mode = s.prevMode
@@ -341,6 +376,9 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 		s.mode = s.prevMode
 		return s.setFocus(focusEditor)
 	case key.Matches(msg, k.Hint):
+		if s.narrow() {
+			s.overlay = overlayHint
+		}
 		if s.hintsShown < len(s.ex.Hints) {
 			s.hintsShown++
 			key, n := s.ex.Key(), s.hintsShown
@@ -350,6 +388,12 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 		s.confirm = confirmReveal
 	case key.Matches(msg, k.Discussion):
 		s.openDiscussion()
+	case key.Matches(msg, k.Schema) && s.narrow():
+		if s.overlay == overlaySchema {
+			s.overlay = overlayNone
+		} else {
+			s.overlay = overlaySchema
+		}
 	case key.Matches(msg, k.Schema):
 		s.showSchema = !s.showSchema
 	case key.Matches(msg, k.Diff):
@@ -408,11 +452,46 @@ func (s *exerciseView) View() string {
 		return joinScreen(header, body, t.Footer([]helpItem{{"↑/↓", "scroll"}, short(k.Back, "close")}, "", s.w))
 	}
 
-	lw, rw, bh, editorH := s.layout()
-	left := s.leftColumn(lw, bh)
-	right := lipgloss.JoinVertical(lipgloss.Left, s.editorPane(rw, editorH), s.resultPane(rw, bh-editorH))
-	body := lipgloss.JoinHorizontal(lipgloss.Top, left, " ", right)
-	return joinScreen(header, body, t.Footer(s.helpItems(), s.statusBadge(), s.w))
+	var body string
+	if s.narrow() {
+		qH, editorH, resultH := s.narrowHeights()
+		body = lipgloss.JoinVertical(lipgloss.Left,
+			t.Pane("Question", strings.Join(s.questionLines(s.w-4), "\n"), s.w, qH, s.focus == focusLeft),
+			s.editorPane(s.w, editorH), s.resultPane(s.w, resultH))
+	} else {
+		lw, rw, bh, editorH := s.layout()
+		left := s.leftColumn(lw, bh)
+		right := lipgloss.JoinVertical(lipgloss.Left, s.editorPane(rw, editorH), s.resultPane(rw, bh-editorH))
+		body = lipgloss.JoinHorizontal(lipgloss.Top, left, " ", right)
+	}
+	out := joinScreen(header, body, t.Footer(s.helpItems(), s.statusBadge(), s.w))
+	if s.narrow() && s.overlay != overlayNone {
+		out = t.Overlay(out, s.overlayPane(), s.w, s.h)
+	}
+	return out
+}
+
+// overlayPane renders the schema or hint modal for the narrow layout.
+func (s *exerciseView) overlayPane() string {
+	t := s.d.Theme
+	w := min(s.w-4, 64)
+	inner := w - 4
+	title, lines, border, titleStyle := "Schema", schemaLines(t, s.ex.Tables), t.P.Accent, t.Accent.Bold(true)
+	if s.overlay == overlayHint {
+		border, titleStyle = t.P.Warn, t.Warn.Bold(true)
+		if s.hintsShown == 0 {
+			title, lines = "Hints", []string{t.Dim.Render("This exercise has no hints.")}
+		} else {
+			title = fmt.Sprintf("Hint %d of %d", s.hintsShown, len(s.ex.Hints))
+			lines = wrap(s.ex.Hints[s.hintsShown-1], inner, t.Text)
+			lines = append(lines, "")
+			lines = append(lines, wrap("h for the next hint · a reveals the answer · esc closes", inner, t.Dim)...)
+		}
+	} else {
+		lines = append(lines, "", t.Dim.Render("s or esc closes"))
+	}
+	h := min(len(lines)+2, s.h-2)
+	return t.PaneColored(title, strings.Join(lines, "\n"), w, h, border, titleStyle)
 }
 
 func (s *exerciseView) helpItems() []helpItem {
@@ -445,10 +524,9 @@ func ansiTrunc(s string, w int) string {
 	return string([]rune(s)[:max(w-1, 0)]) + "…"
 }
 
-func (s *exerciseView) leftColumn(w, h int) string {
+// questionLines is the question text plus table and order notes.
+func (s *exerciseView) questionLines(inner int) []string {
 	t := s.d.Theme
-	inner := w - 4
-
 	q := wrap(s.ex.Question, inner, t.Text)
 	if len(s.ex.Tables) > 0 {
 		q = append(q, "", t.Dim.Render("tables: ")+t.Text.Render(strings.Join(s.ex.Tables, ", ")))
@@ -456,6 +534,13 @@ func (s *exerciseView) leftColumn(w, h int) string {
 	if s.ex.Ordered {
 		q = append(q, t.Dim.Render("row order matters"))
 	}
+	return q
+}
+
+func (s *exerciseView) leftColumn(w, h int) string {
+	t := s.d.Theme
+	inner := w - 4
+	q := s.questionLines(inner)
 
 	var hint []string
 	if s.hintsShown > 0 {

@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/BurntSushi/toml"
 
@@ -55,8 +56,13 @@ func Load(f Flags) (Config, error) {
 	if f.Accent != "" {
 		c.Accent = f.Accent
 	}
+	if c.Accent != "" && !hexColor.MatchString(c.Accent) {
+		return c, fmt.Errorf("accent %q is not a hex color; use the form #5ccfb8 (in %s or --accent)", c.Accent, path)
+	}
 	return c, nil
 }
+
+var hexColor = regexp.MustCompile(`^#[0-9a-fA-F]{6}$`)
 
 // EditorCommand is the editor from the config file, then $EDITOR, then vi.
 func (c Config) EditorCommand() string {

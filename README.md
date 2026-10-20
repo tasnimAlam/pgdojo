@@ -4,7 +4,7 @@ PostgreSQL exercises in the terminal, in the spirit of pgexercises.com: pick an
 exercise, write SQL, run it against a real local Postgres, and see whether the
 result matches the expected one.
 
-Status: milestone 5 (exercise view). Run `pgex`, open an exercise, write SQL and press `ctrl+r`.
+Status: milestone 6 (polish). Run `pgex`, open an exercise, write SQL and press `ctrl+r`.
 
 ## Requirements
 
@@ -30,7 +30,22 @@ In an exercise the editor starts in INSERT mode. `ctrl+r` (or `F5`) runs the
 query, `esc` switches to NORMAL mode where single keys work: `h` hint, `a`
 reveal answer, `v` cycle yours / expected / diff, `d` discussion, `s` schema,
 `n`/`p` next/previous, `e` edit in `$EDITOR`, `enter` back to editing.
-`ctrl+c` cancels a running query.
+`ctrl+c` cancels a running query. Below 110 columns the panes stack
+vertically and `s` / `h` open the schema and hints as overlays.
+
+On the home screen `R` resets all progress after you type `reset` (drafts are
+kept).
+
+## Config
+
+`~/.config/pgex/config.toml`:
+
+```toml
+dsn = "postgres://pgex_player:pgex@localhost:5433/exercises"
+editor = "nvim"          # overrides $EDITOR; may include args, e.g. "emacsclient -t"
+accent = "#5ccfb8"       # hex color, also settable with --accent
+vim_keys = true          # j/k move in lists
+```
 
 ```fish
 pgex list                                   # categories and exercises with your progress

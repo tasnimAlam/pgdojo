@@ -1,0 +1,30 @@
+ pgex  Categories › Basics › 1. Facilities members can use cheaply                            1 / 3 
+╭ Question ────────────────────────────────────────────────────────────────────────────────────────╮
+│ The club wants to advertise its budget options. List the name and member cost of every facility  │
+│ whose member cost is greater than zero but less than one fiftieth of its monthly maintenance     │
+│ cost.                                                                                            │
+│                                                                                                  │
+│ tables: cd.facilities                                                                            │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭ Query · NORMAL · attempt 4 ──────────────────────────────────────────────────────────────────────╮
+│ -- write your SQL here, then press ctrl+r                                                        │
+│                                                                                                  │
+│                                                                                                  │
+│                                                                                                  │
+│                                                                                                  │
+│                                                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭ Result · 3 rows · 0s · yours ────────────────────────────────────────────────────────────────────╮
+│  ✗ Not quite: 1 row missing and 1 extra row.                                                     │
+│                                                                                                  │
+│ name            membercost                                                                       │
+│ Tennis Court 1  5                                                                                │
+│ Massage Room 1  9.9                                                                              │
+│ Squash Court    ∅                                                                                │
+│                                                                                                  │
+│                                                                                                  │
+│                                                                                                  │
+│                                                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────────────────────────
+ ctrl+r/F5 run · enter edit · h hint · a answer · v view · d discussion · n/p next/prev ·… ✓ solved 
