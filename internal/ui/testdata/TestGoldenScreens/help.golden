@@ -1,0 +1,36 @@
+ pgex  PostgreSQL exercises in your terminal                                    db localhost:5433/exercises ● connected 
+╭ Categories ────────────────────────────────────────╮ ╭ Basics ───────────────────────────────────────────────────────╮
+│ 7 categories · 2 of 21 solved                      │ │ Retrieve and filter rows from a single table.                 │
+│ ▌▸ Basics                        ██████████    2/3 │ │                                                               │
+│    Joins and Subqueries          ██████████    0/3 │ │ solved   2/3          hints    1 used                         │
+│    Modifying Data                ██████████    0/3 │ │ answers  0 rev.       last run 2 days ago                     │
+│    Aggregation                   ██████████    0/3 │ │                                                               │
+│    Working with Timestamps       ██████████    0/3 │ │ Tables used                                                   │
+│    String Operat╭──────────────────────────────────────────────────────────────────────────────────╮                 │
+│    Recursive Que│ Keyboard shortcuts                                             esc or ? to close │                 │
+│                 │                                                                                  │                 │
+│                 │ Navigation                 Query                      Learning                   │                 │
+│                 │                                                                                  │                 │
+│                 │ ↑/k    move up             ctrl+r/F5  run query       h  next hint               │                 │
+│                 │ ↓/j    move down           ctrl+c     cancel / quit   a  reveal answer           │                 │
+│                 │ enter  open                e          open $EDITOR    d  discussion              │                 │
+│                 │ esc    back / close        tab        next pane       s  toggle schema           │                 │
+│                 │ /      filter              shift+tab  previous pane                              │                 │
+│                 │ c      continue            ctrl+l     clear editor                               │                 │
+│                 │ n      next exercise       v          cycle diff                                 │                 │
+│                 │ p      previous exercise                                                         │                 │
+│                 │ R      reset progress                                                            │                 │
+│                 │ ?      help                                                                      │                 │
+│                 │ q      quit                                                                      │                 │
+│                 │                                                                                  │                 │
+│                 │ Revealing the answer asks for confirmation and marks the exercise as revealed,   │                 │
+│                 │ not solved.                                                                      │                 │
+│                 ╰──────────────────────────────────────────────────────────────────────────────────╯                 │
+│                                                    │ │                                                               │
+│                                                    │ ╰───────────────────────────────────────────────────────────────╯
+│                                                    │ ╭ Continue where you left off ──────────────────────────────────╮
+│                                                    │ │ → Joins and Subqueries › 2. Members who recommended someone   │
+│                                                    │ │ press c to continue                                           │
+╰────────────────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ↑/↓ move · enter open · c continue · / filter · ? help · q quit                                                     9% 

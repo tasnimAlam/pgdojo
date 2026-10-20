@@ -4,7 +4,7 @@ PostgreSQL exercises in the terminal, in the spirit of pgexercises.com: pick an
 exercise, write SQL, run it against a real local Postgres, and see whether the
 result matches the expected one.
 
-Status: milestone 3 (command-line interface). The TUI comes in later milestones.
+Status: milestone 4 (TUI navigation). Run `pgex` to browse categories and exercises; the in-app editor and runner come in milestone 5. Until then, solve exercises with `pgex check`.
 
 ## Requirements
 
@@ -21,6 +21,10 @@ make run
 ```
 
 ## Commands
+
+Run `pgex` with no arguments for the interactive interface. Press `?` for
+keyboard shortcuts, `/` to filter a list, `c` on the home screen to continue
+the last exercise.
 
 ```fish
 pgex list                                   # categories and exercises with your progress
@@ -86,3 +90,10 @@ Only one statement is allowed per run, and transaction commands (`BEGIN`,
 `db/clubdata.sql` exists, integration tests in a throwaway Postgres container
 (via testcontainers). Every reference answer is checked against itself there.
 Use `go test -short ./...` to skip the container.
+
+UI screens are checked against golden files in `internal/ui/testdata` rendered
+at 120×36. After an intended visual change, regenerate them with:
+
+```fish
+go test ./internal/ui -run TestGoldenScreens -update
+```

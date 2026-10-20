@@ -9,13 +9,16 @@ import (
 	"os"
 	"os/signal"
 
+	tea "charm.land/bubbletea/v2"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/spf13/cobra"
 
 	"github.com/tasnimAlam/pgex/internal/config"
 	"github.com/tasnimAlam/pgex/internal/db"
+	"github.com/tasnimAlam/pgex/internal/drafts"
 	"github.com/tasnimAlam/pgex/internal/exercise"
 	"github.com/tasnimAlam/pgex/internal/progress"
+	"github.com/tasnimAlam/pgex/internal/ui"
 )
 
 // errQuiet makes main exit 1 without printing; the command already
@@ -41,16 +44,13 @@ func rootCmd() *cobra.Command {
 		Short:         "PostgreSQL exercises in your terminal",
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println("The interactive TUI is not built yet. Try 'pgex list' or 'pgex check --help'.")
-			return nil
-		},
 	}
 	root.PersistentFlags().StringVar(&flags.DSN, "dsn", "", "Postgres connection string (overrides PGEX_DSN and the config file)")
 	root.PersistentFlags().StringVar(&flags.ConfigPath, "config", "", "config file (default "+config.DefaultPath()+")")
 	root.PersistentFlags().StringVar(&flags.Accent, "accent", "", "accent color as hex, e.g. #5ccfb8")
 
 	app := &app{flags: &flags}
+	root.RunE = func(cmd *cobra.Command, args []string) error { return app.tui(cmd.Context()) }
 	root.AddCommand(doctorCmd(app), checkCmd(app), listCmd(app), validateCmd(app))
 	return root
 }
@@ -94,6 +94,40 @@ func (a *app) runner(ctx context.Context) (*db.Runner, string, error) {
 
 func (a *app) progress() (*progress.Store, error) {
 	return progress.Open(config.ProgressPath())
+}
+
+// tui launches the interactive interface.
+func (a *app) tui(ctx context.Context) error {
+	cfg, err := a.config()
+	if err != nil {
+		return err
+	}
+	cat, err := a.catalog()
+	if err != nil {
+		return err
+	}
+	store, err := a.progress()
+	if err != nil {
+		return err
+	}
+	r, dsn, err := a.runner(ctx)
+	if err != nil {
+		return err
+	}
+	m := ui.New(&ui.Deps{
+		Catalog:  cat,
+		Checker:  r,
+		Progress: store,
+		Drafts:   drafts.New(config.DraftsDir()),
+		DBLabel:  db.Describe(dsn),
+		Theme:    ui.NewTheme(cfg.Accent),
+		Keys:     ui.NewKeyMap(cfg.UseVimKeys()),
+	})
+	_, err = tea.NewProgram(m, tea.WithContext(ctx)).Run()
+	if errors.Is(err, tea.ErrInterrupted) || errors.Is(err, context.Canceled) {
+		return nil
+	}
+	return err
 }
 
 // connectErr turns a ping failure into a sentence with a next step.

@@ -1,0 +1,36 @@
+ pgex  Categories › Joins and Subqueries                                                                   0 / 3 solved 
+╭ Exercises ─────────────────────────────────────────╮ ╭ Preview ──────────────────────────────────────────────────────╮
+│ Combine rows from several tables with joins and s… │ │ Start times of a member's bookings                            │
+│ ▌●  1. Start times of a member's bookings          │ │                                                               │
+│  ○  2. Members who recommended someone             │ │ Produce a list of the start times for bookings made by the    │
+│  ◐  3. Every member and their recommender          │ │ member named David Farrell.                                   │
+│                                                    │ │                                                               │
+│                                                    │ │ Expected columns   starttime   name                           │
+│                                                    │ │ Order matters     no                                          │
+│                                                    │ │ Tables             cd.bookings   cd.members                   │
+│                                                    │ │ Attempts          3 · last run failed                         │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│ ✓ solved  ● attempted  ○ new                       │ │ Draft /home/u/.local/share/pgex/drafts/joins/member-booking-… │
+╰────────────────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ↑/↓ move · enter open · / filter · esc back · ? help · q quit                                                          

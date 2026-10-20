@@ -1,0 +1,36 @@
+ pgex  PostgreSQL exercises in your terminal                                    db localhost:5433/exercises ● connected 
+╭ Categories ────────────────────────────────────────╮ ╭ Basics ───────────────────────────────────────────────────────╮
+│ 7 categories · 2 of 21 solved                      │ │ Retrieve and filter rows from a single table.                 │
+│ ▌▸ Basics                        ██████████    2/3 │ │                                                               │
+│    Joins and Subqueries          ██████████    0/3 │ │ solved   2/3          hints    1 used                         │
+│    Modifying Data                ██████████    0/3 │ │ answers  0 rev.       last run 2 days ago                     │
+│    Aggregation                   ██████████    0/3 │ │                                                               │
+│    Working with Timestamps       ██████████    0/3 │ │ Tables used                                                   │
+│    String Operations             ██████████    0/3 │ │  cd.facilities   cd.members                                   │
+│    Recursive Queries             ██████████    0/3 │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ │                                                               │
+│                                                    │ ╰───────────────────────────────────────────────────────────────╯
+│                                                    │ ╭ Continue where you left off ──────────────────────────────────╮
+│                                                    │ │ → Joins and Subqueries › 2. Members who recommended someone   │
+│                                                    │ │ press c to continue                                           │
+╰────────────────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ↑/↓ move · enter open · c continue · / filter · ? help · q quit                                                     9% 
