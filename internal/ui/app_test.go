@@ -140,6 +140,8 @@ func keyPress(s string) tea.KeyPressMsg {
 		return tea.KeyPressMsg{Code: tea.KeyBackspace}
 	case "tab":
 		return tea.KeyPressMsg{Code: tea.KeyTab}
+	case "shift+tab":
+		return tea.KeyPressMsg{Code: tea.KeyTab, Mod: tea.ModShift}
 	}
 	if c, ok := strings.CutPrefix(s, "ctrl+"); ok {
 		return tea.KeyPressMsg{Code: []rune(c)[0], Mod: tea.ModCtrl}

@@ -100,12 +100,13 @@ the last exercise. With `vim_keys = true` (the default) lists also take
 `ctrl+u`/`ctrl+d` to page; `g`/`G`/`ctrl+u`/`ctrl+d` also scroll a focused
 result table.
 
-In an exercise the editor starts in INSERT mode. `ctrl+r` runs the
-query, `esc` switches to NORMAL mode (the query stays focused; another `esc`
-does nothing) where single keys work: `backspace` back to the list, `h` hint, `a`
+An exercise opens in NORMAL mode with the query focused. Press `i` to type
+(INSERT mode) and `esc` to return to NORMAL; only `i` enters INSERT, so
+`tab` back into the query keeps NORMAL. `ctrl+r` runs the query in either
+mode. In NORMAL mode single keys work: `backspace` back to the list, `h` hint, `a`
 reveal answer, `v` cycle yours / expected / diff, `d` discussion, `s` schema
 window (tables, keys and how they relate),
-`n`/`p` next/previous, `e` edit in `$EDITOR`, `enter` back to editing.
+`n`/`p` next/previous, `e` edit in `$EDITOR`.
 `ctrl+c` cancels a running query. Below 110 columns the panes stack
 vertically and `h` opens hints as an overlay.
 

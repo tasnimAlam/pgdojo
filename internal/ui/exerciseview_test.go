@@ -57,7 +57,7 @@ func openExercise(t *testing.T, chk db.Check) tea.Model {
 	d := testDeps(t)
 	d.Checker = fakeChecker{check: func(context.Context, string) (db.Check, error) { return chk, nil }}
 	m := drive(New(d), tea.WindowSizeMsg{Width: 120, Height: 36}, pingMsg{})
-	return drive(m, keys("enter", "enter")...)
+	return drive(m, keys("enter", "enter", "i")...) // open, then INSERT mode
 }
 
 func view(m tea.Model) *exerciseView { return m.(Model).top().(*exerciseView) }
@@ -153,8 +153,8 @@ func TestExerciseRevealAndHints(t *testing.T) {
 
 	m = drive(m, keys("y")...)
 	v := view(m)
-	if !strings.HasPrefix(v.editor.Value(), "insert into cd.facilities") || v.focus != focusEditor {
-		t.Errorf("y should copy the answer into the editor and focus it, got %q", v.editor.Value())
+	if !strings.HasPrefix(v.editor.Value(), "insert into cd.facilities") || v.focus != focusEditor || v.inserting() {
+		t.Errorf("y should copy the answer into the editor and focus it in NORMAL mode, got %q", v.editor.Value())
 	}
 }
 
@@ -197,7 +197,7 @@ func TestExerciseCancel(t *testing.T) {
 	tm.Send(keyPress("enter"))
 	wait("Preview")
 	tm.Send(keyPress("enter"))
-	wait("INSERT")
+	wait("NORMAL")
 	tm.Send(keyPress("ctrl+r"))
 	wait("running")
 	tm.Send(keyPress("ctrl+c"))
@@ -245,5 +245,29 @@ func TestEscInQuery(t *testing.T) {
 	m = drive(m, keys("enter", "tab", "esc")...)
 	if _, ok := m.(Model).top().(*exerciseList); !ok {
 		t.Errorf("esc with the result pane focused should go back, got %T", m.(Model).top())
+	}
+}
+
+func TestOnlyIEntersInsert(t *testing.T) {
+	m := drive(start(t, 120, 36), keys("enter", "enter")...)
+	if v := view(m); v.inserting() || v.focus != focusEditor {
+		t.Fatal("an exercise should open in NORMAL mode with the query focused")
+	}
+	m = drive(m, keys("tab", "tab", "tab")...) // result, question, back to query
+	if v := view(m); v.focus != focusEditor || v.inserting() {
+		t.Errorf("tab back to the query should stay in NORMAL mode (focus=%v insert=%v)", v.focus, v.insert)
+	}
+	m = drive(m, keys("enter")...)
+	if view(m).inserting() {
+		t.Error("enter must not enter INSERT mode")
+	}
+	m = drive(m, keys("i")...)
+	m = drive(m, typeText("select 1")...)
+	if v := view(m); !v.inserting() || v.editor.Value() != "select 1" {
+		t.Errorf("i should enter INSERT mode and accept typing, got %q", v.editor.Value())
+	}
+	m = drive(m, keys("tab", "shift+tab")...)
+	if v := view(m); v.focus != focusEditor || v.inserting() {
+		t.Error("leaving and returning with tab should land in NORMAL mode")
 	}
 }

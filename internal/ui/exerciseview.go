@@ -118,8 +118,7 @@ func (s *exerciseView) Init() tea.Cmd {
 		}
 		return nil
 	}
-	s.insert = true
-	return tea.Batch(load, setLast, s.editor.Focus())
+	return tea.Batch(load, setLast) // starts in NORMAL mode; i enters INSERT
 }
 
 // Capturing is true when keys must reach the editor or a prompt.
@@ -204,16 +203,17 @@ func (s *exerciseView) SetSize(w, h int) {
 // inserting reports INSERT mode: keys go to the editor.
 func (s *exerciseView) inserting() bool { return s.focus == focusEditor && s.insert }
 
-// setFocus moves focus; focusing the editor enters INSERT mode.
+// setFocus moves focus in NORMAL mode; only i enters INSERT mode.
 func (s *exerciseView) setFocus(f focusArea) tea.Cmd {
 	s.focus = f
-	if f == focusEditor {
-		s.insert = true
-		return s.editor.Focus()
-	}
-	s.insert = false
-	s.editor.Blur()
+	s.normalMode()
 	return nil
+}
+
+// insertMode focuses the query editor for typing.
+func (s *exerciseView) insertMode() tea.Cmd {
+	s.focus, s.insert = focusEditor, true
+	return s.editor.Focus()
 }
 
 // normalMode leaves INSERT mode but keeps the query pane focused.
@@ -383,8 +383,8 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 		return nil // already in NORMAL mode; like vim, esc does nothing more
 	case key.Matches(msg, k.Back), msg.String() == "backspace":
 		return tea.Batch(s.Leave(), func() tea.Msg { return backMsg{} })
-	case msg.String() == "enter" || msg.String() == "i":
-		return s.setFocus(focusEditor)
+	case msg.String() == "i":
+		return s.insertMode()
 	case msg.String() == "y" && s.mode == resAnswer:
 		s.editor.SetValue(strings.TrimSpace(s.ex.Answer))
 		s.mode = s.prevMode
@@ -528,7 +528,7 @@ func (s *exerciseView) helpItems() []helpItem {
 	case s.mode == resAnswer:
 		return []helpItem{{"y", "copy to editor"}, short(k.Back, "close answer"), short(k.Run, "run")}
 	}
-	return []helpItem{short(k.Run, "run"), {"enter", "edit"}, short(k.Hint, "hint"), short(k.Answer, "answer"),
+	return []helpItem{short(k.Run, "run"), {"i", "insert"}, short(k.Hint, "hint"), short(k.Answer, "answer"),
 		short(k.Diff, "view"), short(k.Discussion, "discussion"), {"n/p", "next/prev"}, short(k.Editor, "$EDITOR"), {"backspace", "back"}}
 }
 
