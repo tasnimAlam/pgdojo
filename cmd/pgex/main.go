@@ -21,6 +21,9 @@ import (
 	"github.com/tasnimAlam/pgex/internal/ui"
 )
 
+// version is set at build time with -ldflags "-X main.version=...".
+var version = "dev"
+
 // errQuiet makes main exit 1 without printing; the command already
 // reported the problem.
 var errQuiet = errors.New("")
@@ -42,6 +45,7 @@ func rootCmd() *cobra.Command {
 	root := &cobra.Command{
 		Use:           "pgex",
 		Short:         "PostgreSQL exercises in your terminal",
+		Version:       version,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}

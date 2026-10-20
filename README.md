@@ -4,21 +4,92 @@ PostgreSQL exercises in the terminal, in the spirit of pgexercises.com: pick an
 exercise, write SQL, run it against a real local Postgres, and see whether the
 result matches the expected one.
 
-Status: milestone 6 (polish). Run `pgex`, open an exercise, write SQL and press `ctrl+r`.
+_Screenshots coming soon._
+<!-- Add docs/screenshot.png (home and exercise screens at 120×36) and link it here. -->
 
-## Requirements
+## Install
 
-- Go (latest stable)
-- podman (with podman-compose) or docker with the compose plugin
-
-## Quick start (fish)
+**Arch Linux (AUR):**
 
 ```fish
-sudo pacman -S --needed go podman podman-compose
-# Download the country club dataset from pgexercises.com and save it as db/clubdata.sql
-make db-up
-make run
+paru -S pgex        # or: yay -S pgex
 ```
+
+The package installs the binary, shell completions for fish, bash and zsh,
+and the database setup files in `/usr/share/pgex/db/`.
+
+**Release archive** (linux amd64 / arm64) from the GitHub releases page:
+
+```fish
+tar -xzf pgex_*_linux_amd64.tar.gz
+install -Dm755 pgex ~/.local/bin/pgex
+```
+
+**From source** (Go 1.27+):
+
+```fish
+go install github.com/tasnimAlam/pgex/cmd/pgex@latest
+```
+
+## Database setup
+
+pgex runs your SQL against a local Postgres 17 container loaded with the
+pgexercises country club dataset. You need podman (with podman-compose) or
+docker with the compose plugin.
+
+From a clone of this repository:
+
+```fish
+sudo pacman -S --needed podman podman-compose
+curl -o db/clubdata.sql https://pgexercises.com/dbfiles/clubdata.sql
+make db-up
+```
+
+After installing the AUR package or a release archive, copy the setup files
+somewhere writable first (archives contain the same `db/` folder):
+
+```fish
+mkdir -p ~/.local/share/pgex/db
+cp /usr/share/pgex/db/* ~/.local/share/pgex/db/
+cd ~/.local/share/pgex/db
+curl -o clubdata.sql https://pgexercises.com/dbfiles/clubdata.sql
+podman-compose up -d     # or: docker compose up -d
+```
+
+Then check everything with `pgex doctor` and start with `pgex`.
+
+## Fish setup
+
+Add to `~/.config/fish/config.fish` as needed:
+
+```fish
+# Only needed if your database is not the default localhost:5433 container.
+set -gx PGEX_DSN postgres://pgex_player:pgex@localhost:5433/exercises
+
+# Editor used by `e` in an exercise (falls back to $EDITOR, then vi).
+set -gx EDITOR nvim      # or: set -gx EDITOR "emacsclient -t"
+
+abbr -a px pgex
+```
+
+Completions are installed by the AUR package. Otherwise generate them once:
+
+```fish
+pgex completion fish > ~/.config/fish/completions/pgex.fish
+```
+
+## Development
+
+Requires Go (latest stable). `make build`, `make test`, `make lint`,
+`make run`. Releases are built with GoReleaser from a `v*` tag:
+
+```fish
+git tag v0.1.0
+goreleaser release --clean
+```
+
+The AUR files live in `packaging/aur/`. After tagging, run `updpkgsums` and
+`makepkg --printsrcinfo > .SRCINFO` there before pushing to the AUR.
 
 ## Commands
 
