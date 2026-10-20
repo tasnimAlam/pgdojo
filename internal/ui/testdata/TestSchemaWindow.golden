@@ -33,4 +33,4 @@
 │ answer                                 │ │                                                                           │
 ╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
- ctrl+r/F5 run · enter edit · h hint · a answer · v view · d discussion · n/p next/prev · e $EDITOR · esc … ● attempted 
+ ctrl+r run · enter edit · h hint · a answer · v view · d discussion · n/p next/prev · e $EDITOR · esc back ● attempted 

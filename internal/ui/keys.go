@@ -56,7 +56,7 @@ func NewKeyMap(vim bool) KeyMap {
 		Quit:     b([]string{"q"}, "q", "quit"),
 		Reset:    b([]string{"R"}, "R", "reset progress"),
 
-		Run:       b([]string{"ctrl+r", "f5"}, "ctrl+r/F5", "run query"),
+		Run:       b([]string{"ctrl+r"}, "ctrl+r", "run query"),
 		Cancel:    b([]string{"ctrl+c"}, "ctrl+c", "cancel / quit"),
 		Editor:    b([]string{"e"}, "e", "open $EDITOR"),
 		Focus:     b([]string{"tab"}, "tab", "next pane"),

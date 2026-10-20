@@ -9,7 +9,7 @@
 │    String Operat│                                                                                  │                 │
 │    Recursive Que│ Navigation                 Query                      Learning                   │                 │
 │                 │                                                                                  │                 │
-│                 │ ↑/k       move up          ctrl+r/F5  run query       h  next hint               │                 │
+│                 │ ↑/k       move up          ctrl+r     run query       h  next hint               │                 │
 │                 │ ↓/j       move down        ctrl+c     cancel / quit   a  reveal answer           │                 │
 │                 │ g/G       top / bottom     e          open $EDITOR    d  discussion              │                 │
 │                 │ ctrl+u/d  page up / down   tab        next pane       s  toggle schema           │                 │

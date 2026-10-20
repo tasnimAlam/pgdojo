@@ -209,3 +209,11 @@ func TestExerciseCancel(t *testing.T) {
 		t.Errorf("want stopped exercise view, got %T", fm.top())
 	}
 }
+
+func TestF5DoesNotRun(t *testing.T) {
+	m := openExercise(t, passCheck())
+	m = drive(m, tea.KeyPressMsg{Code: tea.KeyF5})
+	if v := view(m); v.running || v.mode != resNone {
+		t.Error("F5 must not run the query")
+	}
+}

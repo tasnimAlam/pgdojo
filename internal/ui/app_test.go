@@ -270,7 +270,7 @@ func TestFilter(t *testing.T) {
 func TestHelpOverlayAndOffline(t *testing.T) {
 	m := drive(start(t, 120, 36), keys("?")...)
 	out := screenText(m)
-	for _, want := range []string{"Keyboard shortcuts", "Navigation", "Query", "Learning", "ctrl+r/F5", "reveal answer"} {
+	for _, want := range []string{"Keyboard shortcuts", "Navigation", "Query", "Learning", "ctrl+r", "reveal answer"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("help overlay missing %q", want)
 		}
