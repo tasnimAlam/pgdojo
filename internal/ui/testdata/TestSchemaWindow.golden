@@ -1,0 +1,36 @@
+ pgex  Categories › Joins and Subqueries › 1. Retrieve the start times of members' bookings                       1 / 8 
+╭ Question ──────────────────────────────╮ ╭ Query · NORMAL · attempt 4 ───────────────────────────────────────────────╮
+│ How can you produce a list of the      │ │ -- write your SQL here, then press ctrl+r                                 │
+│ start times for bookings by members    │ │                                                                           │
+│ named 'David Farrell'?                 │ │                                                                           │
+│                                        │ │                                                                           │
+│ tables: cd.bookings, cd.members        │ │                                                                           │
+│     ╭ Schema ──────────────────────────────────────────────────────────────────────────────────────────────────╮     │
+│     │                                       ╭ bookings ──────────────────╮                                     │     │
+│     │   ╭ members ───────────────────╮      │ bookid             int  PK │                                     │     │
+│     │ ╭►│ memid              int  PK │◄─────│ memid              int  FK │      ╭ facilities ────────────────╮ │     │
+│     │ │ │ surname            text    │      │ facid              int  FK │─────►│ facid              int  PK │ │     │
+│     │ │ │ firstname          text    │      │ starttime          ts      │      │ name               text    │ │     │
+│     │ │ │ address            text    │      │ slots              int     │      │ membercost         num     │ │─────╯
+│     │ │ │ zipcode            int     │      ╰────────────────────────────╯      │ guestcost          num     │ │─────╮
+│     │ │ │ telephone          text    │                                          │ initialoutlay      num     │ │     │
+│     │ ╰─│ recommendedby      int  FK │                                          │ monthlymaintenance num     │ │     │
+│     │   │ joindate           ts      │                                          ╰────────────────────────────╯ │     │
+│     │   ╰────────────────────────────╯                                                                         │     │
+│     │                                                                                                          │     │
+│     │ PK primary key  FK foreign key, arrow points to the referenced column                                    │     │
+│     │                                                                                                          │     │
+│     │ • bookings.memid → members.memid: who made the booking (memid 0 is the guest account)                    │     │
+│     │ • bookings.facid → facilities.facid: what was booked                                                     │     │
+│     │ • members.recommendedby → members.memid: who recommended them, NULL if nobody                            │     │
+│     │ • slots are half-hour periods; costs are per slot                                                        │     │
+╰─────│                                                                                                          │     │
+╭ Hint│ s or esc closes                                                                                          │     │
+│ Take╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯     │
+│ `INNER JOIN`.                          │ │                                                                           │
+│                                        │ │                                                                           │
+│ h for the next hint · a reveals the    │ │                                                                           │
+│ answer                                 │ │                                                                           │
+╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ctrl+r/F5 run · enter edit · h hint · a answer · v view · d discussion · n/p next/prev · e $EDITOR · esc … ● attempted 

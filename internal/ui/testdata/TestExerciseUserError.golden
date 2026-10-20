@@ -5,32 +5,32 @@
 │ table?                                 │ │                                                                           │
 │                                        │ │                                                                           │
 │ tables: cd.facilities                  │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ ╰───────────────────────────────────────────────────────────────────────────╯
+│                                        │ ╭ Result ───────────────────────────────────────────────────────────────────╮
+│                                        │ │  ✗ ERROR: column "nme" does not exist                                     │
+│                                        │ │ HINT: Perhaps you meant to reference the column "facilities.name".        │
+│                                        │ │                                                                           │
+│                                        │ │ select facid, nme from facilities                                         │
+│                                        │ │               ^                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
 ╰────────────────────────────────────────╯ │                                                                           │
 ╭ Hint 1 of 1 ───────────────────────────╮ │                                                                           │
 │ `select * ` can be used to retrieve    │ │                                                                           │
 │ all columns from a table.              │ │                                                                           │
 │                                        │ │                                                                           │
 │ h for the next hint · a reveals the    │ │                                                                           │
-│ answer                                 │ ╰───────────────────────────────────────────────────────────────────────────╯
-╰────────────────────────────────────────╯ ╭ Result ───────────────────────────────────────────────────────────────────╮
-╭ Schema ────────────────────────────────╮ │  ✗ ERROR: column "nme" does not exist                                     │
-│ cd.facilities                          │ │ HINT: Perhaps you meant to reference the column "facilities.name".        │
-│   facid              integer           │ │                                                                           │
-│   name               varchar           │ │ select facid, nme from facilities                                         │
-│   membercost         numeric           │ │               ^                                                           │
-│   guestcost          numeric           │ │                                                                           │
-│   initialoutlay      numeric           │ │                                                                           │
-│   monthlymaintenance numeric           │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
+│ answer                                 │ │                                                                           │
 ╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
  ctrl+r/F5 run · esc normal mode · tab next pane · ctrl+l clear                                                ✓ solved 

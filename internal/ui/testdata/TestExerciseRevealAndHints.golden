@@ -10,27 +10,27 @@
 │ 100000, monthlymaintenance: 800.       │ │                                                                           │
 │                                        │ │                                                                           │
 │ tables: cd.facilities                  │ │                                                                           │
-╰────────────────────────────────────────╯ │                                                                           │
-╭ Hint 1 of 1 ───────────────────────────╮ ╰───────────────────────────────────────────────────────────────────────────╯
-│ `INSERT` can be used to insert data    │ ╭ Answer ───────────────────────────────────────────────────────────────────╮
-│ into a table.                          │ │ insert into cd.facilities                                                 │
+│                                        │ │                                                                           │
+│                                        │ ╰───────────────────────────────────────────────────────────────────────────╯
+│                                        │ ╭ Answer ───────────────────────────────────────────────────────────────────╮
+│                                        │ │ insert into cd.facilities                                                 │
 │                                        │ │     (facid, name, membercost, guestcost, initialoutlay, monthlymaintenan… │
-│ h for the next hint · a reveals the    │ │     values (9, 'Spa', 20, 30, 100000, 800);                               │
+│                                        │ │     values (9, 'Spa', 20, 30, 100000, 800);                               │
+│                                        │ │                                                                           │
+│                                        │ │ y copies it into the editor · esc returns                                 │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+╰────────────────────────────────────────╯ │                                                                           │
+╭ Hint 1 of 1 ───────────────────────────╮ │                                                                           │
+│ `INSERT` can be used to insert data    │ │                                                                           │
+│ into a table.                          │ │                                                                           │
+│                                        │ │                                                                           │
+│ h for the next hint · a reveals the    │ │                                                                           │
 │ answer                                 │ │                                                                           │
-╰────────────────────────────────────────╯ │ y copies it into the editor · esc returns                                 │
-╭ Schema ────────────────────────────────╮ │                                                                           │
-│ cd.facilities                          │ │                                                                           │
-│   facid              integer           │ │                                                                           │
-│   name               varchar           │ │                                                                           │
-│   membercost         numeric           │ │                                                                           │
-│   guestcost          numeric           │ │                                                                           │
-│   initialoutlay      numeric           │ │                                                                           │
-│   monthlymaintenance numeric           │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
 ╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
  y copy to editor · esc close answer · ctrl+r/F5 run                                                         ◐ revealed 

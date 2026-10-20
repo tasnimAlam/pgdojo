@@ -101,3 +101,28 @@ func TestRunOfflinePingsNow(t *testing.T) {
 		t.Error("a failed run should refresh the connection status")
 	}
 }
+
+func TestSchemaWindow(t *testing.T) {
+	m := drive(start(t, 120, 36), keys("j", "l", "l")...) // joins/simplejoin
+	if strings.Contains(screenText(m), "Schema") {
+		t.Fatal("schema should be hidden until s is pressed")
+	}
+	m = drive(m, keys("esc", "s")...)
+	out := screenText(m)
+	for _, want := range []string{"╭ members", "╭ bookings", "╭ facilities", "◄─────", "─────►", "╭►", "bookings.memid → members.memid"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("schema diagram missing %q:\n%s", want, out)
+		}
+	}
+	assertSize(t, out, 120, 36)
+	golden.RequireEqual(t, out)
+
+	m = drive(m, keys("s")...)
+	if view(m).overlay != overlayNone {
+		t.Error("s should close the schema window")
+	}
+	m = drive(m, keys("s", "esc")...)
+	if v := view(m); v.overlay != overlayNone || len(m.(Model).stack) != 3 {
+		t.Error("esc should close the schema window, not leave the exercise")
+	}
+}

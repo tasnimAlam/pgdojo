@@ -5,32 +5,32 @@
 │ table?                                 │ │                                                                           │
 │                                        │ │                                                                           │
 │ tables: cd.facilities                  │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ ╰───────────────────────────────────────────────────────────────────────────╯
+│                                        │ ╭ Result · 3 rows · 0s ─────────────────────────────────────────────────────╮
+│                                        │ │  ✓ Correct: all 3 rows match the expected result                          │
+│                                        │ │                                                                           │
+│                                        │ │ name            membercost                                                │
+│                                        │ │ Tennis Court 1  5                                                         │
+│                                        │ │ Tennis Court 2  5                                                         │
+│                                        │ │ Massage Room 1  9.9                                                       │
+│                                        │ │                                                                           │
+│                                        │ │ Press n for the next exercise or d to read the discussion.                │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
 ╰────────────────────────────────────────╯ │                                                                           │
 ╭ Hint 1 of 1 ───────────────────────────╮ │                                                                           │
 │ `select * ` can be used to retrieve    │ │                                                                           │
 │ all columns from a table.              │ │                                                                           │
 │                                        │ │                                                                           │
 │ h for the next hint · a reveals the    │ │                                                                           │
-│ answer                                 │ ╰───────────────────────────────────────────────────────────────────────────╯
-╰────────────────────────────────────────╯ ╭ Result · 3 rows · 0s ─────────────────────────────────────────────────────╮
-╭ Schema ────────────────────────────────╮ │  ✓ Correct: all 3 rows match the expected result                          │
-│ cd.facilities                          │ │                                                                           │
-│   facid              integer           │ │ name            membercost                                                │
-│   name               varchar           │ │ Tennis Court 1  5                                                         │
-│   membercost         numeric           │ │ Tennis Court 2  5                                                         │
-│   guestcost          numeric           │ │ Massage Room 1  9.9                                                       │
-│   initialoutlay      numeric           │ │                                                                           │
-│   monthlymaintenance numeric           │ │ Press n for the next exercise or d to read the discussion.                │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
+│ answer                                 │ │                                                                           │
 ╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
  ctrl+r/F5 run · esc normal mode · tab next pane · ctrl+l clear                                                ✓ solved 

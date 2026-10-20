@@ -68,7 +68,6 @@ type exerciseView struct {
 
 	editor     editor
 	focus      focusArea
-	showSchema bool
 	hintsShown int
 	confirm    confirmKind
 
@@ -92,7 +91,7 @@ type exerciseView struct {
 }
 
 func newExerciseView(d *Deps, ex exercise.Exercise) *exerciseView {
-	s := &exerciseView{d: d, ex: ex, showSchema: true, editor: newEditor(d.Theme)}
+	s := &exerciseView{d: d, ex: ex, editor: newEditor(d.Theme)}
 	for ci := range d.Catalog.Categories {
 		c := &d.Catalog.Categories[ci]
 		for i, e := range c.Exercises {
@@ -189,7 +188,9 @@ func (s *exerciseView) SetSize(w, h int) {
 	} else {
 		_, rw, _, editorH := s.layout()
 		s.editor.SetSize(rw-4, editorH-2)
-		s.overlay = overlayNone
+		if s.overlay == overlayHint { // hints have their own pane when wide
+			s.overlay = overlayNone
+		}
 	}
 	bh := bodyHeight(h)
 	if s.disc != nil {
@@ -239,9 +240,6 @@ func (s *exerciseView) finish(msg checkDoneMsg) tea.Cmd {
 		return func() tea.Msg { return pingNowMsg{} } // refresh the header status
 	}
 	s.mode, s.chk = resCheck, msg.chk
-	if msg.chk.UserErr == nil && !msg.chk.Passed() {
-		s.showSchema = false // make room for the diff summary
-	}
 	k, passed := s.ex.Key(), msg.chk.Passed()
 	return s.record(func(p *progress.Store) error { return p.RecordAttempt(k, passed) })
 }
@@ -388,14 +386,12 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 		s.confirm = confirmReveal
 	case key.Matches(msg, k.Discussion):
 		s.openDiscussion()
-	case key.Matches(msg, k.Schema) && s.narrow():
+	case key.Matches(msg, k.Schema):
 		if s.overlay == overlaySchema {
 			s.overlay = overlayNone
 		} else {
 			s.overlay = overlaySchema
 		}
-	case key.Matches(msg, k.Schema):
-		s.showSchema = !s.showSchema
 	case key.Matches(msg, k.Diff):
 		if s.mode == resCheck && s.chk.UserErr == nil {
 			s.view = (s.view + 1) % 3
@@ -479,33 +475,31 @@ func (s *exerciseView) View() string {
 		body = lipgloss.JoinHorizontal(lipgloss.Top, left, " ", right)
 	}
 	out := joinScreen(header, body, t.Footer(s.helpItems(), s.statusBadge(), s.w))
-	if s.narrow() && s.overlay != overlayNone {
+	if s.overlay != overlayNone {
 		out = t.Overlay(out, s.overlayPane(), s.w, s.h)
 	}
 	return out
 }
 
-// overlayPane renders the schema or hint modal for the narrow layout.
+// overlayPane renders the schema window, or the hint window in the narrow
+// layout.
 func (s *exerciseView) overlayPane() string {
 	t := s.d.Theme
+	if s.overlay == overlaySchema {
+		w := min(s.w-2, diagramWidth(true)+4)
+		lines := schemaView(t, s.ex.Tables, w-4)
+		return t.PaneColored("Schema", strings.Join(lines, "\n"), w, min(len(lines)+2, s.h-2), t.P.Accent, t.Accent.Bold(true))
+	}
 	w := min(s.w-4, 64)
 	inner := w - 4
-	title, lines, border, titleStyle := "Schema", schemaLines(t, s.ex.Tables), t.P.Accent, t.Accent.Bold(true)
-	if s.overlay == overlayHint {
-		border, titleStyle = t.P.Warn, t.Warn.Bold(true)
-		if s.hintsShown == 0 {
-			title, lines = "Hints", []string{t.Dim.Render("This exercise has no hints.")}
-		} else {
-			title = fmt.Sprintf("Hint %d of %d", s.hintsShown, len(s.ex.Hints))
-			lines = wrap(s.ex.Hints[s.hintsShown-1], inner, t.Text)
-			lines = append(lines, "")
-			lines = append(lines, wrap("h for the next hint · a reveals the answer · esc closes", inner, t.Dim)...)
-		}
-	} else {
-		lines = append(lines, "", t.Dim.Render("s or esc closes"))
+	title, lines := "Hints", []string{t.Dim.Render("This exercise has no hints.")}
+	if s.hintsShown > 0 {
+		title = fmt.Sprintf("Hint %d of %d", s.hintsShown, len(s.ex.Hints))
+		lines = wrap(s.ex.Hints[s.hintsShown-1], inner, t.Text)
+		lines = append(lines, "")
+		lines = append(lines, wrap("h for the next hint · a reveals the answer · esc closes", inner, t.Dim)...)
 	}
-	h := min(len(lines)+2, s.h-2)
-	return t.PaneColored(title, strings.Join(lines, "\n"), w, h, border, titleStyle)
+	return t.PaneColored(title, strings.Join(lines, "\n"), w, min(len(lines)+2, s.h-2), t.P.Warn, t.Warn.Bold(true))
 }
 
 func (s *exerciseView) helpItems() []helpItem {
@@ -565,10 +559,7 @@ func (s *exerciseView) leftColumn(w, h int) string {
 
 	var lowerTitle string
 	var lower []string
-	switch {
-	case s.showSchema:
-		lowerTitle, lower = "Schema", schemaLines(t, s.ex.Tables)
-	case s.mode == resCheck && s.chk.UserErr == nil && !s.chk.Passed():
+	if s.mode == resCheck && s.chk.UserErr == nil && !s.chk.Passed() {
 		lowerTitle, lower = "Diff summary", strings.Split(diffSummary(t, s.chk, s.ex.Ordered), "\n")
 	}
 
@@ -667,33 +658,6 @@ func (s *exerciseView) userErrLines(w int) []string {
 	}
 	if line, col, ok := e.Locate(s.editor.Value()); ok {
 		lines = append(lines, "", highlightSQL(t, line), strings.Repeat(" ", col)+t.Fail.Render("^"))
-	}
-	return lines
-}
-
-// schema describes the cd tables for the schema pane.
-var schema = map[string][][2]string{
-	"cd.members": {{"memid", "integer"}, {"surname", "varchar"}, {"firstname", "varchar"}, {"address", "varchar"},
-		{"zipcode", "integer"}, {"telephone", "varchar"}, {"recommendedby", "integer → members"}, {"joindate", "timestamp"}},
-	"cd.facilities": {{"facid", "integer"}, {"name", "varchar"}, {"membercost", "numeric"}, {"guestcost", "numeric"},
-		{"initialoutlay", "numeric"}, {"monthlymaintenance", "numeric"}},
-	"cd.bookings": {{"bookid", "integer"}, {"facid", "integer → facilities"}, {"memid", "integer → members"},
-		{"starttime", "timestamp"}, {"slots", "integer"}},
-}
-
-func schemaLines(t Theme, tables []string) []string {
-	if len(tables) == 0 {
-		tables = []string{"cd.members", "cd.facilities", "cd.bookings"}
-	}
-	var lines []string
-	for i, tb := range tables {
-		if i > 0 {
-			lines = append(lines, "")
-		}
-		lines = append(lines, t.Title.Render(tb))
-		for _, c := range schema[tb] {
-			lines = append(lines, "  "+t.labelValue(c[0], t.Text.Render(c[1]), 19))
-		}
 	}
 	return lines
 }

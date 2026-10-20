@@ -102,10 +102,11 @@ result table.
 
 In an exercise the editor starts in INSERT mode. `ctrl+r` (or `F5`) runs the
 query, `esc` switches to NORMAL mode where single keys work: `h` hint, `a`
-reveal answer, `v` cycle yours / expected / diff, `d` discussion, `s` schema,
+reveal answer, `v` cycle yours / expected / diff, `d` discussion, `s` schema
+window (tables, keys and how they relate),
 `n`/`p` next/previous, `e` edit in `$EDITOR`, `enter` back to editing.
 `ctrl+c` cancels a running query. Below 110 columns the panes stack
-vertically and `s` / `h` open the schema and hints as overlays.
+vertically and `h` opens hints as an overlay.
 
 On the home screen `R` resets all progress after you type `reset` (drafts are
 kept).
