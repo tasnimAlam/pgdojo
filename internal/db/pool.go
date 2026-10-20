@@ -27,3 +27,12 @@ func NewPool(ctx context.Context, dsn string) (*pgxpool.Pool, error) {
 	}
 	return pgxpool.NewWithConfig(ctx, cfg)
 }
+
+// Describe returns "host:port/database" for display, without credentials.
+func Describe(dsn string) string {
+	cfg, err := pgx.ParseConfig(dsn)
+	if err != nil {
+		return "invalid DSN"
+	}
+	return fmt.Sprintf("%s:%d/%s", cfg.Host, cfg.Port, cfg.Database)
+}

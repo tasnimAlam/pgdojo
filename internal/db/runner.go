@@ -268,3 +268,22 @@ func dollarTag(s string) (string, bool) {
 	}
 	return "", false
 }
+
+// Locate converts Position into the offending line of sql and a 0-based
+// rune column within it. ok is false when there is no position.
+func (e *UserError) Locate(sql string) (line string, col int, ok bool) {
+	if e.Position <= 0 {
+		return "", 0, false
+	}
+	runes := []rune(sql)
+	pos := min(e.Position-1, len(runes))
+	start := pos
+	for start > 0 && runes[start-1] != '\n' {
+		start--
+	}
+	end := pos
+	for end < len(runes) && runes[end] != '\n' {
+		end++
+	}
+	return string(runes[start:end]), pos - start, true
+}

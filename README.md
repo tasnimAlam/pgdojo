@@ -4,7 +4,7 @@ PostgreSQL exercises in the terminal, in the spirit of pgexercises.com: pick an
 exercise, write SQL, run it against a real local Postgres, and see whether the
 result matches the expected one.
 
-Status: milestone 2 (database layer). The TUI comes in later milestones.
+Status: milestone 3 (command-line interface). The TUI comes in later milestones.
 
 ## Requirements
 
@@ -19,6 +19,34 @@ sudo pacman -S --needed go podman podman-compose
 make db-up
 make run
 ```
+
+## Commands
+
+```fish
+pgex list                                   # categories and exercises with your progress
+pgex check joins/member-booking-starttimes q.sql   # run a file, print pass/fail and a diff; exit 0 on pass
+pgex doctor                                 # check DSN, connection, schema cd, role permissions, $EDITOR
+pgex validate                               # run every reference answer against the database
+```
+
+Global flags: `--dsn`, `--config`, `--accent`. The DSN is taken from `--dsn`,
+then `PGEX_DSN`, then the config file, then the default
+`postgres://pgex_player:pgex@localhost:5433/exercises`.
+
+```fish
+set -x PGEX_DSN postgres://pgex_player:pgex@localhost:5433/exercises
+```
+
+## Files
+
+| What | Path |
+|---|---|
+| Config | `~/.config/pgex/config.toml` (keys: `dsn`, `editor`, `accent`, `vim_keys`) |
+| Progress | `~/.local/share/pgex/progress.json` |
+| Drafts | `~/.local/share/pgex/drafts/<category>/<exercise>.sql` |
+
+`XDG_CONFIG_HOME` and `XDG_DATA_HOME` are respected. `pgex check` records an
+attempt in the progress file.
 
 ## Make targets
 

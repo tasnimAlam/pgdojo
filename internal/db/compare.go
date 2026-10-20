@@ -1,6 +1,9 @@
 package db
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // Diff describes how a user's result differs from the expected one.
 type Diff struct {
@@ -77,4 +80,31 @@ func rowKey(r []Cell) string {
 		b.WriteByte(0)
 	}
 	return b.String()
+}
+
+// Reason explains in plain words why the results differ, or "" if equal.
+func (d Diff) Reason() string {
+	switch {
+	case d.Equal:
+		return ""
+	case d.ColumnCount.Want != d.ColumnCount.Got:
+		return fmt.Sprintf("Expected %s, but your query returned %d.",
+			plural(d.ColumnCount.Want, "column"), d.ColumnCount.Got)
+	case len(d.Missing) > 0 && len(d.Extra) > 0:
+		return fmt.Sprintf("%s missing and %s.",
+			plural(len(d.Missing), "row"), plural(len(d.Extra), "extra row"))
+	case len(d.Missing) > 0:
+		return plural(len(d.Missing), "row") + " missing."
+	case len(d.Extra) > 0:
+		return plural(len(d.Extra), "extra row") + "."
+	default:
+		return fmt.Sprintf("Right rows, wrong order at row %d.", d.FirstOrderErr+1)
+	}
+}
+
+func plural(n int, noun string) string {
+	if n == 1 {
+		return "1 " + noun
+	}
+	return fmt.Sprintf("%d %ss", n, noun)
 }

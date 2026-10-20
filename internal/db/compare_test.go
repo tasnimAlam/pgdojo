@@ -165,3 +165,34 @@ func TestCheckSingleStatement(t *testing.T) {
 		}
 	}
 }
+
+func TestReason(t *testing.T) {
+	cases := []struct {
+		want, got Result
+		ordered   bool
+		reason    string
+	}{
+		{res(ab, row("1", "x")), res(ab, row("1", "x")), false, ""},
+		{res(ab, row("1", "x")), res([]string{"a"}, row("1")), false, "Expected 2 columns, but your query returned 1."},
+		{res(ab, row("1", "x"), row("2", "y")), res(ab), false, "2 rows missing."},
+		{res(ab), res(ab, row("1", "x")), false, "1 extra row."},
+		{res(ab, row("1", "x")), res(ab, row("2", "x")), false, "1 row missing and 1 extra row."},
+		{res(ab, row("1", "x"), row("2", "y")), res(ab, row("2", "y"), row("1", "x")), true, "Right rows, wrong order at row 1."},
+	}
+	for _, c := range cases {
+		if got := Compare(c.want, c.got, c.ordered).Reason(); got != c.reason {
+			t.Errorf("Reason = %q, want %q", got, c.reason)
+		}
+	}
+}
+
+func TestLocate(t *testing.T) {
+	sql := "select a,\n       nme\n  from t"
+	line, col, ok := (&UserError{Position: 18}).Locate(sql)
+	if !ok || line != "       nme" || col != 7 {
+		t.Errorf("Locate = %q, %d, %v", line, col, ok)
+	}
+	if _, _, ok := (&UserError{}).Locate(sql); ok {
+		t.Error("no position should not locate")
+	}
+}
