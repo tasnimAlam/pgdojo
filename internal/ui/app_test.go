@@ -311,6 +311,7 @@ func TestProgram(t *testing.T) {
 	teatest.WaitFor(t, tm.Output(), func(b []byte) bool { return strings.Contains(string(b), "Expected columns") },
 		teatest.WithDuration(3*time.Second))
 	tm.Send(keyPress("q"))
+	tm.Send(keyPress("y"))
 	fm := tm.FinalModel(t, teatest.WithFinalTimeout(3*time.Second)).(Model)
 	if el, ok := fm.top().(*exerciseList); !ok || el.cat.ID != "joins" {
 		t.Errorf("final screen = %T", fm.top())
@@ -342,10 +343,14 @@ func TestVimKeys(t *testing.T) {
 		t.Fatal("h at home should do nothing")
 	}
 
-	// In an exercise, h is still "hint", not back.
-	m = drive(m, keys("l", "l", "esc", "h")...)
+	// In an exercise, h is not back; H shows a hint.
+	m = drive(m, keys("k", "l", "j", "l", "h")...) // basics/selectspecific, no hints used yet
+	if v, ok := top().(*exerciseView); !ok || v.hintsShown != 0 {
+		t.Errorf("h in an exercise should do nothing, got %T", top())
+	}
+	m = drive(m, keys("H")...)
 	if v, ok := top().(*exerciseView); !ok || v.hintsShown == 0 {
-		t.Errorf("h in an exercise should show a hint, got %T", top())
+		t.Errorf("H in an exercise should show a hint, got %T", top())
 	}
 
 	// With vim keys off, l and h do nothing in lists.
@@ -355,5 +360,32 @@ func TestVimKeys(t *testing.T) {
 	m = drive(m, keys("l")...)
 	if _, ok := m.(Model).top().(*categories); !ok {
 		t.Error("l must not open with vim keys off")
+	}
+}
+
+func TestQuitConfirm(t *testing.T) {
+	m := start(t, 120, 36)
+	m, cmd := m.Update(keyPress("q"))
+	if cmd != nil || !m.(Model).confirmQuit {
+		t.Fatal("q should ask for confirmation, not quit")
+	}
+	if out := screenText(m); !strings.Contains(out, "Quit pgex?") {
+		t.Errorf("quit prompt missing:\n%s", out)
+	}
+	m, _ = m.Update(keyPress("j")) // other keys are ignored while asking
+	if !m.(Model).confirmQuit {
+		t.Error("prompt should stay open on other keys")
+	}
+	m, cmd = m.Update(keyPress("n"))
+	if cmd != nil || m.(Model).confirmQuit {
+		t.Error("n should cancel quitting")
+	}
+	m, _ = m.Update(keyPress("q"))
+	_, cmd = m.Update(keyPress("y"))
+	if cmd == nil {
+		t.Fatal("y should quit")
+	}
+	if _, ok := cmd().(tea.QuitMsg); !ok {
+		t.Error("y should return tea.Quit")
 	}
 }

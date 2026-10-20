@@ -74,11 +74,12 @@ type capturer interface{ Capturing() bool }
 // Model is the root Bubble Tea model: a stack of screens plus the help
 // overlay.
 type Model struct {
-	deps   *Deps
-	stack  []Screen
-	width  int
-	height int
-	help   bool
+	deps        *Deps
+	stack       []Screen
+	width       int
+	height      int
+	help        bool
+	confirmQuit bool // "Quit pgex? y/n" is showing
 }
 
 func New(d *Deps) Model {
@@ -118,6 +119,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			capturing = c.Capturing()
 		}
 		switch {
+		case m.confirmQuit:
+			switch msg.String() {
+			case "y", "Y":
+				m.confirmQuit = false
+				return m, m.quit()
+			case "n", "N", "esc", "q":
+				m.confirmQuit = false
+			}
+			return m, nil
 		case msg.String() == "ctrl+c":
 			if c, ok := m.top().(canceller); ok && c.Cancel() {
 				return m, nil
@@ -133,7 +143,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.help = true
 			return m, nil
 		case key.Matches(msg, k.Quit):
-			return m, m.quit()
+			m.confirmQuit = true
+			return m, nil
 		}
 
 	case pingMsg:
@@ -218,6 +229,13 @@ func (m Model) View() tea.View {
 	content = m.top().View()
 	if m.help {
 		content = m.helpOverlay(content)
+	}
+	if m.confirmQuit {
+		t := m.deps.Theme
+		body := t.Text.Render("Quit pgex?") + "  " + t.HelpKey.Render("y") + t.Dim.Render(" yes · ") +
+			t.HelpKey.Render("n") + t.Dim.Render(" no")
+		modal := t.PaneColored("Quit", body, lipgloss.Width(body)+4, 3, t.P.Warn, t.Warn.Bold(true))
+		content = t.Overlay(content, modal, m.width, m.height)
 	}
 	v := tea.NewView(content)
 	v.AltScreen = true

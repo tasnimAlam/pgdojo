@@ -128,7 +128,7 @@ func TestExerciseRevealAndHints(t *testing.T) {
 	m := drive(New(d), tea.WindowSizeMsg{Width: 120, Height: 36}, pingMsg{})
 	m = drive(m, keys("down", "down", "enter", "enter", "esc")...) // modifying/insert, normal mode
 
-	m = drive(m, keys("h", "h")...) // the second h has no more hints to show
+	m = drive(m, keys("H", "H")...) // the second H has no more hints to show
 	if out := screenText(m); !strings.Contains(out, "Hint 1 of 1") || !strings.Contains(out, "can be used to insert data") {
 		t.Errorf("hint pane wrong:\n%s", out)
 	}
@@ -204,6 +204,7 @@ func TestExerciseCancel(t *testing.T) {
 	wait("Query cancelled")
 	tm.Send(keyPress("esc"))
 	tm.Send(keyPress("q"))
+	tm.Send(keyPress("y"))
 	fm := tm.FinalModel(t, teatest.WithFinalTimeout(3*time.Second)).(Model)
 	if v, ok := fm.top().(*exerciseView); !ok || v.running {
 		t.Errorf("want stopped exercise view, got %T", fm.top())

@@ -53,7 +53,7 @@ func NewKeyMap(vim bool) KeyMap {
 		Next:     b([]string{"n"}, "n", "next exercise"),
 		Prev:     b([]string{"p"}, "p", "previous exercise"),
 		Help:     b([]string{"?"}, "?", "help"),
-		Quit:     b([]string{"q"}, "q", "quit"),
+		Quit:     b([]string{"q"}, "q", "quit (asks y/n)"),
 		Reset:    b([]string{"R"}, "R", "reset progress"),
 
 		Run:       b([]string{"ctrl+r"}, "ctrl+r", "run query"),
@@ -64,7 +64,7 @@ func NewKeyMap(vim bool) KeyMap {
 		Clear:     b([]string{"ctrl+l"}, "ctrl+l", "clear editor"),
 		Diff:      b([]string{"v"}, "v", "cycle diff"),
 
-		Hint:       b([]string{"h"}, "h", "next hint"),
+		Hint:       b([]string{"H", "shift+h"}, "H", "next hint"),
 		Answer:     b([]string{"a"}, "a", "reveal answer"),
 		Discussion: b([]string{"d"}, "d", "discussion"),
 		Schema:     b([]string{"s"}, "s", "toggle schema"),

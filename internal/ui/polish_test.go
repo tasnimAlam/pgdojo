@@ -32,7 +32,7 @@ func TestNarrowLayout(t *testing.T) {
 	if out := screenText(m); !strings.Contains(out, "s or esc closes") || !strings.Contains(out, "monthlymaintenance") {
 		t.Errorf("s should open the schema overlay:\n%s", out)
 	}
-	m = drive(m, keys("s", "h")...)
+	m = drive(m, keys("s", "H")...)
 	if out := screenText(m); !strings.Contains(out, "Hint 1 of 1") {
 		t.Errorf("h should open the hint overlay with the next hint:\n%s", out)
 	}

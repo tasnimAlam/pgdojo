@@ -29,8 +29,8 @@
 │ Take╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯     │
 │ `INNER JOIN`.                          │ │                                                                           │
 │                                        │ │                                                                           │
-│ h for the next hint · a reveals the    │ │                                                                           │
+│ H for the next hint · a reveals the    │ │                                                                           │
 │ answer                                 │ │                                                                           │
 ╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
- ctrl+r run · i insert · h hint · a answer · v view · d discussion · n/p next/prev · e $EDITOR · backspace… ● attempted 
+ ctrl+r run · i insert · H hint · a answer · v view · d discussion · n/p next/prev · e $EDITOR · backspace… ● attempted 

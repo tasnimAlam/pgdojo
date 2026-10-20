@@ -513,7 +513,7 @@ func (s *exerciseView) overlayPane() string {
 		title = fmt.Sprintf("Hint %d of %d", s.hintsShown, len(s.ex.Hints))
 		lines = wrap(s.ex.Hints[s.hintsShown-1], inner, t.Text)
 		lines = append(lines, "")
-		lines = append(lines, wrap("h for the next hint · a reveals the answer · esc closes", inner, t.Dim)...)
+		lines = append(lines, wrap("H for the next hint · a reveals the answer · esc closes", inner, t.Dim)...)
 	}
 	return t.PaneColored(title, strings.Join(lines, "\n"), w, min(len(lines)+2, s.h-2), t.P.Warn, t.Warn.Bold(true))
 }
@@ -570,7 +570,7 @@ func (s *exerciseView) leftColumn(w, h int) string {
 	if s.hintsShown > 0 {
 		hint = wrap(s.ex.Hints[s.hintsShown-1], inner, t.Text)
 		hint = append(hint, "")
-		hint = append(hint, wrap("h for the next hint · a reveals the answer", inner, t.Dim)...)
+		hint = append(hint, wrap("H for the next hint · a reveals the answer", inner, t.Dim)...)
 	}
 
 	var lowerTitle string

@@ -10,7 +10,7 @@
 │ `select * ` can be used to retrieve    │ │                                                                           │
 │ all columns from a table.              │ │                                                                           │
 │                                        │ │                                                                           │
-│ h for the next hint · a reveals the    │ │                                                                           │
+│ H for the next hint · a reveals the    │ │                                                                           │
 │ answer                                 │ ╰───────────────────────────────────────────────────────────────────────────╯
 ╰────────────────────────────────────────╯ ╭ Result · 3 rows · 0s · diff ──────────────────────────────────────────────╮
 ╭ Diff summary ──────────────────────────╮ │  ✗ Not quite: 1 row missing and 1 extra row.                              │
@@ -33,4 +33,4 @@
 │                                        │ │                                                                           │
 ╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
- ctrl+r run · i insert · h hint · a answer · v view · d discussion · n/p next/prev · e $EDITOR · backspace ba… ✓ solved 
+ ctrl+r run · i insert · H hint · a answer · v view · d discussion · n/p next/prev · e $EDITOR · backspace ba… ✓ solved 

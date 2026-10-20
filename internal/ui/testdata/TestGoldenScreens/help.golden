@@ -9,7 +9,7 @@
 │    String Operat│                                                                                  │                 │
 │    Recursive Que│ Navigation                 Query                      Learning                   │                 │
 │                 │                                                                                  │                 │
-│                 │ ↑/k       move up          ctrl+r     run query       h  next hint               │                 │
+│                 │ ↑/k       move up          ctrl+r     run query       H  next hint               │                 │
 │                 │ ↓/j       move down        ctrl+c     cancel / quit   a  reveal answer           │                 │
 │                 │ g/G       top / bottom     e          open $EDITOR    d  discussion              │                 │
 │                 │ ctrl+u/d  page up / down   tab        next pane       s  toggle schema           │                 │
@@ -22,7 +22,7 @@
 │                 │ p         previous exerc…                                                        │                 │
 │                 │ R         reset progress                                                         │                 │
 │                 │ ?         help                                                                   │                 │
-│                 │ q         quit                                                                   │                 │
+│                 │ q         quit (asks y/n)                                                        │                 │
 │                 │                                                                                  │                 │
 │                 │ Revealing the answer asks for confirmation and marks the exercise as revealed,   │                 │
 │                 │ not solved.                                                                      │                 │

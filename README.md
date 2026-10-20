@@ -103,12 +103,15 @@ result table.
 An exercise opens in NORMAL mode with the query focused. Press `i` to type
 (INSERT mode) and `esc` to return to NORMAL; only `i` enters INSERT, so
 `tab` back into the query keeps NORMAL. `ctrl+r` runs the query in either
-mode. In NORMAL mode single keys work: `backspace` back to the list, `h` hint, `a`
+mode. In NORMAL mode single keys work: `backspace` back to the list, `H` (shift+h) hint, `a`
 reveal answer, `v` cycle yours / expected / diff, `d` discussion, `s` schema
 window (tables, keys and how they relate),
 `n`/`p` next/previous, `e` edit in `$EDITOR`.
 `ctrl+c` cancels a running query. Below 110 columns the panes stack
-vertically and `h` opens hints as an overlay.
+vertically and `H` opens hints as an overlay.
+
+`q` asks `Quit pgex? y/n` before quitting; `ctrl+c` quits at once (or
+cancels a running query).
 
 On the home screen `R` resets all progress after you type `reset` (drafts are
 kept).
