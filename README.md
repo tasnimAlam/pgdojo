@@ -4,7 +4,7 @@ PostgreSQL exercises in the terminal, in the spirit of pgexercises.com: pick an
 exercise, write SQL, run it against a real local Postgres, and see whether the
 result matches the expected one.
 
-Status: milestone 1 (skeleton and exercise data). The TUI comes in later milestones.
+Status: milestone 2 (database layer). The TUI comes in later milestones.
 
 ## Requirements
 
@@ -40,3 +40,21 @@ schema `cd` (see `db/roles.sql`).
 Exercise data lives in `internal/exercise/data/*.yaml`, one file per category,
 and is embedded in the binary. Add exercises by editing YAML; the loader
 validates ids, required fields, and `verify` queries for mutating exercises.
+
+## How checking works
+
+Your query and the reference answer run in one transaction that is always
+rolled back, so nothing you run changes the data. Mutating exercises run your
+statement, read the result through the exercise's `verify` query, roll back to
+a savepoint, then do the same with the reference answer. Results are compared
+by column position; row order matters only when the exercise says so.
+
+Only one statement is allowed per run, and transaction commands (`BEGIN`,
+`COMMIT`, ...) are rejected. Queries time out after 5 seconds.
+
+## Tests
+
+`make test` runs unit tests and, when docker or podman is available and
+`db/clubdata.sql` exists, integration tests in a throwaway Postgres container
+(via testcontainers). Every reference answer is checked against itself there.
+Use `go test -short ./...` to skip the container.

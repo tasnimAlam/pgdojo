@@ -4,7 +4,8 @@ services:
     environment:
       POSTGRES_USER: pgex
       POSTGRES_PASSWORD: pgex
-      POSTGRES_DB: exercises
+      # clubdata.sql creates the exercises database itself.
+      POSTGRES_DB: postgres
     ports: ["5433:5432"]
     volumes:
       - ./clubdata.sql:/docker-entrypoint-initdb.d/01-clubdata.sql:ro
