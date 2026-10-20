@@ -225,7 +225,11 @@ func TestNavigation(t *testing.T) {
 	if last, _ := m.(Model).deps.Progress.Last(); last.Exercise != "simplejoin2" {
 		t.Errorf("opening an exercise should record it as last, got %+v", last)
 	}
-	m = drive(m, keys("esc", "esc")...) // leave INSERT mode, then go back
+	m = drive(m, keys("esc", "esc")...) // esc only leaves INSERT mode
+	if _, ok := top().(*exerciseView); !ok {
+		t.Fatalf("esc in the query must not leave the exercise, got %T", top())
+	}
+	m = drive(m, keys("backspace")...)
 	if _, ok := top().(*exerciseList); !ok {
 		t.Fatalf("esc should go back to the list, got %T", top())
 	}
@@ -258,7 +262,7 @@ func TestFilter(t *testing.T) {
 	if p, ok := m.(Model).top().(*exerciseView); !ok || p.ex.ID != "sub" {
 		t.Fatalf("enter on filtered item should open it, got %T", m.(Model).top())
 	}
-	m = drive(m, keys("esc", "esc", "esc")...) // INSERT mode, back, clear filter
+	m = drive(m, keys("esc", "backspace", "esc")...) // NORMAL mode, back, clear filter
 	if _, ok := m.(Model).top().(*exerciseList); !ok {
 		t.Fatal("esc on a filtered list should clear the filter, not go back")
 	}

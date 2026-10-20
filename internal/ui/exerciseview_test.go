@@ -217,3 +217,33 @@ func TestF5DoesNotRun(t *testing.T) {
 		t.Error("F5 must not run the query")
 	}
 }
+
+func TestEscInQuery(t *testing.T) {
+	m := openExercise(t, passCheck())
+	m = drive(m, keys("esc")...)
+	v := view(m)
+	if v.inserting() || v.focus != focusEditor {
+		t.Fatalf("esc should switch to NORMAL mode and keep the query focused (insert=%v focus=%v)", v.insert, v.focus)
+	}
+	if !strings.Contains(screenText(m), "Query · NORMAL") {
+		t.Error("query title should say NORMAL")
+	}
+	m = drive(m, keys("esc", "esc")...)
+	if _, ok := m.(Model).top().(*exerciseView); !ok {
+		t.Fatal("esc in NORMAL mode must not leave the exercise")
+	}
+	m = drive(m, keys("i")...)
+	if !view(m).inserting() {
+		t.Error("i should return to INSERT mode")
+	}
+	m = drive(m, keys("esc", "backspace")...)
+	if _, ok := m.(Model).top().(*exerciseList); !ok {
+		t.Errorf("backspace in NORMAL mode should go back, got %T", m.(Model).top())
+	}
+
+	// From the result pane, esc still goes back.
+	m = drive(m, keys("enter", "tab", "esc")...)
+	if _, ok := m.(Model).top().(*exerciseList); !ok {
+		t.Errorf("esc with the result pane focused should go back, got %T", m.(Model).top())
+	}
+}

@@ -101,7 +101,8 @@ the last exercise. With `vim_keys = true` (the default) lists also take
 result table.
 
 In an exercise the editor starts in INSERT mode. `ctrl+r` runs the
-query, `esc` switches to NORMAL mode where single keys work: `h` hint, `a`
+query, `esc` switches to NORMAL mode (the query stays focused; another `esc`
+does nothing) where single keys work: `backspace` back to the list, `h` hint, `a`
 reveal answer, `v` cycle yours / expected / diff, `d` discussion, `s` schema
 window (tables, keys and how they relate),
 `n`/`p` next/previous, `e` edit in `$EDITOR`, `enter` back to editing.
