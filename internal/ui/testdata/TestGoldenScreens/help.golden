@@ -4,33 +4,33 @@
 │ ▌▸ Basics                        ██████████   2/12 │ │                                                               │
 │    Joins and Subqueries          ██████████    0/8 │ │ solved   2/12         hints    1 used                         │
 │    Modifying Data                ██████████    0/9 │ │ answers  0 rev.       last run 2 days ago                     │
-│    Aggregation                   ██████████   0/22 │ │                                                               │
-│    Working with Timestamps       ██████████   0/10 │ │ Tables used                                                   │
-│    String Operat╭──────────────────────────────────────────────────────────────────────────────────╮                 │
-│    Recursive Que│ Keyboard shortcuts                                             esc or ? to close │                 │
+│    Aggregation  ╭──────────────────────────────────────────────────────────────────────────────────╮                 │
+│    Working with │ Keyboard shortcuts                                             esc or ? to close │                 │
+│    String Operat│                                                                                  │                 │
+│    Recursive Que│ Navigation                 Query                      Learning                   │                 │
 │                 │                                                                                  │                 │
-│                 │ Navigation                 Query                      Learning                   │                 │
-│                 │                                                                                  │                 │
-│                 │ ↑/k    move up             ctrl+r/F5  run query       h  next hint               │                 │
-│                 │ ↓/j    move down           ctrl+c     cancel / quit   a  reveal answer           │                 │
-│                 │ enter  open                e          open $EDITOR    d  discussion              │                 │
-│                 │ esc    back / close        tab        next pane       s  toggle schema           │                 │
-│                 │ /      filter              shift+tab  previous pane                              │                 │
-│                 │ c      continue            ctrl+l     clear editor                               │                 │
-│                 │ n      next exercise       v          cycle diff                                 │                 │
-│                 │ p      previous exercise                                                         │                 │
-│                 │ R      reset progress                                                            │                 │
-│                 │ ?      help                                                                      │                 │
-│                 │ q      quit                                                                      │                 │
+│                 │ ↑/k       move up          ctrl+r/F5  run query       h  next hint               │                 │
+│                 │ ↓/j       move down        ctrl+c     cancel / quit   a  reveal answer           │                 │
+│                 │ g/G       top / bottom     e          open $EDITOR    d  discussion              │                 │
+│                 │ ctrl+u/d  page up / down   tab        next pane       s  toggle schema           │                 │
+│                 │ enter/l   open             shift+tab  previous pane                              │                 │
+│                 │ esc       back / close     ctrl+l     clear editor                               │                 │
+│                 │ h         back (lists)     v          cycle diff                                 │                 │
+│                 │ /         filter                                                                 │                 │
+│                 │ c         continue                                                               │                 │
+│                 │ n         next exercise                                                          │                 │
+│                 │ p         previous exerc…                                                        │                 │
+│                 │ R         reset progress                                                         │                 │
+│                 │ ?         help                                                                   │                 │
+│                 │ q         quit                                                                   │                 │
 │                 │                                                                                  │                 │
 │                 │ Revealing the answer asks for confirmation and marks the exercise as revealed,   │                 │
 │                 │ not solved.                                                                      │                 │
 │                 ╰──────────────────────────────────────────────────────────────────────────────────╯                 │
-│                                                    │ │                                                               │
 │                                                    │ ╰───────────────────────────────────────────────────────────────╯
 │                                                    │ ╭ Continue where you left off ──────────────────────────────────╮
 │                                                    │ │ → Joins and Subqueries › 3. Produce a list of all members wh… │
 │                                                    │ │ press c to continue                                           │
 ╰────────────────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
- ↑/↓ move · enter open · c continue · / filter · ? help · q quit                                                     2% 
+ j/k move · enter/l open · c continue · / filter · ? help · q quit                                                   2% 

@@ -413,8 +413,16 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 	case key.Matches(msg, k.Editor):
 		path := s.d.Drafts.Path(s.ex.Key())
 		return tea.Sequence(s.saveDraft(), externalEditor(s.d.Editor, path, func(err error) tea.Msg { return editorDoneMsg{err} }))
+	case s.focus == focusResult && key.Matches(msg, k.Top):
+		s.rowOff = 0
+	case s.focus == focusResult && key.Matches(msg, k.Bottom):
+		s.rowOff = s.lastRow()
+	case s.focus == focusResult && key.Matches(msg, k.PageDown):
+		s.rowOff = min(s.rowOff+s.h/4, s.lastRow())
+	case s.focus == focusResult && key.Matches(msg, k.PageUp):
+		s.rowOff = max(s.rowOff-s.h/4, 0)
 	case s.focus == focusResult && key.Matches(msg, k.Down):
-		s.rowOff++
+		s.rowOff = min(s.rowOff+1, s.lastRow())
 	case s.focus == focusResult && key.Matches(msg, k.Up):
 		s.rowOff = max(s.rowOff-1, 0)
 	case s.focus == focusResult && msg.String() == "right":
@@ -423,6 +431,12 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 		s.colOff = max(s.colOff-1, 0)
 	}
 	return nil
+}
+
+// lastRow is the highest useful scroll offset for the result table.
+func (s *exerciseView) lastRow() int {
+	rows, _ := tableRows(s.chk, s.view)
+	return max(len(rows)-1, 0)
 }
 
 func (s *exerciseView) openDiscussion() {

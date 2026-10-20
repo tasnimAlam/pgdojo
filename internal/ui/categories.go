@@ -183,7 +183,7 @@ func (s *categories) view() string {
 		t.Dim.Render("db ")+t.Text.Render(s.d.DBLabel)+" "+conn, s.w)
 
 	k := s.d.Keys
-	help := []helpItem{{"↑/↓", "move"}, short(k.Open, "open"), short(k.Continue, "continue"),
+	help := []helpItem{k.moveHelp(), short(k.Open, "open"), short(k.Continue, "continue"),
 		short(k.Filter, "filter"), short(k.Help, "help"), short(k.Quit, "quit")}
 	if s.list.SettingFilter() {
 		help = []helpItem{{"type", "to filter"}, short(k.Open, "apply"), short(k.Back, "clear")}

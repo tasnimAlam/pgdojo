@@ -95,7 +95,10 @@ The AUR files live in `packaging/aur/`. After tagging, run `updpkgsums` and
 
 Run `pgex` with no arguments for the interactive interface. Press `?` for
 keyboard shortcuts, `/` to filter a list, `c` on the home screen to continue
-the last exercise.
+the last exercise. With `vim_keys = true` (the default) lists also take
+`j`/`k` to move, `l` to open, `h` to go back, `g`/`G` for top and bottom, and
+`ctrl+u`/`ctrl+d` to page; `g`/`G`/`ctrl+u`/`ctrl+d` also scroll a focused
+result table.
 
 In an exercise the editor starts in INSERT mode. `ctrl+r` (or `F5`) runs the
 query, `esc` switches to NORMAL mode where single keys work: `h` hint, `a`
@@ -115,7 +118,7 @@ kept).
 dsn = "postgres://pgex_player:pgex@localhost:5433/exercises"
 editor = "nvim"          # overrides $EDITOR; may include args, e.g. "emacsclient -t"
 accent = "#5ccfb8"       # hex color, also settable with --accent
-vim_keys = true          # j/k move in lists
+vim_keys = true          # h/j/k/l, g/G, ctrl+u/d in lists
 ```
 
 ```fish

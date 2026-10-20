@@ -72,6 +72,7 @@ func (s *exerciseList) Update(msg tea.Msg) (Screen, tea.Cmd) {
 			}
 			return s, nil
 		case key.Matches(k, s.d.Keys.Back) && s.list.FilterState() == list.Unfiltered,
+			key.Matches(k, s.d.Keys.ListBack), // h also leaves a filtered list
 			k.String() == "backspace" && s.list.FilterState() == list.Unfiltered:
 			return s, func() tea.Msg { return backMsg{} }
 		}
@@ -106,8 +107,12 @@ func (s *exerciseList) View() string {
 		t.Dim.Render(fmt.Sprintf("%d / %d solved", solved, len(s.cat.Exercises))), s.w)
 
 	k := s.d.Keys
-	help := []helpItem{{"↑/↓", "move"}, short(k.Open, "open"), short(k.Filter, "filter"),
-		short(k.Back, "back"), short(k.Help, "help"), short(k.Quit, "quit")}
+	back := short(k.Back, "back")
+	if k.Vim {
+		back = helpItem{"h/esc", "back"}
+	}
+	help := []helpItem{k.moveHelp(), short(k.Open, "open"), short(k.Filter, "filter"),
+		back, short(k.Help, "help"), short(k.Quit, "quit")}
 	if s.list.SettingFilter() {
 		help = []helpItem{{"type", "to filter"}, short(k.Open, "apply"), short(k.Back, "clear")}
 	}

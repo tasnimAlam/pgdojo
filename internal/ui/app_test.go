@@ -310,3 +310,44 @@ func TestProgram(t *testing.T) {
 		t.Errorf("final screen = %T", fm.top())
 	}
 }
+
+func TestVimKeys(t *testing.T) {
+	m := start(t, 120, 36)
+	top := func() Screen { return m.(Model).top() }
+
+	m = drive(m, keys("j", "l")...)
+	if el, ok := top().(*exerciseList); !ok || el.cat.ID != "joins" {
+		t.Fatalf("j then l should open Joins, got %T", top())
+	}
+	m = drive(m, keys("G")...)
+	if el := top().(*exerciseList); el.list.Index() != len(el.cat.Exercises)-1 {
+		t.Errorf("G should go to the last exercise, at %d", el.list.Index())
+	}
+	m = drive(m, keys("g")...)
+	if el := top().(*exerciseList); el.list.Index() != 0 {
+		t.Errorf("g should go to the first exercise, at %d", el.list.Index())
+	}
+	m = drive(m, keys("h")...)
+	if _, ok := top().(*categories); !ok {
+		t.Fatalf("h should go back home, got %T", top())
+	}
+	m = drive(m, keys("h")...) // no-op at home
+	if _, ok := top().(*categories); !ok || len(m.(Model).stack) != 1 {
+		t.Fatal("h at home should do nothing")
+	}
+
+	// In an exercise, h is still "hint", not back.
+	m = drive(m, keys("l", "l", "esc", "h")...)
+	if v, ok := top().(*exerciseView); !ok || v.hintsShown == 0 {
+		t.Errorf("h in an exercise should show a hint, got %T", top())
+	}
+
+	// With vim keys off, l and h do nothing in lists.
+	d := testDeps(t)
+	d.Keys = NewKeyMap(false)
+	m = drive(New(d), tea.WindowSizeMsg{Width: 120, Height: 36}, pingMsg{})
+	m = drive(m, keys("l")...)
+	if _, ok := m.(Model).top().(*categories); !ok {
+		t.Error("l must not open with vim keys off")
+	}
+}

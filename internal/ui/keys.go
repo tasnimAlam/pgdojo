@@ -5,8 +5,11 @@ import "charm.land/bubbles/v2/key"
 // KeyMap is every key binding in the app. The help overlay is generated
 // from these so it can't drift from the real bindings.
 type KeyMap struct {
+	Vim bool // vim-style keys (h/j/k/l, g/G, ctrl+d/u) are enabled
+
 	// Navigation
-	Up, Down, Open, Back, Filter, Continue, Next, Prev, Help, Quit, Reset key.Binding
+	Up, Down, Open, Back, ListBack, Filter, Continue, Next, Prev, Help, Quit, Reset key.Binding
+	Top, Bottom, PageUp, PageDown                                                   key.Binding
 	// Query
 	Run, Cancel, Editor, Focus, FocusBack, Clear, Diff key.Binding
 	// Learning
@@ -16,18 +19,35 @@ type KeyMap struct {
 func NewKeyMap(vim bool) KeyMap {
 	up, down := []string{"up"}, []string{"down"}
 	upHelp, downHelp := "↑", "↓"
+	open, openHelp := []string{"enter"}, "enter"
+	// h goes back only on list screens; in an exercise h is "hint".
+	listBack := key.NewBinding(key.WithDisabled())
+	top, bottom := []string{"home"}, []string{"end"}
+	pgUp, pgDown := []string{"pgup"}, []string{"pgdown"}
+	topHelp, bottomHelp, pgUpHelp, pgDownHelp := "home", "end", "pgup", "pgdown"
 	if vim {
+		top, bottom = append(top, "g"), append(bottom, "G")
+		pgUp, pgDown = append(pgUp, "ctrl+u"), append(pgDown, "ctrl+d")
+		topHelp, bottomHelp, pgUpHelp, pgDownHelp = "g", "G", "ctrl+u", "ctrl+d"
 		up, down = append(up, "k"), append(down, "j")
 		upHelp, downHelp = "↑/k", "↓/j"
+		open, openHelp = append(open, "l"), "enter/l"
+		listBack = key.NewBinding(key.WithKeys("h"), key.WithHelp("h", "back (lists)"))
 	}
 	b := func(keys []string, k, desc string) key.Binding {
 		return key.NewBinding(key.WithKeys(keys...), key.WithHelp(k, desc))
 	}
 	return KeyMap{
+		Vim:      vim,
+		Top:      b(top, topHelp, "top"),
+		Bottom:   b(bottom, bottomHelp, "bottom"),
+		PageUp:   b(pgUp, pgUpHelp, "page up"),
+		PageDown: b(pgDown, pgDownHelp, "page down"),
 		Up:       b(up, upHelp, "move up"),
 		Down:     b(down, downHelp, "move down"),
-		Open:     b([]string{"enter"}, "enter", "open"),
+		Open:     b(open, openHelp, "open"),
 		Back:     b([]string{"esc"}, "esc", "back / close"),
+		ListBack: listBack,
 		Filter:   b([]string{"/"}, "/", "filter"),
 		Continue: b([]string{"c"}, "c", "continue"),
 		Next:     b([]string{"n"}, "n", "next exercise"),
@@ -54,7 +74,8 @@ func NewKeyMap(vim bool) KeyMap {
 // HelpGroups returns the help overlay columns.
 func (k KeyMap) HelpGroups() []helpGroup {
 	return []helpGroup{
-		{"Navigation", items(k.Up, k.Down, k.Open, k.Back, k.Filter, k.Continue, k.Next, k.Prev, k.Reset, k.Help, k.Quit)},
+		{"Navigation", append(append(items(k.Up, k.Down), k.jumpHelp()...),
+			items(k.Open, k.Back, k.ListBack, k.Filter, k.Continue, k.Next, k.Prev, k.Reset, k.Help, k.Quit)...)},
 		{"Query", items(k.Run, k.Cancel, k.Editor, k.Focus, k.FocusBack, k.Clear, k.Diff)},
 		{"Learning", items(k.Hint, k.Answer, k.Discussion, k.Schema)},
 	}
@@ -68,11 +89,33 @@ type helpGroup struct {
 }
 
 func items(bs ...key.Binding) []helpItem {
-	out := make([]helpItem, len(bs))
-	for i, b := range bs {
-		out[i] = helpItem{b.Help().Key, b.Help().Desc}
+	var out []helpItem
+	for _, b := range bs {
+		if b.Enabled() {
+			out = append(out, helpItem{b.Help().Key, b.Help().Desc})
+		}
 	}
 	return out
+}
+
+// jumpHelp pairs top/bottom and page up/down so the help overlay fits 80×24.
+func (k KeyMap) jumpHelp() []helpItem {
+	page := "pgup/pgdown"
+	if k.Vim {
+		page = "ctrl+u/d"
+	}
+	return []helpItem{
+		{k.Top.Help().Key + "/" + k.Bottom.Help().Key, "top / bottom"},
+		{page, "page up / down"},
+	}
+}
+
+// moveHelp is the footer item for moving in lists.
+func (k KeyMap) moveHelp() helpItem {
+	if k.Vim {
+		return helpItem{"j/k", "move"}
+	}
+	return helpItem{"↑/↓", "move"}
 }
 
 // short builds a footer item with a shorter description than the overlay.
