@@ -96,11 +96,12 @@ func schemaDiagram(t Theme, used []string, types bool) []string {
 			}
 			rows = append(rows, name+" "+typ+key)
 		}
-		border, title := t.P.Border, t.Dim
+		// Every table gets the accent border; the exercise's tables get a bold title.
+		title := t.Accent
 		if slices.Contains(used, table) {
-			border, title = t.P.Accent, t.Accent.Bold(true)
+			title = t.Accent.Bold(true)
 		}
-		b := t.PaneColored(strings.TrimPrefix(table, "cd."), strings.Join(rows, "\n"), boxW, len(rows)+2, border, title)
+		b := t.PaneColored(strings.TrimPrefix(table, "cd."), strings.Join(rows, "\n"), boxW, len(rows)+2, t.P.Accent, title)
 		return strings.Repeat(strings.Repeat(" ", boxW)+"\n", padTop) + b
 	}
 	// connector draws text on one line of an otherwise blank column.
