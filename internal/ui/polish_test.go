@@ -33,7 +33,7 @@ func TestNarrowLayout(t *testing.T) {
 		t.Errorf("s should open the schema overlay:\n%s", out)
 	}
 	m = drive(m, keys("s", "h")...)
-	if out := screenText(m); !strings.Contains(out, "Hint 2 of 2") {
+	if out := screenText(m); !strings.Contains(out, "Hint 1 of 1") {
 		t.Errorf("h should open the hint overlay with the next hint:\n%s", out)
 	}
 	m = drive(m, keys("esc")...)
@@ -62,7 +62,7 @@ func TestReset(t *testing.T) {
 	m = drive(m, keys("R")...)
 	m = drive(m, typeText("nope")...)
 	m = drive(m, keys("enter")...)
-	if d.Progress.Get("basics/cheap-facilities").Status != progress.Solved {
+	if d.Progress.Get("basics/selectall").Status != progress.Solved {
 		t.Fatal("wrong confirmation word must not reset")
 	}
 	if !strings.Contains(screenText(m), "Reset cancelled") {
@@ -78,7 +78,7 @@ func TestReset(t *testing.T) {
 		t.Fatal("typing in the reset prompt triggered a global key")
 	}
 	m = drive(m, keys("enter")...)
-	if d.Progress.Get("basics/cheap-facilities").Status != progress.New {
+	if d.Progress.Get("basics/selectall").Status != progress.New {
 		t.Error("progress not reset")
 	}
 	if !strings.Contains(screenText(m), "All progress was reset.") {

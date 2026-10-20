@@ -1,59 +1,216 @@
+# Questions adapted from pgexercises by Alisdair Owens
+# https://github.com/AlisdairO/pgexercises (commit c226557fd393)
+# Licensed CC BY-SA 3.0; see LICENSE-exercises in this directory.
+# Changes: converted from HTML .ex files to YAML and Markdown; verify
+# queries added for modifying exercises.
 id: timestamps
-title: Working with Timestamps
-description: Extract, truncate and do arithmetic on dates and times.
+title: "Working with Timestamps"
+description: "Extract, truncate and do arithmetic on dates and times."
 exercises:
-  - id: bookings-on-day
-    title: Bookings on one day
+  - id: timestamp
+    title: "Produce a timestamp for 1 a.m. on the 31st of August 2012"
     question: |
-      List the start time of every booking that started on the 14th of
-      September 2012, earliest first.
-    tables: [cd.bookings]
-    ordered: true
-    hints:
-      - A half-open range [day, next day) catches the whole day.
-    answer: |
-      select starttime
-        from cd.bookings
-       where starttime >= '2012-09-14'
-         and starttime <  '2012-09-15'
-       order by starttime;
-    discussion: |
-      A half-open range keeps the query able to use an index on
-      `starttime`, unlike wrapping the column in a function.
-
-  - id: bookings-per-month
-    title: Bookings per month
-    question: |
-      Count how many bookings started in each month. Show the month as a
-      timestamp at the start of that month, oldest month first.
-    tables: [cd.bookings]
-    ordered: true
-    hints:
-      - date_trunc('month', ts) rounds a timestamp down to its month.
-    answer: |
-      select date_trunc('month', starttime) as month, count(*) as bookings
-        from cd.bookings
-       group by month
-       order by month;
-    discussion: |
-      `date_trunc` returns a timestamp, so the month column keeps a proper
-      type and sorts chronologically.
-
-  - id: days-in-2012-months
-    title: Days in each month of 2012
-    question: |
-      For each month of 2012, show the month number and how many days it
-      has, as an interval.
+      Produce a timestamp for 1 a.m. on the 31st of August 2012.
     tables: []
-    ordered: true
+    ordered: false
+    mutates: false
     hints:
-      - generate_series can produce the 12 month starts.
-      - The next month's start minus this month's start is the length.
+      - "There's a bunch of ways to do this, but the easiest is probably to look at the `TIMESTAMP` keyword."
     answer: |
-      select extract(month from m) as month,
-             (m + interval '1 month') - m as length
-        from generate_series(timestamp '2012-01-01', timestamp '2012-12-01', interval '1 month') m
-       order by month;
+      select timestamp '2012-08-31 01:00:00';
     discussion: |
-      Subtracting two timestamps gives an interval. Adding `1 month` is
-      calendar-aware, so February 2012 correctly has 29 days.
+      Here's a pretty easy question to start off with!  SQL has a bunch of different date and time types, which you can peruse at your leisure over at the excellent [Postgres documentation](http://www.postgresql.org/docs/current/static/datatype-datetime.html).  These basically allow you to store dates, times, or timestamps (date+time).
+
+      The approved answer is the best way to create a timestamp under normal circumstances.  You can also use casts to change a correctly formatted string into a timestamp, for example:
+
+      ```sql
+      select '2012-08-31 01:00:00'::timestamp;
+      select cast('2012-08-31 01:00:00' as timestamp);
+      ```
+
+      The former approach is a Postgres extension, while the latter is SQL-standard.  You'll note that in many of our earlier questions, we've used bare strings without specifying a data type.  This works because when Postgres is working with a value coming out of a timestamp column of a table (say), it knows to cast our strings to timestamps.
+
+      Timestamps can be stored with or without time zone information.  We've chosen not to here, but if you like you could format the timestamp like "2012-08-31 01:00:00 +00:00", assuming UTC.  Note that timestamp with time zone is a different type to timestamp - when you're declaring it, you should use `TIMESTAMP WITH TIME ZONE 2012-08-31 01:00:00 +00:00`.
+
+      Finally, have a bit of a play around with some of the different date/time serialisations described in the Postgres docs.  You'll find that Postgres is extremely flexible with the formats it accepts, although my recommendation to you would be to use the standard serialisation we've used here - you'll find it unambiguous and easy to port to other DBs.
+
+  - id: interval
+    title: "Subtract timestamps from each other"
+    question: |
+      Find the result of subtracting the timestamp '2012-07-30 01:00:00' from the timestamp '2012-08-31 01:00:00'
+    tables: []
+    ordered: false
+    mutates: false
+    hints:
+      - "You can use the '-' symbol on timestamps"
+    answer: |
+      select timestamp '2012-08-31 01:00:00' - timestamp '2012-07-30 01:00:00' as interval;
+    discussion: |
+      Subtracting timestamps produces an `INTERVAL` data type.  `INTERVAL`s are a special data type for representing the difference between two `TIMESTAMP` types.  When subtracting timestamps, Postgres will typically give an interval in terms of days, hours, minutes, seconds, without venturing into months.  This generally makes life easier, since months are of variable lengths.
+
+      One of the useful things about intervals, though, is the fact that they *can* encode months.  Let's imagine that I want to schedule something to occur in exactly one month's time, regardless of the length of my month.  To do this, I could use `[timestamp] + interval '1 month'`.
+
+      Intervals stand in contrast to SQL's treatment of `DATE` types.  Dates don't use intervals - instead, subtracting two dates will return an integer representing the number of days between the two dates.  You can also add integer values to dates.  This is sometimes more convenient, depending on how much intelligence you require in the handling of your dates!</o>
+
+  - id: series
+    title: "Generate a list of all the dates in October 2012"
+    question: |
+      Produce a list of all the dates in October 2012.  They can be output as a timestamp (with time set to midnight) or a date.
+    tables: []
+    ordered: false
+    mutates: false
+    hints:
+      - "Take a look at Postgres' `GENERATE_SERIES` function"
+    answer: |
+      select generate_series(timestamp '2012-10-01', timestamp '2012-10-31', interval '1 day') as ts;
+    discussion: |
+      One of the best features of Postgres over other DBs is a simple function called `GENERATE_SERIES`.  This function allows you to generate a list of dates or numbers, specifying a start, an end, and an increment value.  It's extremely useful for situations where you want to output, say, sales per day over the course of a month.  A typical way to do that on a table containing a list of sales might be to use a `SUM` aggregation, grouping by the date and product type.  Unfortunately, this approach has a flaw: if there are no sales for a given day, it won't show up!  To make it work properly, you need to left join from a sequential list of timestamps to the aggregated data to fill in the blank spaces.
+
+      On other database systems, it's not uncommon to keep a 'calendar table' full of dates, with which you can perform these joins.  Alternatively, on some systems you can write an analogue to generate_series using recursive CTEs.  Fortunately for us, Postgres makes our lives a lot easier!
+
+  - id: extract
+    title: "Get the day of the month from a timestamp"
+    question: |
+      Get the day of the month from the timestamp '2012-08-31' as an integer.
+    tables: []
+    ordered: false
+    mutates: false
+    hints:
+      - "The easiest way to do this is with the `EXTRACT` function."
+    answer: |
+      select extract(day from timestamp '2012-08-31');
+    discussion: |
+      The `EXTRACT` function is used for getting sections of a timestamp or interval.  You can get the value of any field in the timestamp as an integer.
+
+  - id: interval2
+    title: "Work out the number of seconds between timestamps"
+    question: |
+      Work out the number of seconds between the timestamps '2012-08-31 01:00:00' and '2012-09-02 00:00:00'
+    tables: []
+    ordered: false
+    mutates: false
+    hints:
+      - "You can do this by extracting the epoch from the interval between two timestamps."
+    answer: |
+      select extract(epoch from (timestamp '2012-09-02 00:00:00' - '2012-08-31 01:00:00'));
+    discussion: |
+      The above answer is a Postgres-specific trick.  Extracting the epoch converts an interval or timestamp into a number of seconds, or the number of seconds since epoch (January 1st, 1970) respectively.  If you want the number of minutes, hours, etc you can just divide the number of seconds appropriately.
+
+      If you want to write more portable code, you will unfortunately find that you cannot use `extract epoch`.  Instead you will need to use something like:
+
+      ```sql
+      select 	extract(day from ts.int)*60*60*24 +
+      	extract(hour from ts.int)*60*60 + 
+      	extract(minute from ts.int)*60 +
+      	extract(second from ts.int)
+      	from
+      		(select timestamp '2012-09-02 00:00:00' - '2012-08-31 01:00:00' as int) ts
+      ```
+
+      This is, as you can observe, rather awful.  If you're planning to write cross platform SQL, I would consider having a library of common user defined functions for each DBMS, allowing you to normalise any common requirements like this.  This keeps your main codebase a lot cleaner.
+
+  - id: daysinmonth
+    title: "Work out the number of days in each month of 2012"
+    question: |
+      For each month of the year in 2012, output the number of days in that month.  Format the output as an integer column containing the month of the year, and a second column containing an interval data type.
+    tables: []
+    ordered: false
+    mutates: false
+    hints:
+      - "Subtracting two timestamps will give you the interval you're looking for.  You can use the `EXTRACT` function to get the month from a timestamp."
+    answer: |
+      select 	extract(month from cal.month) as month,
+      	(cal.month + interval '1 month') - cal.month as length
+      	from
+      	(
+      		select generate_series(timestamp '2012-01-01', timestamp '2012-12-01', interval '1 month') as month
+      	) cal
+      order by month;
+    discussion: |
+      This answer shows several of the concepts we've learned.  We use the `GENERATE_SERIES` function to produce a year's worth of timestamps, incrementing a month at a time.  We then use the `EXTRACT` function to get the month number.  Finally, we subtract each timestamp + 1 month from itself.
+
+      It's worth noting that subtracting two timestamps will always produce an interval in terms of days (or portions of a day).  You won't just get an answer in terms of months or years, because the length of those time periods is variable.
+
+  - id: daysremaining
+    title: "Work out the number of days remaining in the month"
+    question: |
+      For any given timestamp, work out the number of days remaining in the month.  The current day should count as a whole day, regardless of the time.  Use '2012-02-11 01:00:00' as an example timestamp for the purposes of making the answer.  Format the output as a single interval value.
+    tables: []
+    ordered: false
+    mutates: false
+    hints:
+      - "Take a look at the `DATE_TRUNC` function"
+    answer: |
+      select (date_trunc('month',ts.testts) + interval '1 month') 
+      		- date_trunc('day', ts.testts) as remaining
+      	from (select timestamp '2012-02-11 01:00:00' as testts) ts
+    discussion: |
+      The star of this particular show is the `DATE_TRUNC` function.  It does pretty much what you'd expect - truncates a date to a given minute, hour, day, month, and so on.  The way we've solved this problem is to truncate our timestamp to find the month we're in, add a month to that, and subtract our timestamp.  To ensure partial days get treated as whole days, the timestamp we subtract is truncated to the nearest day.
+
+      Note the way we've put the timestamp into a subquery.  This isn't required, but it does mean you can give the timestamp a name, rather than having to list the literal repeatedly.
+
+  - id: endtimes
+    title: "Work out the end time of bookings"
+    question: |
+      Return a list of the start and end time of the last 10 bookings (ordered by the time at which they end, followed by the time at which they start) in the system.
+    tables: ["cd.bookings"]
+    ordered: true
+    mutates: false
+    hints:
+      - "You can multiply an interval by the number of slots in a booking."
+    answer: |
+      select starttime, starttime + slots*(interval '30 minutes') endtime
+      	from cd.bookings
+      	order by endtime desc, starttime desc
+      	limit 10
+    discussion: |
+      This question simply returns the start time for a booking, and a calculated end time which is equal to `start time + (30 minutes * slots)`.  Note that it's perfectly okay to multiply intervals.
+
+      The other thing you'll notice is the use of order by and limit to get the last ten bookings.  All this does is order the bookings by the (descending) time at which they end, and pick off the top ten.
+
+  - id: bookingspermonth
+    title: "Return a count of bookings for each month"
+    question: |
+      Return a count of bookings for each month, sorted by month
+    tables: ["cd.bookings"]
+    ordered: true
+    mutates: false
+    hints:
+      - "You're probably going to want the date_trunc function again."
+    answer: |
+      select date_trunc('month', starttime) as month, count(*)
+      	from cd.bookings
+      	group by month
+      	order by month
+    discussion: |
+      This one is a fairly simple reuse of concepts we've seen before.  We simply count the number of bookings, and aggregate by the booking's start time, truncated to the month.
+
+  - id: utilisationpermonth
+    title: "Work out the utilisation percentage for each facility by month"
+    question: |
+      Work out the utilisation percentage for each facility by month, sorted by name and month, rounded to 1 decimal place.  Opening time is 8am, closing time is 8.30pm.  You can treat every month as a full month, regardless of if there were some dates the club was not open.
+    tables: ["cd.bookings", "cd.facilities"]
+    ordered: true
+    mutates: false
+    hints:
+      - "Remember different months have different lengths - you'll need to calculate the number of available slots in each month.  You need to find a way to retrieve an *integer* (rather than interval) number of days for the length of the month."
+    answer: |
+      select name, month, 
+      	round((100*slots)/
+      		cast(
+      			25*(cast((month + interval '1 month') as date)
+      			- cast (month as date)) as numeric),1) as utilisation
+      	from  (
+      		select facs.name as name, date_trunc('month', starttime) as month, sum(slots) as slots
+      			from cd.bookings bks
+      			inner join cd.facilities facs
+      				on bks.facid = facs.facid
+      			group by facs.facid, month
+      	) as inn
+      order by name, month
+    discussion: |
+      The meat of this query (the inner subquery) is really quite simple: an aggregation to work out the total number of slots used per facility per month.  If you've covered the rest of this section and the category on aggregates, you likely didn't find this bit too challenging.
+
+      This query does, unfortunately, have some other complexity in it: working out the number of days in each month.  We can calculate the number of days between two months by subtracting two timestamps with a month between them.  This, unfortunately, gives us back on interval datatype, which we can't use to do mathematics.  In this case we've worked around that limitation by converting our timestamps into *dates* before subtracting.  Subtracting date types gives us an integer number of days.
+
+      A alternative to this workaround is to convert the interval into an *epoch* value: that is, a number of seconds.  To do this use `EXTRACT(EPOCH FROM month)/(24*60*60)`.  This is arguably a much nicer way to do things, but is much less portable to other database systems.

@@ -1,78 +1,119 @@
+# Questions adapted from pgexercises by Alisdair Owens
+# https://github.com/AlisdairO/pgexercises (commit c226557fd393)
+# Licensed CC BY-SA 3.0; see LICENSE-exercises in this directory.
+# Changes: converted from HTML .ex files to YAML and Markdown; verify
+# queries added for modifying exercises.
 id: recursive
-title: Recursive Queries
-description: Walk hierarchies with recursive common table expressions.
+title: "Recursive Queries"
+description: "Walk hierarchies with recursive common table expressions."
 exercises:
-  - id: recommendation-chain-up
-    title: Who recommended whom, upwards
+  - id: getupward
+    title: "Find the upward recommendation chain for member ID 27"
     question: |
-      Starting from member 27, follow the chain of recommendations upward.
-      Show the member id, first name and surname of every recommender in
-      the chain, nearest first.
-    tables: [cd.members]
+      Find the upward recommendation chain for member ID 27: that is, the member who recommended them, and the member who recommended that member, and so on.  Return member ID, first name, and surname.  Order by descending member id.
+    tables: ["cd.members"]
     ordered: true
+    mutates: false
     hints:
-      - with recursive lets a CTE refer to itself.
-      - Track the depth so you can sort nearest first.
+      - "Read up on `[WITH RECURSIVE](http://www.postgresql.org/docs/current/static/queries-with.html)`."
     answer: |
-      with recursive chain(recommender, depth) as (
-        select recommendedby, 1 from cd.members where memid = 27
-        union all
-        select m.recommendedby, c.depth + 1
-          from chain c
-          join cd.members m on m.memid = c.recommender
+      with recursive recommenders(recommender) as (
+      	select recommendedby from cd.members where memid = 27
+      	union all
+      	select mems.recommendedby
+      		from recommenders recs
+      		inner join cd.members mems
+      			on mems.memid = recs.recommender
       )
-      select c.recommender as memid, m.firstname, m.surname
-        from chain c
-        join cd.members m on m.memid = c.recommender
-       order by c.depth;
+      select recs.recommender, mems.firstname, mems.surname
+      	from recommenders recs
+      	inner join cd.members mems
+      		on recs.recommender = mems.memid
+      order by memid desc
     discussion: |
-      The recursive part keeps joining until a member has no recommender;
-      the `NULL` row it produces is removed by the final inner join.
+      `WITH RECURSIVE` is a fantastically useful piece of functionality that many developers are unaware of.  It allows you to perform queries over hierarchies of data, which is very difficult by other means in SQL.  Such scenarios often leave developers resorting to multiple round trips to the database system.
 
-  - id: recommendation-tree-down
-    title: Everyone a member brought in
-    question: |
-      Find every member who was recommended by member 1, directly or
-      indirectly. Show their member id, first name and surname, sorted by
-      member id.
-    tables: [cd.members]
-    ordered: true
-    hints:
-      - Start with the members whose recommendedby is 1.
-      - Then repeatedly add members recommended by someone already found.
-    answer: |
-      with recursive tree(memid) as (
-        select memid from cd.members where recommendedby = 1
-        union all
-        select m.memid
-          from tree t
-          join cd.members m on m.recommendedby = t.memid
-      )
-      select t.memid, m.firstname, m.surname
-        from tree t
-        join cd.members m on m.memid = t.memid
-       order by t.memid;
-    discussion: |
-      This walks the hierarchy downward instead of upward: the join
-      condition is flipped compared with the previous exercise.
+      You've seen `WITH` before.  The Common Table Expressions (CTEs) defined by `WITH` give you the ability to produce inline views over your data.  This is normally just a syntactic convenience, but the `RECURSIVE` modifier adds the ability to join against results already produced to produce even more.  A recursive `WITH` takes the basic form of:
 
-  - id: count-to-ten
-    title: Count to ten
-    question: |
-      Without using generate_series, produce a single column of the numbers
-      1 to 10.
-    tables: []
-    ordered: true
-    hints:
-      - A recursive CTE needs a starting row and a step.
-      - Stop the recursion with a where condition.
-    answer: |
-      with recursive n(i) as (
-        select 1
-        union all
-        select i + 1 from n where i < 10
+      ```sql
+      WITH RECURSIVE NAME(columns) as (
+      	<initial statement>
+      	UNION ALL 
+      	<recursive statement>
       )
-      select i from n order by i;
+      ```
+
+      The initial statement populates the initial data, and then the recursive statement runs repeatedly to produce more.  Each step of the recursion can access the CTE, but it sees within it only the data produced by the previous iteration.  It repeats until an iteration produces no additional data.</c>
+
+      The most simple example of a recursive `WITH` might look something like this:
+
+      ```sql
+      with recursive increment(num) as (
+      	select 1
+      	union all
+      	select increment.num + 1 from increment where increment.num < 5
+      )
+      select * from increment;
+      ```
+
+      The initial statement produces '1'.  The first iteration of the recursive statement sees this as the content of `increment`, and produces '2'.  The next iteration sees the content of `increment` as '2', and so on.  Execution terminates when the recursive statement produces no additional data.
+
+      With the basics out of the way, it's fairly easy to explain our answer here.  The initial statement gets the ID of the person who recommended the member we're interested in.  The recursive statement takes the results of the initial statement, and finds the ID of the person who recommended them.  This value gets forwarded on to the next iteration, and so on.
+
+      Now that we've constructed the recommenders CTE, all our main `SELECT` statement has to do is get the member IDs from recommenders, and join to them members table to find out their names.
+
+  - id: getdownward
+    title: "Find the downward recommendation chain for member ID 1"
+    question: |
+      Find the downward recommendation chain for member ID 1: that is, the members they recommended, the members those members recommended, and so on.  Return member ID and name, and order by ascending member id.
+    tables: ["cd.members"]
+    ordered: true
+    mutates: false
+    hints:
+      - "Read up on `[WITH RECURSIVE](http://www.postgresql.org/docs/current/static/queries-with.html)`."
+    answer: |
+      with recursive recommendeds(memid) as (
+      	select memid from cd.members where recommendedby = 1
+      	union all
+      	select mems.memid
+      		from recommendeds recs
+      		inner join cd.members mems
+      			on mems.recommendedby = recs.memid
+      )
+      select recs.memid, mems.firstname, mems.surname
+      	from recommendeds recs
+      	inner join cd.members mems
+      		on recs.memid = mems.memid
+      order by memid
     discussion: |
-      The non-recursive term seeds the result, the recursive term adds one
-      row per step, and the `where` clause ends the loop.
+      This is a pretty minor variation on the previous question.  The essential difference is that we're now heading in the opposite direction.  One interesting point to note is that unlike the previous example, this CTE produces multiple rows per iteration, by virtue of the fact that we're heading down the recommendation tree (following all branches) rather than up it.
+
+  - id: getupwardall
+    title: "Produce a CTE that can return the upward recommendation chain for any member"
+    question: |
+      Produce a CTE that can return the upward recommendation chain for any member.  You should be able to `select recommender from recommenders where member=x`.  Demonstrate it by getting the chains for members 12 and 22.  Results table should have member and recommender, ordered by member ascending, recommender descending.
+    tables: ["cd.members"]
+    ordered: true
+    mutates: false
+    hints:
+      - "Your initial statement should return all the recommendedby and memid fields in the members table."
+    answer: |
+      with recursive recommenders(recommender, member) as (
+      	select recommendedby, memid
+      		from cd.members
+      	union all
+      	select mems.recommendedby, recs.member
+      		from recommenders recs
+      		inner join cd.members mems
+      			on mems.memid = recs.recommender
+      )
+      select recs.member member, recs.recommender, mems.firstname, mems.surname
+      	from recommenders recs
+      	inner join cd.members mems		
+      		on recs.recommender = mems.memid
+      	where recs.member = 22 or recs.member = 12
+      order by recs.member asc, recs.recommender desc
+    discussion: |
+      This question requires us to produce a CTE that can calculate the upward recommendation chain for any user.  Most of the complexity of working out the answer is in realising that we now need our CTE to produce two columns: one to contain the member we're asking about, and another to contain the members in their recommendation tree.  Essentially what we're doing is producing a table that flattens out the recommendation hierarchy.
+
+      Since we're looking to produce the chain for every user, our initial statement needs to select data for each user: their ID and who recommended them.  Subsequently, we want to pass the member field through each iteration without changing it, while getting the next recommender.  You can see that the recursive part of our statement hasn't really changed, except to pass through the 'member' field.

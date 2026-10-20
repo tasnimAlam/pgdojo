@@ -49,7 +49,7 @@ vim_keys = true          # j/k move in lists
 
 ```fish
 pgex list                                   # categories and exercises with your progress
-pgex check joins/member-booking-starttimes q.sql   # run a file, print pass/fail and a diff; exit 0 on pass
+pgex check joins/simplejoin q.sql             # run a file, print pass/fail and a diff; exit 0 on pass
 pgex doctor                                 # check DSN, connection, schema cd, role permissions, $EDITOR
 pgex validate                               # run every reference answer against the database
 ```
@@ -90,9 +90,17 @@ schema `cd` (see `db/roles.sql`).
 
 ## Exercises
 
+The 71 exercises are adapted from [pgexercises](https://github.com/AlisdairO/pgexercises)
+by Alisdair Owens and are licensed under
+[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) (see
+`internal/exercise/data/LICENSE-exercises`). They were converted from the
+original HTML question files to YAML and Markdown, and modifying exercises
+gained `verify` queries. The rest of pgex is separate from that licence.
+
 Exercise data lives in `internal/exercise/data/*.yaml`, one file per category,
-and is embedded in the binary. Add exercises by editing YAML; the loader
-validates ids, required fields, and `verify` queries for mutating exercises.
+and is embedded in the binary. The loader validates ids, required fields, and
+`verify` queries for modifying exercises; `pgex validate` runs every reference
+answer against the database.
 
 ## How checking works
 

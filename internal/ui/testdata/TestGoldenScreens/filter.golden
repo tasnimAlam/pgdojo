@@ -1,11 +1,11 @@
- pgex  Categories › Joins and Subqueries                                                                   0 / 3 solved 
+ pgex  Categories › Joins and Subqueries                                                                   0 / 8 solved 
 ╭ Exercises ─────────────────────────────────────────╮ ╭ Preview ──────────────────────────────────────────────────────╮
-│ / mem▌                                   3 matches │ │ Start times of a member's bookings                            │
-│ ▌●  1. Start times of a member's bookings          │ │                                                               │
-│  ○  2. Members who recommended someone             │ │ Produce a list of the start times for bookings made by the    │
-│  ◐  3. Every member and their recommender          │ │ member named David Farrell.                                   │
-│                                                    │ │                                                               │
-│                                                    │ │ Expected columns   starttime   name                           │
+│ / mem▌                                   5 matches │ │ Retrieve the start times of members' bookings                 │
+│ ▌●  1. Retrieve the start times of members' booki… │ │                                                               │
+│  ○  3. Produce a list of all members who have rec… │ │ How can you produce a list of the start times for bookings by │
+│  ◐  4. Produce a list of all members, along with … │ │ members named 'David Farrell'?                                │
+│  ○  5. Produce a list of all members who have use… │ │                                                               │
+│  ○  7. Produce a list of all members, along with … │ │ Expected columns   starttime   name                           │
 │                                                    │ │ Order matters     no                                          │
 │                                                    │ │ Tables             cd.bookings   cd.members                   │
 │                                                    │ │ Attempts          3 · last run failed                         │
@@ -30,7 +30,7 @@
 │                                                    │ │                                                               │
 │                                                    │ │                                                               │
 │                                                    │ │                                                               │
-│ ✓ solved  ● attempted  ○ new                       │ │ Draft ~/.local/share/pgex/drafts/joins/member-booking-startt… │
+│ ✓ solved  ● attempted  ○ new                       │ │ Draft ~/.local/share/pgex/drafts/joins/simplejoin.sql         │
 ╰────────────────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
  type to filter · enter apply · esc clear                                                                               

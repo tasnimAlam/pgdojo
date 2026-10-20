@@ -1,29 +1,29 @@
- pgex  Categories › Basics › 1. Facilities members can use cheaply                                                1 / 3 
+ pgex  Categories › Basics › 1. Retrieve everything from a table                                                 1 / 12 
 ╭ Question ──────────────────────────────╮ ╭ Query · INSERT · attempt 4 ───────────────────────────────────────────────╮
-│ The club wants to advertise its budget │ │  1 select facid, nme from facilities                                      │
-│ options. List the name and member cost │ │                                                                           │
-│ of every facility whose member cost is │ │                                                                           │
-│ greater than zero but less than one    │ │                                                                           │
-│ fiftieth of its monthly maintenance    │ │                                                                           │
-│ cost.                                  │ │                                                                           │
+│ How can you retrieve all the           │ │  1 select facid, nme from facilities                                      │
+│ information from the cd.facilities     │ │                                                                           │
+│ table?                                 │ │                                                                           │
 │                                        │ │                                                                           │
 │ tables: cd.facilities                  │ │                                                                           │
 ╰────────────────────────────────────────╯ │                                                                           │
-╭ Hint 1 of 2 ───────────────────────────╮ │                                                                           │
-│ Everything you need is in              │ │                                                                           │
-│ cd.facilities.                         │ ╰───────────────────────────────────────────────────────────────────────────╯
-│                                        │ ╭ Result ───────────────────────────────────────────────────────────────────╮
-│ h for the next hint · a reveals the    │ │  ✗ ERROR: column "nme" does not exist                                     │
-│ answer                                 │ │ HINT: Perhaps you meant to reference the column "facilities.name".        │
-╰────────────────────────────────────────╯ │                                                                           │
-╭ Schema ────────────────────────────────╮ │ select facid, nme from facilities                                         │
-│ cd.facilities                          │ │               ^                                                           │
+╭ Hint 1 of 1 ───────────────────────────╮ │                                                                           │
+│ `select * ` can be used to retrieve    │ │                                                                           │
+│ all columns from a table.              │ │                                                                           │
+│                                        │ │                                                                           │
+│ h for the next hint · a reveals the    │ │                                                                           │
+│ answer                                 │ ╰───────────────────────────────────────────────────────────────────────────╯
+╰────────────────────────────────────────╯ ╭ Result ───────────────────────────────────────────────────────────────────╮
+╭ Schema ────────────────────────────────╮ │  ✗ ERROR: column "nme" does not exist                                     │
+│ cd.facilities                          │ │ HINT: Perhaps you meant to reference the column "facilities.name".        │
 │   facid              integer           │ │                                                                           │
-│   name               varchar           │ │                                                                           │
-│   membercost         numeric           │ │                                                                           │
+│   name               varchar           │ │ select facid, nme from facilities                                         │
+│   membercost         numeric           │ │               ^                                                           │
 │   guestcost          numeric           │ │                                                                           │
 │   initialoutlay      numeric           │ │                                                                           │
 │   monthlymaintenance numeric           │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
 │                                        │ │                                                                           │
 │                                        │ │                                                                           │
 │                                        │ │                                                                           │

@@ -114,7 +114,8 @@ func validate(file string, c *Category) (problems, warnings []string) {
 		if ex.Mutates && strings.TrimSpace(ex.Verify) == "" {
 			add("%s: mutates: true requires a verify query", where)
 		}
-		if ex.Ordered && !orderBy.MatchString(ex.Answer) {
+		// Mutating answers are DML; their verify query does the ordering.
+		if ex.Ordered && !ex.Mutates && !orderBy.MatchString(ex.Answer) {
 			warnings = append(warnings, fmt.Sprintf("%s: %s: ordered: true but answer has no order by", file, where))
 		}
 	}

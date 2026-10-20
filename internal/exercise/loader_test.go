@@ -38,8 +38,8 @@ func TestLoadEmbedded(t *testing.T) {
 	if len(cat.Warnings) > 0 {
 		t.Errorf("unexpected warnings: %v", cat.Warnings)
 	}
-	if _, ok := cat.Find("joins/member-booking-starttimes"); !ok {
-		t.Error("Find did not locate joins/member-booking-starttimes")
+	if _, ok := cat.Find("joins/simplejoin"); !ok {
+		t.Error("Find did not locate joins/simplejoin")
 	}
 }
 

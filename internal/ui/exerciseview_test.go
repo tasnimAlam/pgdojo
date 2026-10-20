@@ -52,7 +52,7 @@ func userErrCheck() db.Check {
 }
 
 // openExercise starts the app with a fake check result and opens
-// basics/cheap-facilities in the exercise view.
+// basics/selectall in the exercise view.
 func openExercise(t *testing.T, chk db.Check) tea.Model {
 	d := testDeps(t)
 	d.Checker = fakeChecker{check: func(context.Context, string) (db.Check, error) { return chk, nil }}
@@ -74,17 +74,17 @@ func TestExercisePass(t *testing.T) {
 		}
 	}
 	d := m.(Model).deps
-	if e := d.Progress.Get("basics/cheap-facilities"); e.Status != progress.Solved || e.Attempts != 3 {
+	if e := d.Progress.Get("basics/selectall"); e.Status != progress.Solved || e.Attempts != 3 {
 		t.Errorf("progress = %+v, want solved with 3 attempts", e)
 	}
-	draft, _ := os.ReadFile(d.Drafts.Path("basics/cheap-facilities"))
+	draft, _ := os.ReadFile(d.Drafts.Path("basics/selectall"))
 	if string(draft) != "select name, membercost from facilities" {
 		t.Errorf("draft not saved on run: %q", draft)
 	}
 	golden.RequireEqual(t, out)
 
 	m = drive(m, keys("esc", "n")...)
-	if v := view(m); v.ex.Key() != "basics/tennis-courts" || len(m.(Model).stack) != 3 {
+	if v := view(m); v.ex.Key() != "basics/selectspecific" || len(m.(Model).stack) != 3 {
 		t.Errorf("n should replace the view with the next exercise, got %s (stack %d)", v.ex.Key(), len(m.(Model).stack))
 	}
 }
@@ -98,7 +98,7 @@ func TestExerciseFail(t *testing.T) {
 			t.Errorf("missing %q:\n%s", want, out)
 		}
 	}
-	if s := m.(Model).deps.Progress.Get("basics/cheap-facilities").Status; s != progress.Solved {
+	if s := m.(Model).deps.Progress.Get("basics/selectall").Status; s != progress.Solved {
 		t.Errorf("a failed run must not downgrade solved, got %s", s)
 	}
 
@@ -126,10 +126,10 @@ func TestExerciseUserError(t *testing.T) {
 func TestExerciseRevealAndHints(t *testing.T) {
 	d := testDeps(t)
 	m := drive(New(d), tea.WindowSizeMsg{Width: 120, Height: 36}, pingMsg{})
-	m = drive(m, keys("down", "down", "enter", "enter", "esc")...) // modifying/add-spa, normal mode
+	m = drive(m, keys("down", "down", "enter", "enter", "esc")...) // modifying/insert, normal mode
 
-	m = drive(m, keys("h", "h")...)
-	if out := screenText(m); !strings.Contains(out, "Hint 2 of 2") || !strings.Contains(out, "List the columns explicitly") {
+	m = drive(m, keys("h", "h")...) // the second h has no more hints to show
+	if out := screenText(m); !strings.Contains(out, "Hint 1 of 1") || !strings.Contains(out, "can be used to insert data") {
 		t.Errorf("hint pane wrong:\n%s", out)
 	}
 	m = drive(m, keys("a")...)
@@ -137,7 +137,7 @@ func TestExerciseRevealAndHints(t *testing.T) {
 		t.Fatal("a should ask for confirmation")
 	}
 	m = drive(m, keys("n")...)
-	if d.Progress.Get("modifying/add-spa").Status != progress.New {
+	if d.Progress.Get("modifying/insert").Status != progress.New {
 		t.Fatal("declining must not reveal")
 	}
 	m = drive(m, keys("a", "y")...)
@@ -145,9 +145,9 @@ func TestExerciseRevealAndHints(t *testing.T) {
 	if !strings.Contains(out, "insert into cd.facilities") {
 		t.Errorf("answer not shown:\n%s", out)
 	}
-	e := d.Progress.Get("modifying/add-spa")
-	if e.Status != progress.Revealed || e.HintsUsed != 2 {
-		t.Errorf("progress = %+v, want revealed with 2 hints", e)
+	e := d.Progress.Get("modifying/insert")
+	if e.Status != progress.Revealed || e.HintsUsed != 1 {
+		t.Errorf("progress = %+v, want revealed with 1 hint", e)
 	}
 	golden.RequireEqual(t, out)
 

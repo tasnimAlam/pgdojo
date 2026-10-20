@@ -1,11 +1,11 @@
  pgex  PostgreSQL exercises in your terminal                                    db localhost:5433/exercises ● connected 
 ╭ Categories ────────────────────────────────────────╮ ╭ Basics ───────────────────────────────────────────────────────╮
-│ 7 categories · 2 of 21 solved                      │ │ Retrieve and filter rows from a single table.                 │
-│ ▌▸ Basics                        ██████████    2/3 │ │                                                               │
-│    Joins and Subqueries          ██████████    0/3 │ │ solved   2/3          hints    1 used                         │
-│    Modifying Data                ██████████    0/3 │ │ answers  0 rev.       last run 2 days ago                     │
-│    Aggregation                   ██████████    0/3 │ │                                                               │
-│    Working with Timestamps       ██████████    0/3 │ │ Tables used                                                   │
+│ 7 categories · 2 of 71 solved                      │ │ Retrieve and filter rows from a single table.                 │
+│ ▌▸ Basics                        ██████████   2/12 │ │                                                               │
+│    Joins and Subqueries          ██████████    0/8 │ │ solved   2/12         hints    1 used                         │
+│    Modifying Data                ██████████    0/9 │ │ answers  0 rev.       last run 2 days ago                     │
+│    Aggregation                   ██████████   0/22 │ │                                                               │
+│    Working with Timestamps       ██████████   0/10 │ │ Tables used                                                   │
 │    String Operat╭──────────────────────────────────────────────────────────────────────────────────╮                 │
 │    Recursive Que│ Keyboard shortcuts                                             esc or ? to close │                 │
 │                 │                                                                                  │                 │
@@ -29,8 +29,8 @@
 │                                                    │ │                                                               │
 │                                                    │ ╰───────────────────────────────────────────────────────────────╯
 │                                                    │ ╭ Continue where you left off ──────────────────────────────────╮
-│                                                    │ │ → Joins and Subqueries › 2. Members who recommended someone   │
+│                                                    │ │ → Joins and Subqueries › 3. Produce a list of all members wh… │
 │                                                    │ │ press c to continue                                           │
 ╰────────────────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
- ↑/↓ move · enter open · c continue · / filter · ? help · q quit                                                     9% 
+ ↑/↓ move · enter open · c continue · / filter · ? help · q quit                                                     2% 

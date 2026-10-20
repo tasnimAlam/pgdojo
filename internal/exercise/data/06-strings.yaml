@@ -1,53 +1,149 @@
+# Questions adapted from pgexercises by Alisdair Owens
+# https://github.com/AlisdairO/pgexercises (commit c226557fd393)
+# Licensed CC BY-SA 3.0; see LICENSE-exercises in this directory.
+# Changes: converted from HTML .ex files to YAML and Markdown; verify
+# queries added for modifying exercises.
 id: strings
-title: String Operations
-description: Format, search and transform text.
+title: "String Operations"
+description: "Format, search and transform text."
 exercises:
-  - id: full-names
-    title: Members' full names
+  - id: concat
+    title: "Format the names of members"
     question: |
-      Show every member's name as one column formatted "Surname, Firstname".
-    tables: [cd.members]
+      Output the names of all members, formatted as 'Surname, Firstname'
+    tables: ["cd.members"]
     ordered: false
+    mutates: false
     hints:
-      - The || operator concatenates strings.
+      - "Use the `||` operator to concatenate strings"
     answer: |
-      select surname || ', ' || firstname as name
-        from cd.members;
+      select surname || ', ' || firstname as name from cd.members
     discussion: |
-      `||` returns `NULL` if either side is `NULL`. `concat()` treats
-      `NULL` as an empty string instead.
+      Building strings in sql is similar to other languages, with the exception of the concatenation operator: ||.  Some systems (like SQL Server) use +, but || is the SQL standard.
 
-  - id: surname-initials
-    title: Members per surname initial
+  - id: like
+    title: "Find facilities by a name prefix"
     question: |
-      Count members by the first letter of their surname, sorted by letter.
-    tables: [cd.members]
-    ordered: true
+      Find all facilities whose name begins with 'Tennis'.  Retrieve all columns.
+    tables: ["cd.facilities"]
+    ordered: false
+    mutates: false
     hints:
-      - substr(text, 1, 1) returns the first character.
+      - "Use the `LIKE` operator."
     answer: |
-      select substr(surname, 1, 1) as letter, count(*) as count
-        from cd.members
-       group by letter
-       order by letter;
+      select * from cd.facilities where name like 'Tennis%';
     discussion: |
-      Postgres lets `group by` and `order by` refer to an output column
-      alias, which keeps the expression in one place.
+      The SQL `LIKE` operator is a highly standard way of searching for a string using basic matching.  The `%` character matches any string, while `_` matches any single character.
 
-  - id: clean-phone-numbers
-    title: Digits-only phone numbers
+      One point that's worth considering when you use `LIKE` is how it uses indexes.  If you're using the 'C' [locale](http://www.postgresql.org/docs/current/static/locale.html), any `LIKE` string with a fixed beginning (as in our example here) can use an index.  If you're using any other locale, `LIKE` will not use any index by default.  See [here](http://www.postgresql.org/docs/current/static/indexes-opclass.html) for details on how to change that.
+
+  - id: case
+    title: "Perform a case-insensitive search"
     question: |
-      Show each member's id and telephone number with every character that
-      is not a digit removed. Sort by member id.
-    tables: [cd.members]
-    ordered: true
+      Perform a case-insensitive search to find all facilities whose name begins with 'tennis'.  Retrieve all columns.
+    tables: ["cd.facilities"]
+    ordered: false
+    mutates: false
     hints:
-      - regexp_replace can remove every match when given the 'g' flag.
-      - "[^0-9] matches any non-digit."
+      - "Use the `UPPER` function or the `ILIKE` operator."
     answer: |
+      select * from cd.facilities where upper(name) like 'TENNIS%';
+    discussion: |
+      There's no direct operator for case-insensitive comparison in standard SQL.  Fortunately, we can take a page from many other language's books, and simply force all values into upper case when we do our comparison.  This renders case irrelevant, and gives us our result.
+
+      Alternatively, Postgres does provide the `ILIKE` operator, which performs case insensitive searches.  This isn't standard SQL, but it's arguably more clear.
+
+      You should realise that running a function like `UPPER` over a column value prevents Postgres from making use of any indexes on the column (the same is true for `ILIKE`).  Fortunately, Postgres has got your back: rather than simply creating indexes over columns, you can also create indexes over [expressions](http://www.postgresql.org/docs/current/static/indexes-expressional.html).  If you created an index over `UPPER(name)`, this query could use it quite happily.
+
+  - id: reg
+    title: "Find telephone numbers with parentheses"
+    question: |
+      You've noticed that the club's member table has telephone numbers with very inconsistent formatting.  You'd like to find all the telephone numbers that contain parentheses, returning the member ID and telephone number sorted by member ID.
+    tables: ["cd.members"]
+    ordered: false
+    mutates: false
+    hints:
+      - "Look up the ~ or `SIMILAR TO` operators in the Postgres docs."
+    answer: |
+      select memid, telephone from cd.members where telephone ~ '[()]';
+    discussion: |
+      We've chosen to answer this using regular expressions, although Postgres does provide other string functions like `POSITION` that would do the job at least as well.  Postgres implements POSIX regular expression matching via the `~` operator. If you've used regular expressions before, the functionality of the operator will be very familiar to you.
+
+      As an alternative, you can use the SQL standard `SIMILAR TO` operator.  The regular expressions for this have similarities to the POSIX standard, but a lot of differences as well. Some of the most notable differences are:
+
+      - As in the `LIKE` operator, `SIMILAR TO` uses the '_' character to mean 'any character', and the '%' character to mean 'any string'.
+
+      - A `SIMILAR TO` expression must match the whole string, not just a substring as in posix regular expressions.  This means that you'll typically end up bracketing an expression in '%' characters.
+
+      - The '.' character does not mean 'any character' in `SIMILAR TO` regexes: it's just a plain character.
+
+      The `SIMILAR TO` equivalent of the given answer is shown below:
+
+      ```sql
+      select memid, telephone from cd.members where telephone similar to '%[()]%';
+      ```
+
+      Finally, it's worth noting that regular expressions usually don't use indexes.  Generally you don't want your regex to be responsible for doing heavy lifting in your query, because it will be slow.  If you need fuzzy matching that works fast, consider working out if your needs can be met by [full text search](http://www.postgresql.org/docs/current/static/textsearch.html).
+
+  - id: pad
+    title: "Pad zip codes with leading zeroes"
+    question: |
+      The zip codes in our example dataset have had leading zeroes removed from them by virtue of being stored as a numeric type.  Retrieve all zip codes from the members table, padding any zip codes less than 5 characters long with leading zeroes.  Order by the new zip code.
+    tables: ["cd.members"]
+    ordered: false
+    mutates: false
+    hints:
+      - "Check out the `LPAD` function.  You'll also need to cast the zipcode column to a character string."
+    answer: |
+      select lpad(cast(zipcode as char(5)),5,'0') zip from cd.members order by zip
+    discussion: |
+      Postgres' `LPAD` function is the star of this particular show. It does basically what you'd expect: allow us to produce a padded string.  We need to remember to cast the zipcode to a string for it to be accepted by the `LPAD` function.
+
+      When inheriting an old database, It's not that unusual to find wonky decisions having been made over data types.  You may wish to fix mistakes like these, but have a lot of code that would break if you changed datatypes.  In that case, one option (depending on performance requirements) is to create a [view](http://www.postgresql.org/docs/current/static/sql-createview.html) over your table which presents the data in a fixed-up manner, and gradually migrate.
+
+  - id: substr
+    title: "Count the number of members whose surname starts with each letter of the alphabet"
+    question: |
+      You'd like to produce a count of how many members you have whose surname starts with each letter of the alphabet.  Sort by the letter, and don't worry about printing out a letter if the count is 0.
+    tables: ["cd.members"]
+    ordered: true
+    mutates: false
+    hints:
+      - "You'll need the `SUBSTR` function here, combined with some aggregation."
+    answer: |
+      select substr (mems.surname,1,1) as letter, count(*) as count 
+          from cd.members mems
+          group by letter
+          order by letter
+    discussion: |
+      This exercise is fairly straightforward.  You simply need to retrieve the first letter of the member's surname, and do some basic aggregation to achieve a count.  We use the `SUBSTR` function here, but there's a variety of other ways you can achieve the same thing.  The `LEFT` function, for example, returns you the first n characters from the left of the string.  Alternatively, you could use the `SUBSTRING` function, which allows you to use regular expressions to extract a portion of the string.
+
+      One point worth noting: as you can see, string functions in SQL are based on 1-indexing, not the 0-indexing that you're probably used to.  This will likely trip you up once or twice before you get used to it :-)
+
+  - id: translate
+    title: "Clean up telephone numbers"
+    question: |
+      The telephone numbers in the database are very inconsistently formatted.  You'd like to print a list of member ids and numbers that have had '-','(',')', and ' ' characters removed.  Order by member id.
+    tables: ["cd.members"]
+    ordered: true
+    mutates: false
+    hints:
+      - "Consider the `TRANSLATE` or `REGEXP_REPLACE` functions."
+    answer: |
+      select memid, translate(telephone, '-() ', '') as telephone
+          from cd.members
+          order by memid;
+    discussion: |
+      The most direct solution is probably the `TRANSLATE` function, which can be used to replace characters in a string.  You pass it three strings: the value you want altered, the characters to replace, and the characters you want them replaced with.  In our case, we want all the characters deleted, so our third parameter is an empty string.
+
+      As is often the way with strings, we can also use regular expressions to solve our problem.  The `REGEXP_REPLACE` function provides what we're looking for: we simply pass a regex that matches all non-digit characters, and replace them with nothing, as shown below.  The 'g' flag tells the function to replace as many instances of the pattern as it can find.  This solution is perhaps more robust, as it cleans out more bad formatting.
+
+      ```sql
       select memid, regexp_replace(telephone, '[^0-9]', '', 'g') as telephone
-        from cd.members
-       order by memid;
-    discussion: |
-      Without the `'g'` flag, `regexp_replace` replaces only the first
-      match.
+          from cd.members
+          order by memid;
+      ```
+
+      Making automated use of free-formatted text data can be a chore.  Ideally you want to avoid having to constantly write code to clean up the data before using it, so you should consider having your database enforce correct formatting for you. You can do this using a [`CHECK`](http://www.postgresql.org/docs/current/static/ddl-constraints.html) constraint on your column, which allow you to reject any poorly-formatted entry.  It's tempting to perform this kind of validation in the application layer, and this is certainly a valid approach.  As a general rule, if your database is getting used by multiple applications, favour pushing more of your checks down into the database to ensure consistent behaviour between the apps.
+
+      Occasionally, adding a constraint isn't feasible.  You may, for example, have two different legacy applications asserting differently formatted information.  If you're unable to alter the applications, you have a couple of options to consider.  Firstly, you can define a [trigger](http://www.postgresql.org/docs/current/static/sql-createtrigger.html) on your table.  This allows you to intercept data before (or after) it gets asserted to your table, and normalise it into a single format.  Alternatively, you could build a [view](http://www.postgresql.org/docs/current/static/sql-createview.html) over your table that cleans up information on the fly, as it's read out.  Newer applications can read from the view and benefit from more reliably formatted information.

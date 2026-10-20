@@ -51,12 +51,12 @@ func (f fakeChecker) Ping(ctx context.Context) error {
 
 const progressFixture = `{
   "version": 1,
-  "last": {"category": "joins", "exercise": "recommenders"},
+  "last": {"category": "joins", "exercise": "self"},
   "exercises": {
-    "basics/cheap-facilities": {"status": "solved", "attempts": 2, "hints_used": 1, "last_pass": true, "updated_at": "2026-10-18T12:00:00Z"},
-    "basics/tennis-courts": {"status": "solved", "attempts": 1, "hints_used": 0, "last_pass": true, "updated_at": "2026-10-18T12:00:00Z"},
-    "joins/member-booking-starttimes": {"status": "attempted", "attempts": 3, "hints_used": 2, "updated_at": "2026-10-20T11:00:00Z"},
-    "joins/member-recommender": {"status": "revealed", "revealed": true, "attempts": 1, "hints_used": 2, "updated_at": "2026-10-19T12:00:00Z"}
+    "basics/selectall": {"status": "solved", "attempts": 2, "hints_used": 1, "last_pass": true, "updated_at": "2026-10-18T12:00:00Z"},
+    "basics/selectspecific": {"status": "solved", "attempts": 1, "hints_used": 0, "last_pass": true, "updated_at": "2026-10-18T12:00:00Z"},
+    "joins/simplejoin": {"status": "attempted", "attempts": 3, "hints_used": 2, "updated_at": "2026-10-20T11:00:00Z"},
+    "joins/self2": {"status": "revealed", "revealed": true, "attempts": 1, "hints_used": 2, "updated_at": "2026-10-19T12:00:00Z"}
   }
 }`
 
@@ -219,10 +219,10 @@ func TestNavigation(t *testing.T) {
 		t.Fatalf("enter should open Joins, got %T", top())
 	}
 	m = drive(m, keys("down", "enter")...)
-	if p, ok := top().(*exerciseView); !ok || p.ex.Key() != "joins/recommenders" {
+	if p, ok := top().(*exerciseView); !ok || p.ex.Key() != "joins/simplejoin2" {
 		t.Fatalf("enter should open the second exercise, got %T", top())
 	}
-	if last, _ := m.(Model).deps.Progress.Last(); last.Exercise != "recommenders" {
+	if last, _ := m.(Model).deps.Progress.Last(); last.Exercise != "simplejoin2" {
 		t.Errorf("opening an exercise should record it as last, got %+v", last)
 	}
 	m = drive(m, keys("esc", "esc")...) // leave INSERT mode, then go back
@@ -234,7 +234,7 @@ func TestNavigation(t *testing.T) {
 		t.Fatalf("backspace should go back home, got %T", top())
 	}
 	m = drive(m, keys("c")...)
-	if p, ok := top().(*exerciseView); !ok || p.ex.Key() != "joins/recommenders" {
+	if p, ok := top().(*exerciseView); !ok || p.ex.Key() != "joins/simplejoin2" {
 		t.Fatalf("c should continue the last exercise, got %T", top())
 	}
 }
@@ -246,16 +246,16 @@ func TestFilter(t *testing.T) {
 		t.Fatal("typing in the filter must not trigger global keys")
 	}
 	m = drive(m, keyPress("backspace"))
-	m = drive(m, typeText("every")...)
+	m = drive(m, typeText("no joins")...)
 	el := m.(Model).top().(*exerciseList)
 	if n := len(el.list.VisibleItems()); n != 1 {
-		t.Fatalf("filter 'every' should match 1 exercise, got %d", n)
+		t.Fatalf("filter 'no joins' should match 1 exercise, got %d", n)
 	}
-	if !strings.Contains(screenText(m), "/ every▌") || !strings.Contains(screenText(m), "1 matches") {
+	if !strings.Contains(screenText(m), "/ no joins▌") || !strings.Contains(screenText(m), "1 matches") {
 		t.Errorf("filter line missing:\n%s", screenText(m))
 	}
 	m = drive(m, keys("enter", "enter")...)
-	if p, ok := m.(Model).top().(*exerciseView); !ok || p.ex.ID != "member-recommender" {
+	if p, ok := m.(Model).top().(*exerciseView); !ok || p.ex.ID != "sub" {
 		t.Fatalf("enter on filtered item should open it, got %T", m.(Model).top())
 	}
 	m = drive(m, keys("esc", "esc", "esc")...) // INSERT mode, back, clear filter

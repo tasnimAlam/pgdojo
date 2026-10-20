@@ -1,70 +1,239 @@
+# Questions adapted from pgexercises by Alisdair Owens
+# https://github.com/AlisdairO/pgexercises (commit c226557fd393)
+# Licensed CC BY-SA 3.0; see LICENSE-exercises in this directory.
+# Changes: converted from HTML .ex files to YAML and Markdown; verify
+# queries added for modifying exercises.
 id: modifying
-title: Modifying Data
-description: Insert, update and delete rows. Your changes are always rolled back.
+title: "Modifying Data"
+description: "Insert, update and delete rows. Your changes are always rolled back."
 exercises:
-  - id: add-spa
-    title: Add a spa
+  - id: insert
+    title: "Insert some data into a table"
     question: |
-      The club has built a spa. Insert it into the facilities table with
-      facid 9, name 'Spa', a member cost of 20, a guest cost of 30, an
-      initial outlay of 100000 and monthly maintenance of 800.
-    tables: [cd.facilities]
+      The club is adding a new facility - a spa. We need to add it into the facilities table. Use the following values:
+
+      - facid: 9, Name: 'Spa', membercost: 20, guestcost: 30, initialoutlay: 100000, monthlymaintenance: 800.
+    tables: ["cd.facilities"]
     ordered: false
     mutates: true
-    verify: |
-      select facid, name, membercost, guestcost, initialoutlay, monthlymaintenance
-        from cd.facilities
-       order by facid;
+    verify: "select * from cd.facilities order by facid;"
     hints:
-      - Use insert into ... (columns) values (...).
-      - List the columns explicitly so the order is clear.
+      - "`INSERT` can be used to insert data into a table."
     answer: |
       insert into cd.facilities
-        (facid, name, membercost, guestcost, initialoutlay, monthlymaintenance)
-      values (9, 'Spa', 20, 30, 100000, 800);
+          (facid, name, membercost, guestcost, initialoutlay, monthlymaintenance)
+          values (9, 'Spa', 20, 30, 100000, 800);
     discussion: |
-      Naming the columns makes the statement robust to column reordering.
-      The check compares the whole facilities table afterwards.
+      `INSERT INTO ... VALUES` is the simplest way to insert data into a table. There's not a whole lot to discuss here: `VALUES` is used to construct a row of data, which the `INSERT` statement inserts into the table. It's a simple as that.
 
-  - id: raise-tennis-prices
-    title: Raise tennis court prices
+      You can see that there's two sections in parentheses. The first is part of the `INSERT` statement, and specifies the columns that we're providing data for. The second is part of `VALUES`, and specifies the actual data we want to insert into each column.
+
+      If we're inserting data into every column of the table, as in this example, explicitly specifying the column names is optional. As long as you fill in data for all columns of the table, in the order they were defined when you created the table, you can do something like the following:
+
+      ```sql
+      insert into cd.facilities values (9, 'Spa', 20, 30, 100000, 800);
+      ```
+
+      Generally speaking, for SQL that's going to be reused I tend to prefer being explicit and specifying the column names.
+
+  - id: insert2
+    title: "Insert multiple rows of data into a table"
     question: |
-      Tennis is popular. Increase both the member cost and the guest cost of
-      every tennis court by 10 percent.
-    tables: [cd.facilities]
+      In the previous exercise, you learned how to add a facility. Now you're going to add multiple facilities in one command. Use the following values:
+
+      - facid: 9, Name: 'Spa', membercost: 20, guestcost: 30, initialoutlay: 100000, monthlymaintenance: 800.
+
+      - facid: 10, Name: 'Squash Court 2', membercost: 3.5, guestcost: 17.5, initialoutlay: 5000, monthlymaintenance: 80.
+    tables: ["cd.facilities"]
     ordered: false
     mutates: true
-    verify: |
-      select facid, name, membercost, guestcost
-        from cd.facilities
-       order by facid;
+    verify: "select * from cd.facilities order by facid;"
     hints:
-      - One update statement can set several columns.
-      - Multiply by 1.1 and filter by name.
+      - "`VALUES` can be used to generate more than one row."
+    answer: |
+      insert into cd.facilities
+          (facid, name, membercost, guestcost, initialoutlay, monthlymaintenance)
+          values
+              (9, 'Spa', 20, 30, 100000, 800),
+              (10, 'Squash Court 2', 3.5, 17.5, 5000, 80);
+    discussion: |
+      `VALUES` can be used to generate more than one row to insert into a table, as seen in this example. Hopefully it's clear what's going on here: the output of `VALUES` is a table, and that table is copied into cd.facilities, the table specified in the `INSERT` command.
+
+      While you'll most commonly see `VALUES` when inserting data, Postgres allows you to use `VALUES` wherever you might use a `SELECT`. This makes sense: the output of both commands is a table, it's just that `VALUES` is a bit more ergonomic when working with constant data.
+
+      Similarly, it's possible to use `SELECT` wherever you see a `VALUES`. This means that you can `INSERT` the results of a `SELECT`. For example:
+
+      ```sql
+      insert into cd.facilities
+          (facid, name, membercost, guestcost, initialoutlay, monthlymaintenance)
+          SELECT 9, 'Spa', 20, 30, 100000, 800
+          UNION ALL
+              SELECT 10, 'Squash Court 2', 3.5, 17.5, 5000, 80;
+      ```
+
+      In later exercises you'll see us using `INSERT ... SELECT` to generate data to insert based on the information already in the database.
+
+  - id: insert3
+    title: "Insert calculated data into a table"
+    question: |
+      Let's try adding the spa to the facilities table again. This time, though, we want to automatically generate the value for the next facid, rather than specifying it as a constant. Use the following values for everything else:
+
+      - Name: 'Spa', membercost: 20, guestcost: 30, initialoutlay: 100000, monthlymaintenance: 800.
+    tables: ["cd.facilities"]
+    ordered: false
+    mutates: true
+    verify: "select * from cd.facilities order by facid;"
+    hints:
+      - "You can calculate data to insert using subqueries."
+    answer: |
+      insert into cd.facilities
+          (facid, name, membercost, guestcost, initialoutlay, monthlymaintenance)
+          select (select max(facid) from cd.facilities)+1, 'Spa', 20, 30, 100000, 800;
+    discussion: |
+      In the previous exercises we used `VALUES` to insert constant data into the facilities table. Here, though, we have a new requirement: a dynamically generated ID. This gives us a real quality of life improvement, as we don't have to manually work out what the current largest ID is: the SQL command does it for us.
+
+      Since the `VALUES` clause is only used to supply constant data, we need to replace it with a query instead. The `SELECT` statement is fairly simple: there's an inner subquery that works out the next facid based on the largest current id, and the rest is just constant data. The output of the statement is a row that we insert into the facilities table.
+
+      While this works fine in our simple example, it's not how you would generally implement an incrementing ID in the real world. Postgres provides `SERIAL` types that are auto-filled with the next ID when you insert a row. As well as saving us effort, these types are also safer: unlike the answer given in this exercise, there's no need to worry about concurrent operations generating the same ID.
+
+  - id: update
+    title: "Update some existing data"
+    question: |
+      We made a mistake when entering the data for the second tennis court. The initial outlay was 10000 rather than 8000: you need to alter the data to fix the error.
+    tables: ["cd.facilities"]
+    ordered: false
+    mutates: true
+    verify: "select * from cd.facilities order by facid;"
+    hints:
+      - "You can alter existing data using the `UPDATE` statement."
     answer: |
       update cd.facilities
-         set membercost = membercost * 1.1,
-             guestcost  = guestcost * 1.1
-       where name like 'Tennis Court%';
+          set initialoutlay = 10000
+          where facid = 1;
     discussion: |
-      Each column on the right side of `set` refers to the value *before*
-      the update, so both multiplications use the old prices.
+      The `UPDATE` statement is used to alter existing data. If you're familiar with `SELECT` queries, it's pretty easy to read: the `WHERE` clause works in exactly the same fashion, allowing us to filter the set of rows we want to work with. These rows are then modified according to the specifications of the `SET` clause: in this case, setting the initial outlay.
 
-  - id: delete-unused-members
-    title: Remove members who never booked
+      The `WHERE` clause is extremely important. It's easy to get it wrong or even omit it, with disastrous results. Consider the following command:
+
+      ```sql
+      update cd.facilities
+          set initialoutlay = 10000;
+      ```
+
+      There's no `WHERE` clause to filter for the rows we're interested in. The result of this is that the update runs on every row in the table! This is rarely what we want to happen.
+
+  - id: updatemultiple
+    title: "Update multiple rows and columns at the same time"
     question: |
-      Delete every member who has never made a booking.
-    tables: [cd.members, cd.bookings]
+      We want to increase the price of the tennis courts for both members and guests. Update the costs to be 6 for members, and 30 for guests.
+    tables: ["cd.facilities"]
     ordered: false
     mutates: true
-    verify: |
-      select memid from cd.members order by memid;
+    verify: "select * from cd.facilities order by facid;"
     hints:
-      - A subquery can find which memids appear in bookings.
-      - not exists or not in both work here.
+      - "The `SET` clause can update multiple columns."
     answer: |
-      delete from cd.members m
-       where not exists (select 1 from cd.bookings b where b.memid = m.memid);
+      update cd.facilities
+          set
+              membercost = 6,
+              guestcost = 30
+          where facid in (0,1);
     discussion: |
-      `not exists` is usually preferred over `not in` because `not in`
-      returns no rows if the subquery yields a `NULL`.
+      The `SET` clause accepts a comma separated list of values that you want to update.
+
+  - id: updatecalculated
+    title: "Update a row based on the contents of another row"
+    question: |
+      We want to alter the price of the second tennis court so that it costs 10% more than the first one. Try to do this without using constant values for the prices, so that we can reuse the statement if we want to.
+    tables: ["cd.facilities"]
+    ordered: false
+    mutates: true
+    verify: "select * from cd.facilities order by facid;"
+    hints:
+      - "Take a look at `UPDATE FROM` in the PostgreSQL documentation."
+    answer: |
+      update cd.facilities facs
+          set
+              membercost = (select membercost * 1.1 from cd.facilities where facid = 0),
+              guestcost = (select guestcost * 1.1 from cd.facilities where facid = 0)
+          where facs.facid = 1;
+    discussion: |
+      Updating columns based on calculated data is not too intrinsically difficult: we can do so pretty easily using subqueries. You can see this approach in our selected answer.
+
+      As the number of columns we want to update increases, standard SQL can start to get pretty awkward: you don't want to be specifying a separate subquery for each of 15 different column updates. Postgres provides a nonstandard extension to SQL called `UPDATE...FROM` that addresses this: it allows you to supply a `FROM` clause to generate values for use in the `SET` clause. Example below:
+
+      ```sql
+      update cd.facilities facs
+          set
+              membercost = facs2.membercost * 1.1,
+              guestcost = facs2.guestcost * 1.1
+          from (select * from cd.facilities where facid = 0) facs2
+          where facs.facid = 1;
+      ```
+
+  - id: delete
+    title: "Delete all bookings"
+    question: |
+      As part of a clearout of our database, we want to delete all bookings from the cd.bookings table. How can we accomplish this?
+    tables: ["cd.bookings"]
+    ordered: false
+    mutates: true
+    verify: "select * from cd.bookings order by bookid;"
+    hints:
+      - "Take a look at the `DELETE` statement in the PostgreSQL docs."
+    answer: |
+      delete from cd.bookings;
+    discussion: |
+      The `DELETE` statement does what it says on the tin: deletes rows from the table. Here, we show the command in its simplest form, with no qualifiers. In this case, it deletes everything from the table. Obviously, you should be careful with your deletes and make sure they're always limited - we'll see how to do that in the next exercise.
+
+      An alternative to unqualified `DELETEs` is the following:
+
+      ```sql
+      truncate cd.bookings;
+      ```
+
+      `TRUNCATE` also deletes everything in the table, but does so using a quicker underlying mechanism. It's not [perfectly safe in all circumstances](https://www.postgresql.org/docs/current/static/mvcc-caveats.html), though, so use judiciously. When in doubt, use `DELETE`.
+
+  - id: deletewh
+    title: "Delete a member from the cd.members table"
+    question: |
+      We want to remove member 37, who has never made a booking, from our database. How can we achieve that?
+    tables: ["cd.members"]
+    ordered: false
+    mutates: true
+    verify: "select * from cd.members order by memid;"
+    hints:
+      - "Take a look at the `DELETE` statement in the PostgreSQL docs."
+    answer: |
+      delete from cd.members where memid = 37;
+    discussion: |
+      This exercise is a small increment on our previous one. Instead of deleting all bookings, this time we want to be a bit more targeted, and delete a single member that has never made a booking. To do this, we simply have to add a `WHERE` clause to our command, specifying the member we want to delete. You can see the parallels with `SELECT` and `UPDATE` statements here.
+
+      There's one interesting wrinkle here. Try this command out, but substituting in member id 0 instead. This member has made many bookings, and you'll find that the delete fails with an error about a foreign key constraint violation. This is an important concept in relational databases, so let's explore a little further.
+
+      Foreign keys are a mechanism for defining relationships between columns of different tables. In our case we use them to specify that the memid column of the bookings table is related to the memid column of the members table. The relationship (or 'constraint') specifies that for a given booking, the member specified in the booking **must** exist in the members table. It's useful to have this guarantee enforced by the database: it means that code using the database can rely on the presence of the member. It's hard (even impossible) to enforce this at higher levels: concurrent operations can interfere and leave your database in a broken state.
+
+      PostgreSQL supports various different kinds of constraints that allow you to enforce structure upon your data. For more information on constraints, check out the PostgreSQL documentation on [foreign keys](https://www.postgresql.org/docs/current/static/ddl-constraints.html)
+
+  - id: deletewh2
+    title: "Delete based on a subquery"
+    question: |
+      In our previous exercises, we deleted a specific member who had never made a booking. How can we make that more general, to delete all members who have never made a booking?
+    tables: ["cd.bookings", "cd.members"]
+    ordered: false
+    mutates: true
+    verify: "select * from cd.members order by memid;"
+    hints:
+      - "You can delete based on the output of a subquery"
+    answer: |
+      delete from cd.members where memid not in (select memid from cd.bookings);
+    discussion: |
+      We can use subqueries to determine whether a row should be deleted or not. There's a couple of standard ways to do this. In our featured answer, the subquery produces a list of all the different member ids in the cd.bookings table. If a row in the table isn't in the list generated by the subquery, it gets deleted.
+
+      An alternative is to use a *correlated subquery*. Where our previous example runs a large subquery once, the correlated approach instead specifies a smaller subqueryto run against every row.
+
+      ```sql
+      delete from cd.members mems where not exists (select 1 from cd.bookings where memid = mems.memid);
+      ```
+
+      The two different forms can have different performance characteristics. Under the hood, your database engine is free to transform your query to execute it in a correlated or uncorrelated fashion, though, so things can be a little hard to predict.
