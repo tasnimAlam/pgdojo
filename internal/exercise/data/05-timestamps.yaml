@@ -1,0 +1,59 @@
+id: timestamps
+title: Working with Timestamps
+description: Extract, truncate and do arithmetic on dates and times.
+exercises:
+  - id: bookings-on-day
+    title: Bookings on one day
+    question: |
+      List the start time of every booking that started on the 14th of
+      September 2012, earliest first.
+    tables: [cd.bookings]
+    ordered: true
+    hints:
+      - A half-open range [day, next day) catches the whole day.
+    answer: |
+      select starttime
+        from cd.bookings
+       where starttime >= '2012-09-14'
+         and starttime <  '2012-09-15'
+       order by starttime;
+    discussion: |
+      A half-open range keeps the query able to use an index on
+      `starttime`, unlike wrapping the column in a function.
+
+  - id: bookings-per-month
+    title: Bookings per month
+    question: |
+      Count how many bookings started in each month. Show the month as a
+      timestamp at the start of that month, oldest month first.
+    tables: [cd.bookings]
+    ordered: true
+    hints:
+      - date_trunc('month', ts) rounds a timestamp down to its month.
+    answer: |
+      select date_trunc('month', starttime) as month, count(*) as bookings
+        from cd.bookings
+       group by month
+       order by month;
+    discussion: |
+      `date_trunc` returns a timestamp, so the month column keeps a proper
+      type and sorts chronologically.
+
+  - id: days-in-2012-months
+    title: Days in each month of 2012
+    question: |
+      For each month of 2012, show the month number and how many days it
+      has, as an interval.
+    tables: []
+    ordered: true
+    hints:
+      - generate_series can produce the 12 month starts.
+      - The next month's start minus this month's start is the length.
+    answer: |
+      select extract(month from m) as month,
+             (m + interval '1 month') - m as length
+        from generate_series(timestamp '2012-01-01', timestamp '2012-12-01', interval '1 month') m
+       order by month;
+    discussion: |
+      Subtracting two timestamps gives an interval. Adding `1 month` is
+      calendar-aware, so February 2012 correctly has 29 days.

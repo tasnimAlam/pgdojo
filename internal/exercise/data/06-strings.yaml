@@ -1,0 +1,53 @@
+id: strings
+title: String Operations
+description: Format, search and transform text.
+exercises:
+  - id: full-names
+    title: Members' full names
+    question: |
+      Show every member's name as one column formatted "Surname, Firstname".
+    tables: [cd.members]
+    ordered: false
+    hints:
+      - The || operator concatenates strings.
+    answer: |
+      select surname || ', ' || firstname as name
+        from cd.members;
+    discussion: |
+      `||` returns `NULL` if either side is `NULL`. `concat()` treats
+      `NULL` as an empty string instead.
+
+  - id: surname-initials
+    title: Members per surname initial
+    question: |
+      Count members by the first letter of their surname, sorted by letter.
+    tables: [cd.members]
+    ordered: true
+    hints:
+      - substr(text, 1, 1) returns the first character.
+    answer: |
+      select substr(surname, 1, 1) as letter, count(*) as count
+        from cd.members
+       group by letter
+       order by letter;
+    discussion: |
+      Postgres lets `group by` and `order by` refer to an output column
+      alias, which keeps the expression in one place.
+
+  - id: clean-phone-numbers
+    title: Digits-only phone numbers
+    question: |
+      Show each member's id and telephone number with every character that
+      is not a digit removed. Sort by member id.
+    tables: [cd.members]
+    ordered: true
+    hints:
+      - regexp_replace can remove every match when given the 'g' flag.
+      - "[^0-9] matches any non-digit."
+    answer: |
+      select memid, regexp_replace(telephone, '[^0-9]', '', 'g') as telephone
+        from cd.members
+       order by memid;
+    discussion: |
+      Without the `'g'` flag, `regexp_replace` replaces only the first
+      match.

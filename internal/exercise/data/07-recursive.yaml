@@ -1,0 +1,78 @@
+id: recursive
+title: Recursive Queries
+description: Walk hierarchies with recursive common table expressions.
+exercises:
+  - id: recommendation-chain-up
+    title: Who recommended whom, upwards
+    question: |
+      Starting from member 27, follow the chain of recommendations upward.
+      Show the member id, first name and surname of every recommender in
+      the chain, nearest first.
+    tables: [cd.members]
+    ordered: true
+    hints:
+      - with recursive lets a CTE refer to itself.
+      - Track the depth so you can sort nearest first.
+    answer: |
+      with recursive chain(recommender, depth) as (
+        select recommendedby, 1 from cd.members where memid = 27
+        union all
+        select m.recommendedby, c.depth + 1
+          from chain c
+          join cd.members m on m.memid = c.recommender
+      )
+      select c.recommender as memid, m.firstname, m.surname
+        from chain c
+        join cd.members m on m.memid = c.recommender
+       order by c.depth;
+    discussion: |
+      The recursive part keeps joining until a member has no recommender;
+      the `NULL` row it produces is removed by the final inner join.
+
+  - id: recommendation-tree-down
+    title: Everyone a member brought in
+    question: |
+      Find every member who was recommended by member 1, directly or
+      indirectly. Show their member id, first name and surname, sorted by
+      member id.
+    tables: [cd.members]
+    ordered: true
+    hints:
+      - Start with the members whose recommendedby is 1.
+      - Then repeatedly add members recommended by someone already found.
+    answer: |
+      with recursive tree(memid) as (
+        select memid from cd.members where recommendedby = 1
+        union all
+        select m.memid
+          from tree t
+          join cd.members m on m.recommendedby = t.memid
+      )
+      select t.memid, m.firstname, m.surname
+        from tree t
+        join cd.members m on m.memid = t.memid
+       order by t.memid;
+    discussion: |
+      This walks the hierarchy downward instead of upward: the join
+      condition is flipped compared with the previous exercise.
+
+  - id: count-to-ten
+    title: Count to ten
+    question: |
+      Without using generate_series, produce a single column of the numbers
+      1 to 10.
+    tables: []
+    ordered: true
+    hints:
+      - A recursive CTE needs a starting row and a step.
+      - Stop the recursion with a where condition.
+    answer: |
+      with recursive n(i) as (
+        select 1
+        union all
+        select i + 1 from n where i < 10
+      )
+      select i from n order by i;
+    discussion: |
+      The non-recursive term seeds the result, the recursive term adds one
+      row per step, and the `where` clause ends the loop.

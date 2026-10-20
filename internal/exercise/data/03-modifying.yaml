@@ -1,0 +1,70 @@
+id: modifying
+title: Modifying Data
+description: Insert, update and delete rows. Your changes are always rolled back.
+exercises:
+  - id: add-spa
+    title: Add a spa
+    question: |
+      The club has built a spa. Insert it into the facilities table with
+      facid 9, name 'Spa', a member cost of 20, a guest cost of 30, an
+      initial outlay of 100000 and monthly maintenance of 800.
+    tables: [cd.facilities]
+    ordered: false
+    mutates: true
+    verify: |
+      select facid, name, membercost, guestcost, initialoutlay, monthlymaintenance
+        from cd.facilities
+       order by facid;
+    hints:
+      - Use insert into ... (columns) values (...).
+      - List the columns explicitly so the order is clear.
+    answer: |
+      insert into cd.facilities
+        (facid, name, membercost, guestcost, initialoutlay, monthlymaintenance)
+      values (9, 'Spa', 20, 30, 100000, 800);
+    discussion: |
+      Naming the columns makes the statement robust to column reordering.
+      The check compares the whole facilities table afterwards.
+
+  - id: raise-tennis-prices
+    title: Raise tennis court prices
+    question: |
+      Tennis is popular. Increase both the member cost and the guest cost of
+      every tennis court by 10 percent.
+    tables: [cd.facilities]
+    ordered: false
+    mutates: true
+    verify: |
+      select facid, name, membercost, guestcost
+        from cd.facilities
+       order by facid;
+    hints:
+      - One update statement can set several columns.
+      - Multiply by 1.1 and filter by name.
+    answer: |
+      update cd.facilities
+         set membercost = membercost * 1.1,
+             guestcost  = guestcost * 1.1
+       where name like 'Tennis Court%';
+    discussion: |
+      Each column on the right side of `set` refers to the value *before*
+      the update, so both multiplications use the old prices.
+
+  - id: delete-unused-members
+    title: Remove members who never booked
+    question: |
+      Delete every member who has never made a booking.
+    tables: [cd.members, cd.bookings]
+    ordered: false
+    mutates: true
+    verify: |
+      select memid from cd.members order by memid;
+    hints:
+      - A subquery can find which memids appear in bookings.
+      - not exists or not in both work here.
+    answer: |
+      delete from cd.members m
+       where not exists (select 1 from cd.bookings b where b.memid = m.memid);
+    discussion: |
+      `not exists` is usually preferred over `not in` because `not in`
+      returns no rows if the subquery yields a `NULL`.

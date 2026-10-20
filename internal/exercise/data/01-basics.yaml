@@ -1,0 +1,62 @@
+id: basics
+title: Basics
+description: Retrieve and filter rows from a single table.
+exercises:
+  - id: cheap-facilities
+    title: Facilities members can use cheaply
+    question: |
+      The club wants to advertise its budget options. List the name and
+      member cost of every facility whose member cost is greater than zero
+      but less than one fiftieth of its monthly maintenance cost.
+    tables: [cd.facilities]
+    ordered: false
+    hints:
+      - Everything you need is in cd.facilities.
+      - Combine two conditions in the where clause with and.
+    answer: |
+      select name, membercost
+        from cd.facilities
+       where membercost > 0
+         and membercost < monthlymaintenance / 50.0;
+    discussion: |
+      Both conditions live in the `where` clause and are joined with `and`.
+      Dividing by `50.0` keeps the arithmetic in `numeric` instead of
+      integer division, which matters if the columns were ever integers.
+
+  - id: tennis-courts
+    title: Find the tennis courts
+    question: |
+      Which facilities have the word "Tennis" somewhere in their name?
+      Return every column for those facilities.
+    tables: [cd.facilities]
+    ordered: false
+    hints:
+      - The like operator matches patterns.
+      - "% matches any run of characters, including none."
+    answer: |
+      select *
+        from cd.facilities
+       where name like '%Tennis%';
+    discussion: |
+      `like` with `%` on both sides finds the substring anywhere. `like` is
+      case sensitive; use `ilike` when case should not matter.
+
+  - id: recent-members
+    title: Newest members first
+    question: |
+      Show the member id, first name, surname and join date of members who
+      joined on or after the 1st of September 2012, newest member first.
+    tables: [cd.members]
+    ordered: true
+    hints:
+      - Compare joindate with a timestamp literal.
+      - Sort with order by ... desc.
+    answer: |
+      select memid, firstname, surname, joindate
+        from cd.members
+       where joindate >= '2012-09-01'
+       order by joindate desc;
+    discussion: |
+      Postgres casts the string literal to a timestamp because it is
+      compared with a timestamp column. Because the question asks for an
+      order, this exercise checks row order too.

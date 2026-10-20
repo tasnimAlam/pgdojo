@@ -1,0 +1,65 @@
+id: joins
+title: Joins and Subqueries
+description: Combine rows from several tables with joins and subqueries.
+exercises:
+  - id: member-booking-starttimes
+    title: Start times of a member's bookings
+    question: |
+      Produce a list of the start times for bookings made by the member
+      named David Farrell.
+    tables: [cd.bookings, cd.members]
+    ordered: false
+    hints:
+      - Join bookings to members on memid.
+      - Filter on both firstname and surname.
+    answer: |
+      select bks.starttime
+        from cd.bookings bks
+        join cd.members mems on mems.memid = bks.memid
+       where mems.firstname = 'David' and mems.surname = 'Farrell';
+    discussion: |
+      An inner join keeps only bookings whose `memid` matches a member row.
+      Filtering on both name parts avoids picking up another David.
+
+  - id: recommenders
+    title: Members who recommended someone
+    question: |
+      List the first name and surname of every member who has recommended
+      at least one other member. Each person should appear once, sorted by
+      surname and then first name.
+    tables: [cd.members]
+    ordered: true
+    hints:
+      - Join cd.members to itself through recommendedby.
+      - Use distinct to remove repeats.
+    answer: |
+      select distinct rec.firstname, rec.surname
+        from cd.members mems
+        join cd.members rec on rec.memid = mems.recommendedby
+       order by rec.surname, rec.firstname;
+    discussion: |
+      A self join gives the table two aliases: one for the recommended
+      member and one for the recommender. `distinct` collapses people who
+      recommended several members.
+
+  - id: member-recommender
+    title: Every member and their recommender
+    question: |
+      For every member, show their first name and surname next to the first
+      name and surname of whoever recommended them. Members nobody
+      recommended should still appear, with empty recommender columns.
+      Sort by member surname, then first name.
+    tables: [cd.members]
+    ordered: true
+    hints:
+      - An inner join would drop members with no recommender.
+      - A left outer join keeps every row from the left table.
+    answer: |
+      select mems.firstname as memfname, mems.surname as memsname,
+             rec.firstname as recfname, rec.surname as recsname
+        from cd.members mems
+        left join cd.members rec on rec.memid = mems.recommendedby
+       order by memsname, memfname;
+    discussion: |
+      `left join` keeps every member and fills the recommender columns with
+      `NULL` when there is no match.

@@ -1,0 +1,56 @@
+id: aggregation
+title: Aggregation
+description: Summarize rows with count, sum, group by and window functions.
+exercises:
+  - id: count-facilities
+    title: How many facilities
+    question: |
+      How many facilities does the club have? Return a single column named
+      count.
+    tables: [cd.facilities]
+    ordered: false
+    hints:
+      - count(*) counts rows.
+    answer: |
+      select count(*) from cd.facilities;
+    discussion: |
+      `count(*)` counts rows, including rows with `NULL` values.
+
+  - id: slots-per-facility
+    title: Slots booked per facility
+    question: |
+      For each facility id, show the total number of slots booked. Sort by
+      facility id.
+    tables: [cd.bookings]
+    ordered: true
+    hints:
+      - Group the bookings by facid.
+      - Sum the slots column.
+    answer: |
+      select facid, sum(slots) as total_slots
+        from cd.bookings
+       group by facid
+       order by facid;
+    discussion: |
+      `group by` makes one output row per facility; `sum` folds every
+      booking in that group into one number.
+
+  - id: busy-facilities
+    title: Facilities over a thousand slots
+    question: |
+      Which facilities have more than 1000 slots booked in total? Show the
+      facility id and total, sorted by facility id.
+    tables: [cd.bookings]
+    ordered: true
+    hints:
+      - where filters rows before grouping.
+      - having filters groups after grouping.
+    answer: |
+      select facid, sum(slots) as total_slots
+        from cd.bookings
+       group by facid
+      having sum(slots) > 1000
+       order by facid;
+    discussion: |
+      You cannot use an aggregate in `where` because `where` runs before
+      groups exist. `having` is the filter for groups.
