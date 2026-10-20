@@ -4,8 +4,7 @@ PostgreSQL exercises in the terminal, in the spirit of pgexercises.com: pick an
 exercise, write SQL, run it against a real local Postgres, and see whether the
 result matches the expected one.
 
-_Screenshots coming soon._
-<!-- Add docs/screenshot.png (home and exercise screens at 120×36) and link it here. -->
+![pgdojo exercise view: a passing query with its result table](docs/screenshot.png)
 
 ## Install
 
