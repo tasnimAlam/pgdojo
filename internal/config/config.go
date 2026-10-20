@@ -1,4 +1,4 @@
-// Package config loads pgex settings from the config file, environment and
+// Package config loads pgdojo settings from the config file, environment and
 // command-line flags, and resolves XDG paths.
 package config
 
@@ -31,7 +31,7 @@ type Flags struct {
 }
 
 // Load reads the config file and applies overrides. DSN precedence is
-// --dsn flag > PGEX_DSN env > config file > default. A missing config file is
+// --dsn flag > PGDOJO_DSN env > config file > default. A missing config file is
 // fine unless its path was given explicitly.
 func Load(f Flags) (Config, error) {
 	path := f.ConfigPath
@@ -44,7 +44,7 @@ func Load(f Flags) (Config, error) {
 			return c, fmt.Errorf("could not read config file %s: %w", path, err)
 		}
 	}
-	if env := os.Getenv("PGEX_DSN"); env != "" {
+	if env := os.Getenv("PGDOJO_DSN"); env != "" {
 		c.DSN = env
 	}
 	if f.DSN != "" {
@@ -78,25 +78,25 @@ func (c Config) EditorCommand() string {
 // UseVimKeys reports whether j/k move in lists (default true).
 func (c Config) UseVimKeys() bool { return c.VimKeys == nil || *c.VimKeys }
 
-// DefaultPath is $XDG_CONFIG_HOME/pgex/config.toml.
+// DefaultPath is $XDG_CONFIG_HOME/pgdojo/config.toml.
 func DefaultPath() string {
 	dir, err := os.UserConfigDir()
 	if err != nil {
 		dir = "."
 	}
-	return filepath.Join(dir, "pgex", "config.toml")
+	return filepath.Join(dir, "pgdojo", "config.toml")
 }
 
-// DataDir is $XDG_DATA_HOME/pgex, defaulting to ~/.local/share/pgex.
+// DataDir is $XDG_DATA_HOME/pgdojo, defaulting to ~/.local/share/pgdojo.
 func DataDir() string {
 	if d := os.Getenv("XDG_DATA_HOME"); d != "" {
-		return filepath.Join(d, "pgex")
+		return filepath.Join(d, "pgdojo")
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		home = "."
 	}
-	return filepath.Join(home, ".local", "share", "pgex")
+	return filepath.Join(home, ".local", "share", "pgdojo")
 }
 
 // ProgressPath is where progress.json lives.

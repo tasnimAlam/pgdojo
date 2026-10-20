@@ -1,4 +1,4 @@
-# pgex
+# pgdojo
 
 PostgreSQL exercises in the terminal, in the spirit of pgexercises.com: pick an
 exercise, write SQL, run it against a real local Postgres, and see whether the
@@ -13,18 +13,18 @@ _Screenshots coming soon._
 
 ```fish
 tar -xzf pgex_*_linux_amd64.tar.gz
-install -Dm755 pgex ~/.local/bin/pgex
+install -Dm755 pgdojo ~/.local/bin/pgdojo
 ```
 
 **From source** (Go 1.27+):
 
 ```fish
-go install github.com/tasnimAlam/pgdojo/cmd/pgex@latest
+go install github.com/tasnimAlam/pgdojo/cmd/pgdojo@latest
 ```
 
 ## Database setup
 
-pgex runs your SQL against a local Postgres 17 container loaded with the
+pgdojo runs your SQL against a local Postgres 17 container loaded with the
 pgexercises country club dataset. You need podman (with podman-compose) or
 docker with the compose plugin.
 
@@ -39,14 +39,14 @@ make db-up
 From a release archive, use its `db/` folder:
 
 ```fish
-mkdir -p ~/.local/share/pgex/db
-cp db/* ~/.local/share/pgex/db/
-cd ~/.local/share/pgex/db
+mkdir -p ~/.local/share/pgdojo/db
+cp db/* ~/.local/share/pgdojo/db/
+cd ~/.local/share/pgdojo/db
 curl -o clubdata.sql https://pgexercises.com/dbfiles/clubdata.sql
 podman-compose up -d     # or: docker compose up -d
 ```
 
-Then check everything with `pgex doctor` and start with `pgex`.
+Then check everything with `pgdojo doctor` and start with `pgdojo`.
 
 ## Fish setup
 
@@ -54,18 +54,18 @@ Add to `~/.config/fish/config.fish` as needed:
 
 ```fish
 # Only needed if your database is not the default localhost:5433 container.
-set -gx PGEX_DSN postgres://pgex_player:pgex@localhost:5433/exercises
+set -gx PGDOJO_DSN postgres://pgex_player:pgex@localhost:5433/exercises
 
 # Editor used by `e` in an exercise (falls back to $EDITOR, then vi).
 set -gx EDITOR nvim      # or: set -gx EDITOR "emacsclient -t"
 
-abbr -a px pgex
+abbr -a pd pgdojo
 ```
 
 Generate fish completions once:
 
 ```fish
-pgex completion fish > ~/.config/fish/completions/pgex.fish
+pgdojo completion fish > ~/.config/fish/completions/pgdojo.fish
 ```
 
 ## Development
@@ -83,7 +83,7 @@ The AUR files live in `packaging/aur/`. After tagging, run `updpkgsums` and
 
 ## Commands
 
-Run `pgex` with no arguments for the interactive interface. Press `?` for
+Run `pgdojo` with no arguments for the interactive interface. Press `?` for
 keyboard shortcuts, `/` to filter a list, `c` on the home screen to continue
 the last exercise. With `vim_keys = true` (the default) lists also take
 `j`/`k` to move, `l` to open, `h` to go back, `g`/`G` for top and bottom, and
@@ -101,7 +101,7 @@ window (tables, keys and how they relate),
 `ctrl+c` cancels a running query. Below 110 columns the panes stack
 vertically and `H` opens hints as an overlay.
 
-`q` asks `Quit pgex? y/n` before quitting; `ctrl+c` quits at once (or
+`q` asks `Quit pgdojo? y/n` before quitting; `ctrl+c` quits at once (or
 cancels a running query).
 
 On the home screen `R` resets all progress after you type `reset` (drafts are
@@ -109,7 +109,7 @@ kept).
 
 ## Config
 
-`~/.config/pgex/config.toml`:
+`~/.config/pgdojo/config.toml`:
 
 ```toml
 dsn = "postgres://pgex_player:pgex@localhost:5433/exercises"
@@ -119,36 +119,36 @@ vim_keys = true          # h/j/k/l, g/G, ctrl+u/d in lists
 ```
 
 ```fish
-pgex list                                   # categories and exercises with your progress
-pgex check joins/simplejoin q.sql             # run a file, print pass/fail and a diff; exit 0 on pass
-pgex doctor                                 # check DSN, connection, schema cd, role permissions, $EDITOR
-pgex validate                               # run every reference answer against the database
+pgdojo list                                   # categories and exercises with your progress
+pgdojo check joins/simplejoin q.sql             # run a file, print pass/fail and a diff; exit 0 on pass
+pgdojo doctor                                 # check DSN, connection, schema cd, role permissions, $EDITOR
+pgdojo validate                               # run every reference answer against the database
 ```
 
 Global flags: `--dsn`, `--config`, `--accent`. The DSN is taken from `--dsn`,
-then `PGEX_DSN`, then the config file, then the default
+then `PGDOJO_DSN`, then the config file, then the default
 `postgres://pgex_player:pgex@localhost:5433/exercises`.
 
 ```fish
-set -x PGEX_DSN postgres://pgex_player:pgex@localhost:5433/exercises
+set -x PGDOJO_DSN postgres://pgex_player:pgex@localhost:5433/exercises
 ```
 
 ## Files
 
 | What | Path |
 |---|---|
-| Config | `~/.config/pgex/config.toml` (keys: `dsn`, `editor`, `accent`, `vim_keys`) |
-| Progress | `~/.local/share/pgex/progress.json` |
-| Drafts | `~/.local/share/pgex/drafts/<category>/<exercise>.sql` |
+| Config | `~/.config/pgdojo/config.toml` (keys: `dsn`, `editor`, `accent`, `vim_keys`) |
+| Progress | `~/.local/share/pgdojo/progress.json` |
+| Drafts | `~/.local/share/pgdojo/drafts/<category>/<exercise>.sql` |
 
-`XDG_CONFIG_HOME` and `XDG_DATA_HOME` are respected. `pgex check` records an
+`XDG_CONFIG_HOME` and `XDG_DATA_HOME` are respected. `pgdojo check` records an
 attempt in the progress file.
 
 ## Make targets
 
 | Target | What it does |
 |---|---|
-| `build` | Build `bin/pgex` |
+| `build` | Build `bin/pgdojo` |
 | `test` | `go test -race ./...` |
 | `lint` | `go vet` and a gofmt check |
 | `run` | Build and run |
@@ -166,11 +166,11 @@ by Alisdair Owens and are licensed under
 [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) (see
 `internal/exercise/data/LICENSE-exercises`). They were converted from the
 original HTML question files to YAML and Markdown, and modifying exercises
-gained `verify` queries. The rest of pgex is separate from that licence.
+gained `verify` queries. The rest of pgdojo is separate from that licence.
 
 Exercise data lives in `internal/exercise/data/*.yaml`, one file per category,
 and is embedded in the binary. The loader validates ids, required fields, and
-`verify` queries for modifying exercises; `pgex validate` runs every reference
+`verify` queries for modifying exercises; `pgdojo validate` runs every reference
 answer against the database.
 
 ## How checking works

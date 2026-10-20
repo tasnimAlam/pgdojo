@@ -14,13 +14,13 @@ func TestLoadPrecedence(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Setenv("PGEX_DSN", "")
+	t.Setenv("PGDOJO_DSN", "")
 	c, err := Load(Flags{ConfigPath: path})
 	if err != nil || c.DSN != "file" || c.Accent != "#ff0000" || c.UseVimKeys() {
 		t.Fatalf("file only: %+v, %v", c, err)
 	}
 
-	t.Setenv("PGEX_DSN", "env")
+	t.Setenv("PGDOJO_DSN", "env")
 	if c, _ = Load(Flags{ConfigPath: path}); c.DSN != "env" {
 		t.Errorf("env should beat file, got %q", c.DSN)
 	}
@@ -31,12 +31,12 @@ func TestLoadPrecedence(t *testing.T) {
 
 func TestLoadDefaults(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
-	t.Setenv("PGEX_DSN", "")
+	t.Setenv("PGDOJO_DSN", "")
 	c, err := Load(Flags{})
 	if err != nil || c.DSN != db.DefaultDSN || !c.UseVimKeys() {
 		t.Fatalf("defaults: %+v, %v", c, err)
 	}
-	if _, err := Load(Flags{ConfigPath: "/nonexistent/pgex.toml"}); err == nil {
+	if _, err := Load(Flags{ConfigPath: "/nonexistent/pgdojo.toml"}); err == nil {
 		t.Error("explicit missing config path should fail")
 	}
 	if _, err := Load(Flags{Accent: "teal"}); err == nil {

@@ -79,7 +79,7 @@ type Model struct {
 	width       int
 	height      int
 	help        bool
-	confirmQuit bool // "Quit pgex? y/n" is showing
+	confirmQuit bool // "Quit pgdojo? y/n" is showing
 }
 
 func New(d *Deps) Model {
@@ -221,7 +221,7 @@ func (m Model) View() tea.View {
 	if m.width < minWidth || m.height < minHeight {
 		t := m.deps.Theme
 		msg := t.Warn.Render("Terminal too small") + "\n" + t.Dim.Render(fmt.Sprintf(
-			"pgex needs at least %d×%d, this window is %d×%d.\nEnlarge it or reduce the font size.", minWidth, minHeight, m.width, m.height))
+			"pgdojo needs at least %d×%d, this window is %d×%d.\nEnlarge it or reduce the font size.", minWidth, minHeight, m.width, m.height))
 		v := tea.NewView(lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, msg))
 		v.AltScreen = true
 		return v
@@ -232,7 +232,7 @@ func (m Model) View() tea.View {
 	}
 	if m.confirmQuit {
 		t := m.deps.Theme
-		body := t.Text.Render("Quit pgex?") + "  " + t.HelpKey.Render("y") + t.Dim.Render(" yes · ") +
+		body := t.Text.Render("Quit pgdojo?") + "  " + t.HelpKey.Render("y") + t.Dim.Render(" yes · ") +
 			t.HelpKey.Render("n") + t.Dim.Render(" no")
 		modal := t.PaneColored("Quit", body, lipgloss.Width(body)+4, 3, t.P.Warn, t.Warn.Bold(true))
 		content = t.Overlay(content, modal, m.width, m.height)

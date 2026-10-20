@@ -246,11 +246,11 @@ func (s *exerciseView) finish(msg checkDoneMsg) tea.Cmd {
 		return nil
 	case errors.Is(msg.err, db.ErrExercise):
 		s.mode, s.errTitle = resError, "This exercise's reference answer failed"
-		s.errText = "Your query can't be checked. Run 'pgex validate' and report the exercise.\n\n" + msg.err.Error()
+		s.errText = "Your query can't be checked. Run 'pgdojo validate' and report the exercise.\n\n" + msg.err.Error()
 		return nil
 	case msg.err != nil:
 		s.mode, s.errTitle = resError, "Could not reach the database"
-		s.errText = "Start it with 'make db-up', then run again. Check the setup with 'pgex doctor'."
+		s.errText = "Start it with 'make db-up', then run again. Check the setup with 'pgdojo doctor'."
 		return func() tea.Msg { return pingNowMsg{} } // refresh the header status
 	}
 	s.mode, s.chk = resCheck, msg.chk

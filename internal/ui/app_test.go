@@ -80,7 +80,7 @@ func testDeps(t *testing.T) *Deps {
 		Catalog:  cat,
 		Checker:  fakeChecker{},
 		Progress: store,
-		Drafts:   drafts.New(filepath.Join(home, ".local", "share", "pgex", "drafts")),
+		Drafts:   drafts.New(filepath.Join(home, ".local", "share", "pgdojo", "drafts")),
 		DBLabel:  "localhost:5433/exercises",
 		Theme:    NewTheme(""),
 		Keys:     NewKeyMap(true),
@@ -369,7 +369,7 @@ func TestQuitConfirm(t *testing.T) {
 	if cmd != nil || !m.(Model).confirmQuit {
 		t.Fatal("q should ask for confirmation, not quit")
 	}
-	if out := screenText(m); !strings.Contains(out, "Quit pgex?") {
+	if out := screenText(m); !strings.Contains(out, "Quit pgdojo?") {
 		t.Errorf("quit prompt missing:\n%s", out)
 	}
 	m, _ = m.Update(keyPress("j")) // other keys are ignored while asking

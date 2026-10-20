@@ -1,4 +1,4 @@
-// Command pgex is a terminal trainer for PostgreSQL exercises.
+// Command pgdojo is a terminal trainer for PostgreSQL exercises.
 package main
 
 import (
@@ -8,6 +8,8 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"runtime/debug"
+	"strings"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -23,6 +25,17 @@ import (
 
 // version is set at build time with -ldflags "-X main.version=...".
 var version = "dev"
+
+// buildVersion is version, or the module version for go install builds,
+// which don't get the release ldflags.
+func buildVersion() string {
+	if version == "dev" {
+		if bi, ok := debug.ReadBuildInfo(); ok && bi.Main.Version != "" && bi.Main.Version != "(devel)" {
+			return strings.TrimPrefix(bi.Main.Version, "v")
+		}
+	}
+	return version
+}
 
 // errQuiet makes main exit 1 without printing; the command already
 // reported the problem.
@@ -43,13 +56,13 @@ func main() {
 func rootCmd() *cobra.Command {
 	var flags config.Flags
 	root := &cobra.Command{
-		Use:           "pgex",
+		Use:           "pgdojo",
 		Short:         "PostgreSQL exercises in your terminal",
-		Version:       version,
+		Version:       buildVersion(),
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
-	root.PersistentFlags().StringVar(&flags.DSN, "dsn", "", "Postgres connection string (overrides PGEX_DSN and the config file)")
+	root.PersistentFlags().StringVar(&flags.DSN, "dsn", "", "Postgres connection string (overrides PGDOJO_DSN and the config file)")
 	root.PersistentFlags().StringVar(&flags.ConfigPath, "config", "", "config file (default "+config.DefaultPath()+")")
 	root.PersistentFlags().StringVar(&flags.Accent, "accent", "", "accent color as hex, e.g. #5ccfb8")
 
@@ -137,7 +150,7 @@ func (a *app) tui(ctx context.Context) error {
 
 // connectErr turns a ping failure into a sentence with a next step.
 func connectErr(dsn string, err error) error {
-	return fmt.Errorf("could not connect to Postgres at %s (%s).\nStart the database with 'make db-up', or point pgex elsewhere with --dsn or PGEX_DSN", db.Describe(dsn), rootCause(err))
+	return fmt.Errorf("could not connect to Postgres at %s (%s).\nStart the database with 'make db-up', or point pgdojo elsewhere with --dsn or PGDOJO_DSN", db.Describe(dsn), rootCause(err))
 }
 
 // rootCause shortens pgx's multi-line connect errors to the part that

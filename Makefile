@@ -1,10 +1,10 @@
-BIN     := bin/pgex
+BIN     := bin/pgdojo
 COMPOSE := ./scripts/compose.sh -f db/compose.yaml
 
 .PHONY: build test lint run db-up db-down db-reset check-clubdata
 
 build:
-	go build -o $(BIN) ./cmd/pgex
+	go build -o $(BIN) ./cmd/pgdojo
 
 test:
 	go test -race ./...

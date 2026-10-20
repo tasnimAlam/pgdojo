@@ -1,14 +1,14 @@
 # Build release archives: goreleaser release --clean (needs a v* git tag).
 version: 2
-project_name: pgex
+project_name: pgdojo
 
 before:
   hooks:
     - go test -short ./...
 
 builds:
-  - main: ./cmd/pgex
-    binary: pgex
+  - main: ./cmd/pgdojo
+    binary: pgdojo
     env:
       - CGO_ENABLED=0
     goos: [linux]

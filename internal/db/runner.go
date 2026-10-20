@@ -177,7 +177,7 @@ func CheckSingleStatement(sql string) *UserError {
 	}
 	words := strings.FieldsFunc(code, func(r rune) bool { return r > 127 || !isIdent(byte(r)) })
 	if len(words) > 0 && txControl[strings.ToLower(words[0])] {
-		return &UserError{Message: "Transaction commands like " + strings.ToUpper(words[0]) + " are not allowed: pgex runs every query in its own transaction and rolls it back."}
+		return &UserError{Message: "Transaction commands like " + strings.ToUpper(words[0]) + " are not allowed: pgdojo runs every query in its own transaction and rolls it back."}
 	}
 	return nil
 }

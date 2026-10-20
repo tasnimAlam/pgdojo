@@ -1,4 +1,4 @@
- pgex  PostgreSQL exercises in your terminal                                    db localhost:5433/exercises ● connected 
+ pgdojo  PostgreSQL exercises in your terminal                                  db localhost:5433/exercises ● connected 
 ╭ Categories ────────────────────────────────────────╮ ╭ Basics ───────────────────────────────────────────────────────╮
 │ 7 categories · 2 of 71 solved                      │ │ Retrieve and filter rows from a single table.                 │
 │ ▌▸ Basics                        ██████████   2/12 │ │                                                               │

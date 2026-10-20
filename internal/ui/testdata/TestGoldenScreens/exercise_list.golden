@@ -1,4 +1,4 @@
- pgex  Categories › Joins and Subqueries                                                                   0 / 8 solved 
+ pgdojo  Categories › Joins and Subqueries                                                                 0 / 8 solved 
 ╭ Exercises ─────────────────────────────────────────╮ ╭ Preview ──────────────────────────────────────────────────────╮
 │ Combine rows from several tables with joins and s… │ │ Retrieve the start times of members' bookings                 │
 │ ▌●  1. Retrieve the start times of members' booki… │ │                                                               │
@@ -30,7 +30,7 @@
 │                                                    │ │                                                               │
 │                                                    │ │                                                               │
 │                                                    │ │                                                               │
-│ ✓ solved  ● attempted  ○ new                       │ │ Draft ~/.local/share/pgex/drafts/joins/simplejoin.sql         │
+│ ✓ solved  ● attempted  ○ new                       │ │ Draft ~/.local/share/pgdojo/drafts/joins/simplejoin.sql       │
 ╰────────────────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
  j/k move · enter/l open · / filter · h/esc back · ? help · q quit                                                      

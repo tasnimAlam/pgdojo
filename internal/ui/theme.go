@@ -170,7 +170,7 @@ func spread(left, right string, w int) string {
 // Header renders the top row: badge, breadcrumb (last part bold), and
 // right-aligned context info.
 func (t Theme) Header(crumbs []string, right string, w int) string {
-	left := t.Badge.Render(" pgex ") + " "
+	left := t.Badge.Render(" pgdojo ") + " "
 	for i, c := range crumbs {
 		if i > 0 {
 			left += t.Crumb.Render(" › ")

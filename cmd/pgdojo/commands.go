@@ -29,7 +29,7 @@ func checkCmd(a *app) *cobra.Command {
 			}
 			ex, ok := cat.Find(args[0])
 			if !ok {
-				return fmt.Errorf("no exercise %q; run 'pgex list' to see exercise keys", args[0])
+				return fmt.Errorf("no exercise %q; run 'pgdojo list' to see exercise keys", args[0])
 			}
 			sql, err := os.ReadFile(args[1])
 			if err != nil {
@@ -297,7 +297,7 @@ func doctorCmd(a *app) *cobra.Command {
 			ctx := cmd.Context()
 			r, dsn, err := a.runner(ctx)
 			if err != nil {
-				report(false, "DSN: "+err.Error(), "check --dsn, PGEX_DSN or 'dsn' in the config file")
+				report(false, "DSN: "+err.Error(), "check --dsn, PGDOJO_DSN or 'dsn' in the config file")
 				return errQuiet
 			}
 			report(true, "DSN: "+db.Describe(dsn), "")
