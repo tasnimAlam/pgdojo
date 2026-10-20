@@ -1,6 +1,6 @@
 package ui
 
-import "github.com/tasnimAlam/pgex/internal/db"
+import "github.com/tasnimAlam/pgdojo/internal/db"
 
 // Navigation messages. Screens emit these; the root model acts on them.
 type (

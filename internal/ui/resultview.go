@@ -7,7 +7,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 
-	"github.com/tasnimAlam/pgex/internal/db"
+	"github.com/tasnimAlam/pgdojo/internal/db"
 )
 
 // viewMode is what the result pane shows after a run; v cycles it.

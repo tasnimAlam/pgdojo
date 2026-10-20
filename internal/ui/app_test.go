@@ -14,10 +14,10 @@ import (
 	"github.com/charmbracelet/x/exp/golden"
 	"github.com/charmbracelet/x/exp/teatest/v2"
 
-	"github.com/tasnimAlam/pgex/internal/db"
-	"github.com/tasnimAlam/pgex/internal/drafts"
-	"github.com/tasnimAlam/pgex/internal/exercise"
-	"github.com/tasnimAlam/pgex/internal/progress"
+	"github.com/tasnimAlam/pgdojo/internal/db"
+	"github.com/tasnimAlam/pgdojo/internal/drafts"
+	"github.com/tasnimAlam/pgdojo/internal/exercise"
+	"github.com/tasnimAlam/pgdojo/internal/progress"
 )
 
 var fixedNow = time.Date(2026, 10, 20, 12, 0, 0, 0, time.UTC)

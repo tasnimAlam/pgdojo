@@ -12,7 +12,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 
-	"github.com/tasnimAlam/pgex/internal/db"
+	"github.com/tasnimAlam/pgdojo/internal/db"
 )
 
 // Config holds user settings. Zero values mean "use the default".

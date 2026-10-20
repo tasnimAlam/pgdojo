@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tasnimAlam/pgex/internal/db"
-	"github.com/tasnimAlam/pgex/internal/exercise"
+	"github.com/tasnimAlam/pgdojo/internal/db"
+	"github.com/tasnimAlam/pgdojo/internal/exercise"
 )
 
 func TestPrintCheck(t *testing.T) {

@@ -19,7 +19,7 @@ install -Dm755 pgex ~/.local/bin/pgex
 **From source** (Go 1.27+):
 
 ```fish
-go install github.com/tasnimAlam/pgex/cmd/pgex@latest
+go install github.com/tasnimAlam/pgdojo/cmd/pgex@latest
 ```
 
 ## Database setup

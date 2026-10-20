@@ -10,8 +10,8 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 
-	"github.com/tasnimAlam/pgex/internal/exercise"
-	"github.com/tasnimAlam/pgex/internal/progress"
+	"github.com/tasnimAlam/pgdojo/internal/exercise"
+	"github.com/tasnimAlam/pgdojo/internal/progress"
 )
 
 // exerciseList is screen 2: the exercises of one category with a preview.

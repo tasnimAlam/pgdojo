@@ -13,9 +13,9 @@ import (
 	"charm.land/glamour/v2"
 	"charm.land/lipgloss/v2"
 
-	"github.com/tasnimAlam/pgex/internal/db"
-	"github.com/tasnimAlam/pgex/internal/exercise"
-	"github.com/tasnimAlam/pgex/internal/progress"
+	"github.com/tasnimAlam/pgdojo/internal/db"
+	"github.com/tasnimAlam/pgdojo/internal/exercise"
+	"github.com/tasnimAlam/pgdojo/internal/progress"
 )
 
 type focusArea int

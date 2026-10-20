@@ -9,8 +9,8 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/exp/golden"
 
-	"github.com/tasnimAlam/pgex/internal/db"
-	"github.com/tasnimAlam/pgex/internal/progress"
+	"github.com/tasnimAlam/pgdojo/internal/db"
+	"github.com/tasnimAlam/pgdojo/internal/progress"
 )
 
 func TestNarrowLayout(t *testing.T) {

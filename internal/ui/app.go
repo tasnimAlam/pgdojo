@@ -10,10 +10,10 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 
-	"github.com/tasnimAlam/pgex/internal/db"
-	"github.com/tasnimAlam/pgex/internal/drafts"
-	"github.com/tasnimAlam/pgex/internal/exercise"
-	"github.com/tasnimAlam/pgex/internal/progress"
+	"github.com/tasnimAlam/pgdojo/internal/db"
+	"github.com/tasnimAlam/pgdojo/internal/drafts"
+	"github.com/tasnimAlam/pgdojo/internal/exercise"
+	"github.com/tasnimAlam/pgdojo/internal/progress"
 )
 
 // Checker is what the UI needs from the database. *db.Runner implements

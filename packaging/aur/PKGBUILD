@@ -1,10 +1,10 @@
 # Maintainer: tasnimAlam
 pkgname=pgex
-pkgver=0.1.0
+pkgver=0.5.0
 pkgrel=1
 pkgdesc="PostgreSQL exercises in the terminal, in the spirit of pgexercises.com"
 arch=('x86_64' 'aarch64')
-url="https://github.com/tasnimAlam/pgex"
+url="https://github.com/tasnimAlam/pgdojo"
 license=('MIT' 'CC-BY-SA-3.0')
 depends=('glibc')
 makedepends=('go')
@@ -16,7 +16,7 @@ source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('SKIP')
 
 build() {
-  cd "$pkgname-$pkgver"
+  cd "pgdojo-$pkgver"
   export CGO_CPPFLAGS="${CPPFLAGS}"
   export CGO_CFLAGS="${CFLAGS}"
   export CGO_CXXFLAGS="${CXXFLAGS}"
@@ -26,13 +26,13 @@ build() {
 }
 
 check() {
-  cd "$pkgname-$pkgver"
+  cd "pgdojo-$pkgver"
   # -short skips the integration tests that need a container runtime.
   go test -short ./...
 }
 
 package() {
-  cd "$pkgname-$pkgver"
+  cd "pgdojo-$pkgver"
   install -Dm755 pgex "$pkgdir/usr/bin/pgex"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   install -Dm644 internal/exercise/data/LICENSE-exercises "$pkgdir/usr/share/licenses/$pkgname/LICENSE-exercises"

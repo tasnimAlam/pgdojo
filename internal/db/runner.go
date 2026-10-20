@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/tasnimAlam/pgex/internal/exercise"
+	"github.com/tasnimAlam/pgdojo/internal/exercise"
 )
 
 // Check is the outcome of running a user's query against an exercise.

@@ -13,12 +13,12 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/spf13/cobra"
 
-	"github.com/tasnimAlam/pgex/internal/config"
-	"github.com/tasnimAlam/pgex/internal/db"
-	"github.com/tasnimAlam/pgex/internal/drafts"
-	"github.com/tasnimAlam/pgex/internal/exercise"
-	"github.com/tasnimAlam/pgex/internal/progress"
-	"github.com/tasnimAlam/pgex/internal/ui"
+	"github.com/tasnimAlam/pgdojo/internal/config"
+	"github.com/tasnimAlam/pgdojo/internal/db"
+	"github.com/tasnimAlam/pgdojo/internal/drafts"
+	"github.com/tasnimAlam/pgdojo/internal/exercise"
+	"github.com/tasnimAlam/pgdojo/internal/progress"
+	"github.com/tasnimAlam/pgdojo/internal/ui"
 )
 
 // version is set at build time with -ldflags "-X main.version=...".

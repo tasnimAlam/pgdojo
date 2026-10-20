@@ -13,7 +13,7 @@ import (
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 
-	"github.com/tasnimAlam/pgex/internal/exercise"
+	"github.com/tasnimAlam/pgdojo/internal/exercise"
 )
 
 var (

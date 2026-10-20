@@ -1,8 +1,8 @@
 pkgbase = pgex
 	pkgdesc = PostgreSQL exercises in the terminal, in the spirit of pgexercises.com
-	pkgver = 0.1.0
+	pkgver = 0.5.0
 	pkgrel = 1
-	url = https://github.com/tasnimAlam/pgex
+	url = https://github.com/tasnimAlam/pgdojo
 	arch = x86_64
 	arch = aarch64
 	license = MIT
@@ -12,7 +12,7 @@ pkgbase = pgex
 	optdepends = podman: run the exercise database container
 	optdepends = podman-compose: run the exercise database container
 	optdepends = docker: run the exercise database container
-	source = pgex-0.1.0.tar.gz::https://github.com/tasnimAlam/pgex/archive/refs/tags/v0.1.0.tar.gz
+	source = pgex-0.5.0.tar.gz::https://github.com/tasnimAlam/pgdojo/archive/refs/tags/v0.5.0.tar.gz
 	sha256sums = SKIP
 
 pkgname = pgex

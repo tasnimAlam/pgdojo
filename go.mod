@@ -1,4 +1,4 @@
-module github.com/tasnimAlam/pgex
+module github.com/tasnimAlam/pgdojo
 
 go 1.27.2
 

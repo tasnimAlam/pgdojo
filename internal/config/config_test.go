@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/tasnimAlam/pgex/internal/db"
+	"github.com/tasnimAlam/pgdojo/internal/db"
 )
 
 func TestLoadPrecedence(t *testing.T) {
