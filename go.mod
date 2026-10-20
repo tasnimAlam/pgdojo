@@ -100,3 +100,7 @@ require (
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
 )
+
+// v0.5.0 was re-tagged after the Go module proxy cached the pre-rename
+// code, so go install of that version lacks cmd/pgdojo.
+retract v0.5.0

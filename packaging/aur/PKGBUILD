@@ -1,6 +1,6 @@
 # Maintainer: tasnimAlam
 pkgname=pgdojo
-pkgver=0.5.0
+pkgver=0.5.1
 pkgrel=1
 pkgdesc="PostgreSQL exercises in the terminal, in the spirit of pgexercises.com"
 arch=('x86_64' 'aarch64')

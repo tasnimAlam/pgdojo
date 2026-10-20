@@ -1,6 +1,6 @@
 pkgbase = pgdojo
 	pkgdesc = PostgreSQL exercises in the terminal, in the spirit of pgexercises.com
-	pkgver = 0.5.0
+	pkgver = 0.5.1
 	pkgrel = 1
 	url = https://github.com/tasnimAlam/pgdojo
 	arch = x86_64
@@ -12,7 +12,7 @@ pkgbase = pgdojo
 	optdepends = podman: run the exercise database container
 	optdepends = podman-compose: run the exercise database container
 	optdepends = docker: run the exercise database container
-	source = pgdojo-0.5.0.tar.gz::https://github.com/tasnimAlam/pgdojo/archive/refs/tags/v0.5.0.tar.gz
+	source = pgdojo-0.5.1.tar.gz::https://github.com/tasnimAlam/pgdojo/archive/refs/tags/v0.5.1.tar.gz
 	sha256sums = SKIP
 
 pkgname = pgdojo
