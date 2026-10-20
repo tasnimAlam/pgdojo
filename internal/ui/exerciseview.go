@@ -385,6 +385,10 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 		return tea.Batch(s.Leave(), func() tea.Msg { return backMsg{} })
 	case msg.String() == "i":
 		return s.insertMode()
+	case s.focus == focusEditor && key.Matches(msg, k.WordNext):
+		s.editor.WordForward()
+	case s.focus == focusEditor && key.Matches(msg, k.WordPrev):
+		s.editor.WordBackward()
 	case msg.String() == "y" && s.mode == resAnswer:
 		s.editor.SetValue(strings.TrimSpace(s.ex.Answer))
 		s.mode = s.prevMode
@@ -606,7 +610,7 @@ func (s *exerciseView) editorPane(w, h int) string {
 		mode = "INSERT"
 	}
 	title := fmt.Sprintf("Query · %s · attempt %d", mode, s.d.Progress.Get(s.ex.Key()).Attempts+1)
-	return s.d.Theme.Pane(title, s.editor.View(), w, h, s.focus == focusEditor)
+	return s.d.Theme.Pane(title, s.editor.View(s.focus == focusEditor), w, h, s.focus == focusEditor)
 }
 
 func (s *exerciseView) resultPane(w, h int) string {

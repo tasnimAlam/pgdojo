@@ -1,6 +1,6 @@
  pgex  Categories › Joins and Subqueries › 1. Retrieve the start times of members' bookings                       1 / 8 
 ╭ Question ──────────────────────────────╮ ╭ Query · NORMAL · attempt 4 ───────────────────────────────────────────────╮
-│ How can you produce a list of the      │ │ -- write your SQL here, then press ctrl+r                                 │
+│ How can you produce a list of the      │ │   -- write your SQL here, then press ctrl+r                               │
 │ start times for bookings by members    │ │                                                                           │
 │ named 'David Farrell'?                 │ │                                                                           │
 │                                        │ │                                                                           │

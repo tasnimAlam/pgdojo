@@ -11,7 +11,7 @@ type KeyMap struct {
 	Up, Down, Open, Back, ListBack, Filter, Continue, Next, Prev, Help, Quit, Reset key.Binding
 	Top, Bottom, PageUp, PageDown                                                   key.Binding
 	// Query
-	Run, Cancel, Editor, Focus, FocusBack, Clear, Diff key.Binding
+	Run, Cancel, Editor, Focus, FocusBack, Clear, Diff, WordNext, WordPrev key.Binding
 	// Learning
 	Hint, Answer, Discussion, Schema key.Binding
 }
@@ -63,6 +63,8 @@ func NewKeyMap(vim bool) KeyMap {
 		FocusBack: b([]string{"shift+tab"}, "shift+tab", "previous pane"),
 		Clear:     b([]string{"ctrl+l"}, "ctrl+l", "clear editor"),
 		Diff:      b([]string{"v"}, "v", "cycle diff"),
+		WordNext:  b([]string{"w"}, "w", "next word"),
+		WordPrev:  b([]string{"b"}, "b", "previous word"),
 
 		Hint:       b([]string{"H", "shift+h"}, "H", "next hint"),
 		Answer:     b([]string{"a"}, "a", "reveal answer"),
@@ -76,7 +78,7 @@ func (k KeyMap) HelpGroups() []helpGroup {
 	return []helpGroup{
 		{"Navigation", append(append(items(k.Up, k.Down), k.jumpHelp()...),
 			items(k.Open, k.Back, k.ListBack, k.Filter, k.Continue, k.Next, k.Prev, k.Reset, k.Help, k.Quit)...)},
-		{"Query", items(k.Run, k.Cancel, k.Editor, k.Focus, k.FocusBack, k.Clear, k.Diff)},
+		{"Query", items(k.Run, k.Cancel, k.Editor, k.Focus, k.FocusBack, k.Clear, k.Diff, k.WordNext, k.WordPrev)},
 		{"Learning", items(k.Hint, k.Answer, k.Discussion, k.Schema)},
 	}
 }

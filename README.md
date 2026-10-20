@@ -102,8 +102,9 @@ result table.
 
 An exercise opens in NORMAL mode with the query focused. Press `i` to type
 (INSERT mode) and `esc` to return to NORMAL; only `i` enters INSERT, so
-`tab` back into the query keeps NORMAL. `ctrl+r` runs the query in either
-mode. In NORMAL mode single keys work: `backspace` back to the list, `H` (shift+h) hint, `a`
+`tab` back into the query keeps NORMAL. In NORMAL mode the query shows a
+block cursor and `w` / `b` hop to the next / previous word as in vim, so `i`
+inserts right there. `ctrl+r` runs the query in either mode. In NORMAL mode single keys work: `backspace` back to the list, `H` (shift+h) hint, `a`
 reveal answer, `v` cycle yours / expected / diff, `d` discussion, `s` schema
 window (tables, keys and how they relate),
 `n`/`p` next/previous, `e` edit in `$EDITOR`.
