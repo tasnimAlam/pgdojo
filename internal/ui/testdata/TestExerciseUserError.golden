@@ -1,0 +1,36 @@
+ pgex  Categories › Basics › 1. Facilities members can use cheaply                                                1 / 3 
+╭ Question ──────────────────────────────╮ ╭ Query · INSERT · attempt 4 ───────────────────────────────────────────────╮
+│ The club wants to advertise its budget │ │  1 select facid, nme from facilities                                      │
+│ options. List the name and member cost │ │                                                                           │
+│ of every facility whose member cost is │ │                                                                           │
+│ greater than zero but less than one    │ │                                                                           │
+│ fiftieth of its monthly maintenance    │ │                                                                           │
+│ cost.                                  │ │                                                                           │
+│                                        │ │                                                                           │
+│ tables: cd.facilities                  │ │                                                                           │
+╰────────────────────────────────────────╯ │                                                                           │
+╭ Hint 1 of 2 ───────────────────────────╮ │                                                                           │
+│ Everything you need is in              │ │                                                                           │
+│ cd.facilities.                         │ ╰───────────────────────────────────────────────────────────────────────────╯
+│                                        │ ╭ Result ───────────────────────────────────────────────────────────────────╮
+│ h for the next hint · a reveals the    │ │  ✗ ERROR: column "nme" does not exist                                     │
+│ answer                                 │ │ HINT: Perhaps you meant to reference the column "facilities.name".        │
+╰────────────────────────────────────────╯ │                                                                           │
+╭ Schema ────────────────────────────────╮ │ select facid, nme from facilities                                         │
+│ cd.facilities                          │ │               ^                                                           │
+│   facid              integer           │ │                                                                           │
+│   name               varchar           │ │                                                                           │
+│   membercost         numeric           │ │                                                                           │
+│   guestcost          numeric           │ │                                                                           │
+│   initialoutlay      numeric           │ │                                                                           │
+│   monthlymaintenance numeric           │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ ctrl+r/F5 run · esc normal mode · tab next pane · ctrl+l clear                                                ✓ solved 

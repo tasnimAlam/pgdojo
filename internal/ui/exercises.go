@@ -68,7 +68,7 @@ func (s *exerciseList) Update(msg tea.Msg) (Screen, tea.Cmd) {
 		switch {
 		case key.Matches(k, s.d.Keys.Open):
 			if it, ok := s.list.SelectedItem().(exItem); ok {
-				return s, func() tea.Msg { return openExerciseMsg{it.ex.Key()} }
+				return s, func() tea.Msg { return openExerciseMsg{key: it.ex.Key()} }
 			}
 			return s, nil
 		case key.Matches(k, s.d.Keys.Back) && s.list.FilterState() == list.Unfiltered,

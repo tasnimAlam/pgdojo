@@ -66,7 +66,7 @@ func (s *categories) Update(msg tea.Msg) (Screen, tea.Cmd) {
 			return s, nil
 		case key.Matches(k, s.d.Keys.Continue):
 			if last, ok := s.d.Progress.Last(); ok {
-				return s, func() tea.Msg { return openExerciseMsg{last.Category + "/" + last.Exercise} }
+				return s, func() tea.Msg { return openExerciseMsg{key: last.Category + "/" + last.Exercise} }
 			}
 			return s, nil
 		}

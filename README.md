@@ -4,7 +4,7 @@ PostgreSQL exercises in the terminal, in the spirit of pgexercises.com: pick an
 exercise, write SQL, run it against a real local Postgres, and see whether the
 result matches the expected one.
 
-Status: milestone 4 (TUI navigation). Run `pgex` to browse categories and exercises; the in-app editor and runner come in milestone 5. Until then, solve exercises with `pgex check`.
+Status: milestone 5 (exercise view). Run `pgex`, open an exercise, write SQL and press `ctrl+r`.
 
 ## Requirements
 
@@ -25,6 +25,12 @@ make run
 Run `pgex` with no arguments for the interactive interface. Press `?` for
 keyboard shortcuts, `/` to filter a list, `c` on the home screen to continue
 the last exercise.
+
+In an exercise the editor starts in INSERT mode. `ctrl+r` (or `F5`) runs the
+query, `esc` switches to NORMAL mode where single keys work: `h` hint, `a`
+reveal answer, `v` cycle yours / expected / diff, `d` discussion, `s` schema,
+`n`/`p` next/previous, `e` edit in `$EDITOR`, `enter` back to editing.
+`ctrl+c` cancels a running query.
 
 ```fish
 pgex list                                   # categories and exercises with your progress

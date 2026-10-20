@@ -37,6 +37,10 @@ type UserError struct {
 
 func (e *UserError) Error() string { return e.Message }
 
+// ErrExercise marks errors caused by an exercise's own reference answer or
+// verify query, i.e. bad exercise data rather than the user or the network.
+var ErrExercise = errors.New("exercise data error")
+
 // Runner executes queries in transactions that are always rolled back.
 type Runner struct {
 	pool *pgxpool.Pool
@@ -130,7 +134,7 @@ func refErr(ex exercise.Exercise, what string, err error) error {
 	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 		return err
 	}
-	return fmt.Errorf("exercise %s: %s failed: %w", ex.Key(), what, err)
+	return fmt.Errorf("%w: exercise %s: %s failed: %w", ErrExercise, ex.Key(), what, err)
 }
 
 // asUserErr classifies an error from the user's SQL. It returns nil when the

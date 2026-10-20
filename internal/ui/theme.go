@@ -57,6 +57,10 @@ type Theme struct {
 	Badge, Crumb, CrumbCurrent, Text, Bright, Title, Dim, Faint lipgloss.Style
 	Accent, Warn, Fail, Key, HelpKey, Chip, SelRow, SelBar      lipgloss.Style
 	Underline                                                   lipgloss.Style
+
+	// Exercise view
+	PassBanner, FailBanner, WarnBanner, MissingRow, ExtraGutter, TableHead lipgloss.Style
+	LineNo, SQLKeyword, SQLString, SQLComment, SQLNumber                   lipgloss.Style
 }
 
 func NewTheme(accent string) Theme {
@@ -81,6 +85,18 @@ func NewTheme(accent string) Theme {
 		SelRow:       s().Foreground(p.FgBright).Background(p.SelBg),
 		SelBar:       s().Foreground(p.Accent).Background(p.SelBg),
 		Underline:    s().Underline(true),
+
+		PassBanner:  s().Foreground(p.Accent).Background(p.PassBg).Bold(true),
+		FailBanner:  s().Foreground(p.Fail).Background(p.FailBg).Bold(true),
+		WarnBanner:  s().Foreground(p.Warn).Background(p.FailBg).Bold(true),
+		MissingRow:  s().Foreground(p.FailRow).Background(p.FailBg),
+		ExtraGutter: s().Foreground(p.Warn),
+		TableHead:   s().Foreground(p.Dim).Bold(true),
+		LineNo:      s().Foreground(p.LineNo),
+		SQLKeyword:  s().Foreground(p.Keyword),
+		SQLString:   s().Foreground(p.Warn),
+		SQLComment:  s().Foreground(p.Dim).Italic(true),
+		SQLNumber:   s().Foreground(p.Accent),
 	}
 }
 
@@ -195,4 +211,9 @@ func (t Theme) Dimmed(view string) string {
 		lines[i] = t.Faint.Render(l)
 	}
 	return strings.Join(lines, "\n")
+}
+
+// Banner renders a full-width status line on a colored background.
+func (t Theme) Banner(st lipgloss.Style, text string, w int) string {
+	return st.Width(w).Render(ansi.Truncate(" "+text, w, "…"))
 }

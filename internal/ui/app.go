@@ -41,6 +41,7 @@ type Deps struct {
 	Progress *progress.Store
 	Drafts   *drafts.Store
 	DBLabel  string // "host:port/db" for the header
+	Editor   string // external editor command, e.g. "nvim" or "emacsclient -t"
 	Theme    Theme
 	Keys     KeyMap
 	Now      func() time.Time // nil means time.Now; tests pin it
@@ -56,6 +57,14 @@ type Screen interface {
 	View() string
 	SetSize(w, h int)
 }
+
+// canceller is implemented by screens with work ctrl+c should cancel
+// before it quits the app. Cancel reports whether it cancelled something.
+type canceller interface{ Cancel() bool }
+
+// leaver is implemented by screens that must save state before they are
+// closed or the app quits.
+type leaver interface{ Leave() tea.Cmd }
 
 // capturer is implemented by screens that sometimes need every key, e.g.
 // while typing a filter. Global single-letter keys are skipped then.
@@ -109,7 +118,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		switch {
 		case msg.String() == "ctrl+c":
-			return m, tea.Quit
+			if c, ok := m.top().(canceller); ok && c.Cancel() {
+				return m, nil
+			}
+			return m, m.quit()
 		case m.help:
 			if key.Matches(msg, k.Help, k.Back, k.Quit) {
 				m.help = false
@@ -120,7 +132,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.help = true
 			return m, nil
 		case key.Matches(msg, k.Quit):
-			return m, tea.Quit
+			return m, m.quit()
 		}
 
 	case pingMsg:
@@ -148,10 +160,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.push(newExerciseList(m.deps, msg.index))
 
 	case openExerciseMsg:
-		if ex, ok := m.deps.Catalog.Find(msg.key); ok {
-			return m.push(newExercisePlaceholder(m.deps, ex))
+		ex, ok := m.deps.Catalog.Find(msg.key)
+		if !ok {
+			return m, nil
 		}
-		return m, nil
+		if msg.replace && len(m.stack) > 1 {
+			m.stack = m.stack[:len(m.stack)-1]
+		}
+		return m.push(newExerciseView(m.deps, ex))
 
 	case backMsg:
 		if len(m.stack) > 1 {
@@ -163,6 +179,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	s, cmd := m.top().Update(msg)
 	m.stack[len(m.stack)-1] = s
 	return m, cmd
+}
+
+// quit lets the current screen save its state, then exits.
+func (m Model) quit() tea.Cmd {
+	if l, ok := m.top().(leaver); ok {
+		return tea.Sequence(l.Leave(), tea.Quit)
+	}
+	return tea.Quit
 }
 
 func (m Model) push(s Screen) (tea.Model, tea.Cmd) {

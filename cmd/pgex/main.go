@@ -120,6 +120,7 @@ func (a *app) tui(ctx context.Context) error {
 		Progress: store,
 		Drafts:   drafts.New(config.DraftsDir()),
 		DBLabel:  db.Describe(dsn),
+		Editor:   cfg.EditorCommand(),
 		Theme:    ui.NewTheme(cfg.Accent),
 		Keys:     ui.NewKeyMap(cfg.UseVimKeys()),
 	})

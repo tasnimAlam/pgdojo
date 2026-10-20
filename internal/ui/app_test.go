@@ -22,10 +22,16 @@ import (
 
 var fixedNow = time.Date(2026, 10, 20, 12, 0, 0, 0, time.UTC)
 
-// fakeChecker answers every query with fixed columns and no rows.
-type fakeChecker struct{ offline bool }
+// fakeChecker answers Run with fixed columns and Check with check.
+type fakeChecker struct {
+	offline bool
+	check   func(ctx context.Context, sql string) (db.Check, error)
+}
 
 func (f fakeChecker) Check(ctx context.Context, ex exercise.Exercise, sql string) (db.Check, error) {
+	if f.check != nil {
+		return f.check(ctx, sql)
+	}
 	return db.Check{}, nil
 }
 
@@ -60,7 +66,9 @@ func testDeps(t *testing.T) *Deps {
 	if err != nil {
 		t.Fatal(err)
 	}
-	path := filepath.Join(t.TempDir(), "progress.json")
+	home := t.TempDir()
+	t.Setenv("HOME", home) // drafts path renders as ~/... in golden files
+	path := filepath.Join(home, "progress.json")
 	if err := os.WriteFile(path, []byte(progressFixture), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +80,7 @@ func testDeps(t *testing.T) *Deps {
 		Catalog:  cat,
 		Checker:  fakeChecker{},
 		Progress: store,
-		Drafts:   drafts.New("/home/u/.local/share/pgex/drafts"),
+		Drafts:   drafts.New(filepath.Join(home, ".local", "share", "pgex", "drafts")),
 		DBLabel:  "localhost:5433/exercises",
 		Theme:    NewTheme(""),
 		Keys:     NewKeyMap(true),
@@ -130,6 +138,11 @@ func keyPress(s string) tea.KeyPressMsg {
 		return tea.KeyPressMsg{Code: tea.KeyUp}
 	case "backspace":
 		return tea.KeyPressMsg{Code: tea.KeyBackspace}
+	case "tab":
+		return tea.KeyPressMsg{Code: tea.KeyTab}
+	}
+	if c, ok := strings.CutPrefix(s, "ctrl+"); ok {
+		return tea.KeyPressMsg{Code: []rune(c)[0], Mod: tea.ModCtrl}
 	}
 	r := []rune(s)[0]
 	return tea.KeyPressMsg{Code: r, Text: s}
@@ -206,13 +219,13 @@ func TestNavigation(t *testing.T) {
 		t.Fatalf("enter should open Joins, got %T", top())
 	}
 	m = drive(m, keys("down", "enter")...)
-	if p, ok := top().(*exercisePlaceholder); !ok || p.ex.Key() != "joins/recommenders" {
+	if p, ok := top().(*exerciseView); !ok || p.ex.Key() != "joins/recommenders" {
 		t.Fatalf("enter should open the second exercise, got %T", top())
 	}
 	if last, _ := m.(Model).deps.Progress.Last(); last.Exercise != "recommenders" {
 		t.Errorf("opening an exercise should record it as last, got %+v", last)
 	}
-	m = drive(m, keys("esc")...)
+	m = drive(m, keys("esc", "esc")...) // leave INSERT mode, then go back
 	if _, ok := top().(*exerciseList); !ok {
 		t.Fatalf("esc should go back to the list, got %T", top())
 	}
@@ -221,7 +234,7 @@ func TestNavigation(t *testing.T) {
 		t.Fatalf("backspace should go back home, got %T", top())
 	}
 	m = drive(m, keys("c")...)
-	if p, ok := top().(*exercisePlaceholder); !ok || p.ex.Key() != "joins/recommenders" {
+	if p, ok := top().(*exerciseView); !ok || p.ex.Key() != "joins/recommenders" {
 		t.Fatalf("c should continue the last exercise, got %T", top())
 	}
 }
@@ -242,12 +255,12 @@ func TestFilter(t *testing.T) {
 		t.Errorf("filter line missing:\n%s", screenText(m))
 	}
 	m = drive(m, keys("enter", "enter")...)
-	if p, ok := m.(Model).top().(*exercisePlaceholder); !ok || p.ex.ID != "member-recommender" {
+	if p, ok := m.(Model).top().(*exerciseView); !ok || p.ex.ID != "member-recommender" {
 		t.Fatalf("enter on filtered item should open it, got %T", m.(Model).top())
 	}
-	m = drive(m, keys("esc", "esc")...)
+	m = drive(m, keys("esc", "esc", "esc")...) // INSERT mode, back, clear filter
 	if _, ok := m.(Model).top().(*exerciseList); !ok {
-		t.Fatal("first esc on a filtered list should clear the filter, not go back")
+		t.Fatal("esc on a filtered list should clear the filter, not go back")
 	}
 	if el := m.(Model).top().(*exerciseList); el.list.IsFiltered() {
 		t.Error("filter should be cleared")

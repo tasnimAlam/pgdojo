@@ -1,0 +1,36 @@
+ pgex  Categories › Modifying Data › 1. Add a spa                                                                 1 / 3 
+╭ Question ──────────────────────────────╮ ╭ Query · NORMAL · attempt 1 ───────────────────────────────────────────────╮
+│ The club has built a spa. Insert it    │ │ -- write your SQL here, then press ctrl+r                                 │
+│ into the facilities table with facid   │ │                                                                           │
+│ 9, name 'Spa', a member cost of 20, a  │ │                                                                           │
+│ guest cost of 30, an initial outlay of │ │                                                                           │
+│ 100000 and monthly maintenance of 800. │ │                                                                           │
+│                                        │ │                                                                           │
+│ tables: cd.facilities                  │ │                                                                           │
+╰────────────────────────────────────────╯ │                                                                           │
+╭ Hint 2 of 2 ───────────────────────────╮ │                                                                           │
+│ List the columns explicitly so the     │ │                                                                           │
+│ order is clear.                        │ │                                                                           │
+│                                        │ ╰───────────────────────────────────────────────────────────────────────────╯
+│ h for the next hint · a reveals the    │ ╭ Answer ───────────────────────────────────────────────────────────────────╮
+│ answer                                 │ │ insert into cd.facilities                                                 │
+╰────────────────────────────────────────╯ │   (facid, name, membercost, guestcost, initialoutlay, monthlymaintenance) │
+╭ Schema ────────────────────────────────╮ │ values (9, 'Spa', 20, 30, 100000, 800);                                   │
+│ cd.facilities                          │ │                                                                           │
+│   facid              integer           │ │ y copies it into the editor · esc returns                                 │
+│   name               varchar           │ │                                                                           │
+│   membercost         numeric           │ │                                                                           │
+│   guestcost          numeric           │ │                                                                           │
+│   initialoutlay      numeric           │ │                                                                           │
+│   monthlymaintenance numeric           │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+│                                        │ │                                                                           │
+╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ y copy to editor · esc close answer · ctrl+r/F5 run                                                         ◐ revealed 
