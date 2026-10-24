@@ -59,8 +59,8 @@ type Screen interface {
 	SetSize(w, h int)
 }
 
-// canceller is implemented by screens with work ctrl+c should cancel
-// before it quits the app. Cancel reports whether it cancelled something.
+// canceller is implemented by screens with work ctrl+c should cancel.
+// ctrl+c never quits; Cancel reports whether it cancelled something.
 type canceller interface{ Cancel() bool }
 
 // leaver is implemented by screens that must save state before they are
@@ -129,10 +129,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 		case msg.String() == "ctrl+c":
-			if c, ok := m.top().(canceller); ok && c.Cancel() {
-				return m, nil
+			if c, ok := m.top().(canceller); ok {
+				c.Cancel()
 			}
-			return m, m.quit()
+			return m, nil
 		case m.help:
 			if key.Matches(msg, k.Help, k.Back, k.Quit) {
 				m.help = false

@@ -100,8 +100,8 @@ window (tables, keys and how they relate),
 `ctrl+c` cancels a running query. Below 110 columns the panes stack
 vertically and `H` opens hints as an overlay.
 
-`q` asks `Quit pgdojo? y/n` before quitting; `ctrl+c` quits at once (or
-cancels a running query).
+`q` asks `Quit pgdojo? y/n` before quitting. `ctrl+c` never quits; it only
+cancels a running query.
 
 On the home screen `R` resets all progress after you type `reset` (drafts are
 kept).

@@ -10,7 +10,7 @@
 │    Recursive Que│ Navigation                 Query                      Learning                   │                 │
 │                 │                                                                                  │                 │
 │                 │ ↑/k       move up          ctrl+r     run query       H  next hint               │                 │
-│                 │ ↓/j       move down        ctrl+c     cancel / quit   a  reveal answer           │                 │
+│                 │ ↓/j       move down        ctrl+c     cancel run      a  reveal answer           │                 │
 │                 │ g/G       top / bottom     e          open $EDITOR    D  discussion              │                 │
 │                 │ ctrl+u/d  page up / down   tab        next pane       s  toggle schema           │                 │
 │                 │ enter/l   open             shift+tab  previous pane                              │                 │

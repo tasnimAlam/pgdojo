@@ -126,7 +126,7 @@ func (s *exerciseView) Capturing() bool {
 	return s.inserting() || s.confirm != confirmNone
 }
 
-// Cancel stops a running query; ctrl+c then doesn't quit.
+// Cancel stops a running query (bound to ctrl+c).
 func (s *exerciseView) Cancel() bool {
 	if s.running && s.cancel != nil {
 		s.cancel()

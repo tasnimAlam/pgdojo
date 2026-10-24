@@ -389,3 +389,16 @@ func TestQuitConfirm(t *testing.T) {
 		t.Error("y should return tea.Quit")
 	}
 }
+
+func TestCtrlCDoesNotQuit(t *testing.T) {
+	m := start(t, 120, 36)
+	for _, msgs := range [][]tea.Msg{nil, keys("enter"), keys("enter", "i")} {
+		m := drive(m, msgs...)
+		_, cmd := m.Update(keyPress("ctrl+c"))
+		if cmd != nil {
+			if _, quit := cmd().(tea.QuitMsg); quit {
+				t.Errorf("ctrl+c quit the app after %v", msgs)
+			}
+		}
+	}
+}
