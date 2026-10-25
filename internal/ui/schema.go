@@ -52,29 +52,16 @@ func boxWidth(types bool) int {
 	return 25
 }
 
-// schemaView renders the schema overlay body for width w: a diagram when
-// it fits, otherwise a list. used tables are highlighted.
+// schemaView renders the schema pane body for width w: a diagram when it
+// fits, otherwise a list. used tables are highlighted.
 func schemaView(t Theme, used []string, w int) []string {
-	var lines []string
 	switch {
 	case w >= diagramWidth(true):
-		lines = schemaDiagram(t, used, true)
+		return schemaDiagram(t, used, true)
 	case w >= diagramWidth(false):
-		lines = schemaDiagram(t, used, false)
-	default:
-		lines = schemaList(t, used, w)
+		return schemaDiagram(t, used, false)
 	}
-	lines = append(lines, "")
-	notes := []string{
-		"bookings.memid → members.memid: who made the booking (memid 0 is the guest account)",
-		"bookings.facid → facilities.facid: what was booked",
-		"members.recommendedby → members.memid: who recommended them, NULL if nobody",
-		"slots are half-hour periods; costs are per slot",
-	}
-	for _, n := range notes {
-		lines = append(lines, wrap("• "+n, w, t.Dim)...)
-	}
-	return append(lines, "", t.Dim.Render("s or esc closes"))
+	return schemaList(t, used, w)
 }
 
 func schemaDiagram(t Theme, used []string, types bool) []string {
@@ -131,7 +118,7 @@ func schemaDiagram(t Theme, used []string, types bool) []string {
 		connector(gapW, 3, strings.Repeat("─", gapW-1)+"►"),
 		box("cd.facilities", 2),
 	)
-	return append(strings.Split(d, "\n"), "",
+	return append(strings.Split(d, "\n"),
 		t.Accent.Render("PK")+t.Dim.Render(" primary key  ")+t.Warn.Render("FK")+t.Dim.Render(" foreign key, arrow points to the referenced column"))
 }
 

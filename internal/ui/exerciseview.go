@@ -36,14 +36,17 @@ const (
 )
 
 // overlayKind is a pane shown as a modal in the narrow layout, where the
-// left column doesn't fit.
+// question column doesn't fit.
 type overlayKind int
 
 const (
 	overlayNone overlayKind = iota
-	overlaySchema
 	overlayHint
 )
+
+// minBelowSchema is the body height the schema pane must leave for the
+// other panes; below it the schema is hidden.
+const minBelowSchema = 14
 
 // narrowWidth is the width below which panes stack vertically.
 const narrowWidth = 110
@@ -86,13 +89,14 @@ type exerciseView struct {
 	seq     int
 	spin    spinner.Model
 
-	overlay overlayKind     // narrow layout: schema or hint shown on top
+	schema  bool            // schema pane shown on top (s toggles)
+	overlay overlayKind     // narrow layout: hint shown on top
 	disc    *viewport.Model // discussion overlay when non-nil
 	note    string          // transient footer message
 }
 
 func newExerciseView(d *Deps, ex exercise.Exercise) *exerciseView {
-	s := &exerciseView{d: d, ex: ex, editor: newEditor(d.Theme)}
+	s := &exerciseView{d: d, ex: ex, editor: newEditor(d.Theme), schema: true}
 	for ci := range d.Catalog.Categories {
 		c := &d.Catalog.Categories[ci]
 		for i, e := range c.Exercises {
@@ -162,11 +166,39 @@ func (s *exerciseView) record(f func(*progress.Store) error) tea.Cmd {
 	}
 }
 
+// schemaLines is the schema pane body, nil when hidden or when it would
+// leave too little room below it.
+func (s *exerciseView) schemaLines() []string {
+	if !s.schema {
+		return nil
+	}
+	room := bodyHeight(s.h) - 2 - minBelowSchema
+	lines := schemaView(s.d.Theme, s.ex.Tables, s.w-4)
+	if len(lines) > room { // the diagram is too tall; try the compact list
+		lines = schemaList(s.d.Theme, s.ex.Tables, s.w-4)
+	}
+	if len(lines) > room {
+		return nil
+	}
+	return lines
+}
+
+// bodyH is the height left for the panes below the schema.
+func (s *exerciseView) bodyH() int {
+	bh := bodyHeight(s.h)
+	if sch := s.schemaLines(); sch != nil {
+		bh -= len(sch) + 2
+	}
+	return bh
+}
+
+// layout splits the body 50:50: question on the left, query and result on
+// the right.
 func (s *exerciseView) layout() (lw, rw, bh, editorH int) {
-	bh = bodyHeight(s.h)
-	lw = min(42, s.w*2/5)
-	rw = max(s.w-lw-1, 10)
-	editorH = max(6, bh*2/5)
+	bh = s.bodyH()
+	lw = (s.w - 1) / 2
+	rw = s.w - 1 - lw
+	editorH = max(6, bh/2)
 	return
 }
 
@@ -174,7 +206,7 @@ func (s *exerciseView) narrow() bool { return s.w < narrowWidth }
 
 // narrowHeights splits the body between question, editor and result.
 func (s *exerciseView) narrowHeights() (qH, editorH, resultH int) {
-	bh := bodyHeight(s.h)
+	bh := s.bodyH()
 	qH = min(len(s.questionLines(s.w-4))+2, bh/3)
 	rest := bh - qH
 	editorH = max(5, rest*2/5)
@@ -379,8 +411,8 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 	case key.Matches(msg, k.Back) && s.mode == resAnswer:
 		s.mode = s.prevMode
 		return nil
-	case key.Matches(msg, k.Back) && s.focus == focusEditor:
-		return nil // already in NORMAL mode; like vim, esc does nothing more
+	case key.Matches(msg, k.Back) && s.focus != focusLeft:
+		return nil // esc leaves only from the question pane
 	case key.Matches(msg, k.Back), msg.String() == "backspace":
 		return tea.Batch(s.Leave(), func() tea.Msg { return backMsg{} })
 	case msg.String() == "i":
@@ -407,11 +439,8 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 	case key.Matches(msg, k.Discussion):
 		s.openDiscussion()
 	case key.Matches(msg, k.Schema):
-		if s.overlay == overlaySchema {
-			s.overlay = overlayNone
-		} else {
-			s.overlay = overlaySchema
-		}
+		s.schema = !s.schema
+		s.SetSize(s.w, s.h)
 	case key.Matches(msg, k.Diff):
 		if s.mode == resCheck && s.chk.UserErr == nil {
 			s.view = (s.view + 1) % 3
@@ -490,9 +519,11 @@ func (s *exerciseView) View() string {
 			s.editorPane(s.w, editorH), s.resultPane(s.w, resultH))
 	} else {
 		lw, rw, bh, editorH := s.layout()
-		left := s.leftColumn(lw, bh)
 		right := lipgloss.JoinVertical(lipgloss.Left, s.editorPane(rw, editorH), s.resultPane(rw, bh-editorH))
-		body = lipgloss.JoinHorizontal(lipgloss.Top, left, " ", right)
+		body = lipgloss.JoinHorizontal(lipgloss.Top, s.questionColumn(lw, bh), " ", right)
+	}
+	if sch := s.schemaLines(); sch != nil {
+		body = lipgloss.JoinVertical(lipgloss.Left, t.Pane("Schema · s hides", strings.Join(sch, "\n"), s.w, len(sch)+2, false), body)
 	}
 	out := joinScreen(header, body, t.Footer(s.helpItems(), s.statusBadge(), s.w))
 	if s.overlay != overlayNone {
@@ -501,15 +532,9 @@ func (s *exerciseView) View() string {
 	return out
 }
 
-// overlayPane renders the schema window, or the hint window in the narrow
-// layout.
+// overlayPane renders the hint window in the narrow layout.
 func (s *exerciseView) overlayPane() string {
 	t := s.d.Theme
-	if s.overlay == overlaySchema {
-		w := min(s.w-2, diagramWidth(true)+4)
-		lines := schemaView(t, s.ex.Tables, w-4)
-		return t.PaneColored("Schema", strings.Join(lines, "\n"), w, min(len(lines)+2, s.h-2), t.P.Accent, t.Accent.Bold(true))
-	}
 	w := min(s.w-4, 64)
 	inner := w - 4
 	title, lines := "Hints", []string{t.Dim.Render("This exercise has no hints.")}
@@ -565,7 +590,8 @@ func (s *exerciseView) questionLines(inner int) []string {
 	return q
 }
 
-func (s *exerciseView) leftColumn(w, h int) string {
+// questionColumn is the left column: question, hint and diff summary.
+func (s *exerciseView) questionColumn(w, h int) string {
 	t := s.d.Theme
 	inner := w - 4
 	q := s.questionLines(inner)

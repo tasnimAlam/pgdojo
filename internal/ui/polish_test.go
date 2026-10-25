@@ -20,19 +20,18 @@ func TestNarrowLayout(t *testing.T) {
 	m = drive(m, keys("enter", "enter", "ctrl+r", "esc")...)
 	out := screenText(m)
 	assertSize(t, out, 100, 30)
-	if strings.Contains(out, "Schema") || strings.Contains(out, "Diff summary") {
-		t.Errorf("narrow layout should not show the left column panes:\n%s", out)
+	if strings.Contains(out, "Diff summary") {
+		t.Errorf("narrow layout should not show the diff summary:\n%s", out)
+	}
+	if !strings.Contains(out, "cd.members") {
+		t.Errorf("narrow layout should list the schema on top:\n%s", out)
 	}
 	if !strings.Contains(out, "✗ Not quite") {
 		t.Errorf("result missing:\n%s", out)
 	}
 	golden.RequireEqual(t, out)
 
-	m = drive(m, keys("s")...)
-	if out := screenText(m); !strings.Contains(out, "s or esc closes") || !strings.Contains(out, "monthlymaintenance") {
-		t.Errorf("s should open the schema overlay:\n%s", out)
-	}
-	m = drive(m, keys("s", "H")...)
+	m = drive(m, keys("H")...)
 	if out := screenText(m); !strings.Contains(out, "Hint 1 of 1") {
 		t.Errorf("h should open the hint overlay with the next hint:\n%s", out)
 	}
@@ -104,12 +103,8 @@ func TestRunOfflinePingsNow(t *testing.T) {
 
 func TestSchemaWindow(t *testing.T) {
 	m := drive(start(t, 120, 36), keys("j", "l", "l")...) // joins/simplejoin
-	if strings.Contains(screenText(m), "Schema") {
-		t.Fatal("schema should be hidden until s is pressed")
-	}
-	m = drive(m, keys("esc", "s")...)
 	out := screenText(m)
-	for _, want := range []string{"╭ members", "╭ bookings", "╭ facilities", "◄─────", "─────►", "╭►", "bookings.memid → members.memid"} {
+	for _, want := range []string{"Schema · s hides", "╭ members", "╭ bookings", "╭ facilities", "◄─────", "─────►", "╭►", "Query · NORMAL", "Question"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("schema diagram missing %q:\n%s", want, out)
 		}
@@ -117,12 +112,13 @@ func TestSchemaWindow(t *testing.T) {
 	assertSize(t, out, 120, 36)
 	golden.RequireEqual(t, out)
 
-	m = drive(m, keys("s")...)
-	if view(m).overlay != overlayNone {
-		t.Error("s should close the schema window")
+	m = drive(m, keys("esc", "s")...)
+	if out := screenText(m); strings.Contains(out, "╭ members") || !strings.Contains(out, "Question") {
+		t.Errorf("s should hide the schema pane:\n%s", out)
 	}
-	m = drive(m, keys("s", "esc")...)
-	if v := view(m); v.overlay != overlayNone || len(m.(Model).stack) != 3 {
-		t.Error("esc should close the schema window, not leave the exercise")
+	assertSize(t, screenText(m), 120, 36)
+	m = drive(m, keys("s")...)
+	if !strings.Contains(screenText(m), "╭ members") {
+		t.Error("s should show the schema pane again")
 	}
 }

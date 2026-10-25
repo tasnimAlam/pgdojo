@@ -1,4 +1,10 @@
  pgdojo  Categories › Basics › 1. Retrieve everything from a table                           1 / 12 
+╭ Schema · s hides ────────────────────────────────────────────────────────────────────────────────╮
+│ cd.members: memid PK, surname, firstname, address, zipcode, telephone, recommendedby → members,  │
+│   joindate                                                                                       │
+│ cd.bookings: bookid PK, memid → members, facid → facilities, starttime, slots                    │
+│ cd.facilities: facid PK, name, membercost, guestcost, initialoutlay, monthlymaintenance          │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭ Question ────────────────────────────────────────────────────────────────────────────────────────╮
 │ How can you retrieve all the information from the cd.facilities table?                           │
 │                                                                                                  │
@@ -6,8 +12,6 @@
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭ Query · NORMAL · attempt 4 ──────────────────────────────────────────────────────────────────────╮
 │   -- write your SQL here, then press ctrl+r                                                      │
-│                                                                                                  │
-│                                                                                                  │
 │                                                                                                  │
 │                                                                                                  │
 │                                                                                                  │
@@ -19,10 +23,6 @@
 │ Tennis Court 1  5                                                                                │
 │ Massage Room 1  9.9                                                                              │
 │ Squash Court    ∅                                                                                │
-│                                                                                                  │
-│                                                                                                  │
-│                                                                                                  │
-│                                                                                                  │
 │                                                                                                  │
 │                                                                                                  │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯

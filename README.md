@@ -94,10 +94,14 @@ An exercise opens in NORMAL mode with the query focused. Press `i` to type
 `tab` back into the query keeps NORMAL. In NORMAL mode the query shows a
 block cursor and `w` / `b` hop to the next / previous word as in vim, so `i`
 inserts right there. `ctrl+r` runs the query in either mode. In NORMAL mode single keys work: `backspace` back to the list, `H` (shift+h) hint, `a`
-reveal answer, `v` cycle yours / expected / diff, `D` (shift+d) discussion, `s` schema
-window (tables, keys and how they relate),
-`n`/`p` next/previous, `e` edit in `$EDITOR`.
-`ctrl+c` cancels a running query. Below 110 columns the panes stack
+reveal answer, `v` cycle yours / expected / diff, `D` (shift+d) discussion, `s`
+hide / show the schema, `n`/`p` next/previous, `e` edit in `$EDITOR`.
+`ctrl+c` cancels a running query.
+
+The exercise view shows the schema (tables, keys and how they relate) across
+the top, then splits the rest 50:50: question, hint and diff summary on the
+left, query and result on the right. On short terminals the schema shrinks to
+a list, or hides if there is no room. Below 110 columns the panes stack
 vertically and `H` opens hints as an overlay.
 
 `q` asks `Quit pgdojo? y/n` before quitting. `ctrl+c` never quits; it only

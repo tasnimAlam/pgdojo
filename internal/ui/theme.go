@@ -216,7 +216,7 @@ func (t Theme) Dimmed(view string) string {
 
 // Banner renders a full-width status line on a colored background.
 func (t Theme) Banner(st lipgloss.Style, text string, w int) string {
-	return st.Width(w).Render(ansi.Truncate(" "+text, w, "…"))
+	return st.Width(w).PaddingLeft(1).Render(text) // wraps in narrow panes
 }
 
 // Overlay centers modal over a dimmed copy of under, which is w×h cells.

@@ -1,36 +1,36 @@
  pgdojo  Categories › Joins and Subqueries › 1. Retrieve the start times of members' bookings                     1 / 8 
-╭ Question ──────────────────────────────╮ ╭ Query · NORMAL · attempt 4 ───────────────────────────────────────────────╮
-│ How can you produce a list of the      │ │   -- write your SQL here, then press ctrl+r                               │
-│ start times for bookings by members    │ │                                                                           │
-│ named 'David Farrell'?                 │ │                                                                           │
-│                                        │ │                                                                           │
-│ tables: cd.bookings, cd.members        │ │                                                                           │
-│     ╭ Schema ──────────────────────────────────────────────────────────────────────────────────────────────────╮     │
-│     │                                       ╭ bookings ──────────────────╮                                     │     │
-│     │   ╭ members ───────────────────╮      │ bookid             int  PK │                                     │     │
-│     │ ╭►│ memid              int  PK │◄─────│ memid              int  FK │      ╭ facilities ────────────────╮ │     │
-│     │ │ │ surname            text    │      │ facid              int  FK │─────►│ facid              int  PK │ │     │
-│     │ │ │ firstname          text    │      │ starttime          ts      │      │ name               text    │ │     │
-│     │ │ │ address            text    │      │ slots              int     │      │ membercost         num     │ │─────╯
-│     │ │ │ zipcode            int     │      ╰────────────────────────────╯      │ guestcost          num     │ │─────╮
-│     │ │ │ telephone          text    │                                          │ initialoutlay      num     │ │     │
-│     │ ╰─│ recommendedby      int  FK │                                          │ monthlymaintenance num     │ │     │
-│     │   │ joindate           ts      │                                          ╰────────────────────────────╯ │     │
-│     │   ╰────────────────────────────╯                                                                         │     │
-│     │                                                                                                          │     │
-│     │ PK primary key  FK foreign key, arrow points to the referenced column                                    │     │
-│     │                                                                                                          │     │
-│     │ • bookings.memid → members.memid: who made the booking (memid 0 is the guest account)                    │     │
-│     │ • bookings.facid → facilities.facid: what was booked                                                     │     │
-│     │ • members.recommendedby → members.memid: who recommended them, NULL if nobody                            │     │
-│     │ • slots are half-hour periods; costs are per slot                                                        │     │
-╰─────│                                                                                                          │     │
-╭ Hint│ s or esc closes                                                                                          │     │
-│ Take╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯     │
-│ `INNER JOIN`.                          │ │                                                                           │
-│                                        │ │                                                                           │
-│ H for the next hint · a reveals the    │ │                                                                           │
-│ answer                                 │ │                                                                           │
-╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
+╭ Schema · s hides ────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                       ╭ bookings ──────────────────╮                                                 │
+│   ╭ members ───────────────────╮      │ bookid             int  PK │                                                 │
+│ ╭►│ memid              int  PK │◄─────│ memid              int  FK │      ╭ facilities ────────────────╮             │
+│ │ │ surname            text    │      │ facid              int  FK │─────►│ facid              int  PK │             │
+│ │ │ firstname          text    │      │ starttime          ts      │      │ name               text    │             │
+│ │ │ address            text    │      │ slots              int     │      │ membercost         num     │             │
+│ │ │ zipcode            int     │      ╰────────────────────────────╯      │ guestcost          num     │             │
+│ │ │ telephone          text    │                                          │ initialoutlay      num     │             │
+│ ╰─│ recommendedby      int  FK │                                          │ monthlymaintenance num     │             │
+│   │ joindate           ts      │                                          ╰────────────────────────────╯             │
+│   ╰────────────────────────────╯                                                                                     │
+│ PK primary key  FK foreign key, arrow points to the referenced column                                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭ Question ───────────────────────────────────────────────╮ ╭ Query · NORMAL · attempt 4 ──────────────────────────────╮
+│ How can you produce a list of the start times for       │ │   -- write your SQL here, then press ctrl+r              │
+│ bookings by members named 'David Farrell'?              │ │                                                          │
+│                                                         │ │                                                          │
+│ tables: cd.bookings, cd.members                         │ │                                                          │
+│                                                         │ │                                                          │
+│                                                         │ │                                                          │
+│                                                         │ │                                                          │
+│                                                         │ ╰──────────────────────────────────────────────────────────╯
+│                                                         │ ╭ Result ──────────────────────────────────────────────────╮
+│                                                         │ │ Press ctrl+r to run your query against the database.     │
+│                                                         │ │                                                          │
+│                                                         │ │                                                          │
+╰─────────────────────────────────────────────────────────╯ │                                                          │
+╭ Hint 1 of 1 ────────────────────────────────────────────╮ │                                                          │
+│ Take a look at the documentation for `INNER JOIN`.      │ │                                                          │
+│                                                         │ │                                                          │
+│ H for the next hint · a reveals the answer              │ │                                                          │
+╰─────────────────────────────────────────────────────────╯ ╰──────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
  ctrl+r run · i insert · H hint · a answer · v view · D discussion · n/p next/prev · e $EDITOR · backspace… ● attempted 

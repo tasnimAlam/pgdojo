@@ -133,8 +133,8 @@ func TestExerciseRevealAndHints(t *testing.T) {
 		t.Errorf("hint pane wrong:\n%s", out)
 	}
 	m = drive(m, keys("a")...)
-	if !strings.Contains(screenText(m), "Reveal the answer? This marks the exercise as revealed. y/n") {
-		t.Fatal("a should ask for confirmation")
+	if !strings.Contains(screenText(m), "Reveal the answer? This marks the exercise as") {
+		t.Fatalf("a should ask for confirmation:\n%s", screenText(m))
 	}
 	m = drive(m, keys("n")...)
 	if d.Progress.Get("modifying/insert").Status != progress.New {
@@ -246,10 +246,14 @@ func TestEscInQuery(t *testing.T) {
 		t.Errorf("backspace in NORMAL mode should go back, got %T", m.(Model).top())
 	}
 
-	// From the result pane, esc still goes back.
+	// From the result pane esc does nothing; from the question it goes back.
 	m = drive(m, keys("enter", "tab", "esc")...)
+	if _, ok := m.(Model).top().(*exerciseView); !ok {
+		t.Fatalf("esc with the result pane focused must not leave, got %T", m.(Model).top())
+	}
+	m = drive(m, keys("tab", "esc")...)
 	if _, ok := m.(Model).top().(*exerciseList); !ok {
-		t.Errorf("esc with the result pane focused should go back, got %T", m.(Model).top())
+		t.Errorf("esc with the question focused should go back, got %T", m.(Model).top())
 	}
 }
 

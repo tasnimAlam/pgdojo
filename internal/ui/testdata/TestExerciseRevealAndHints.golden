@@ -1,36 +1,36 @@
  pgdojo  Categories › Modifying Data › 1. Insert some data into a table                                           1 / 9 
-╭ Question ──────────────────────────────╮ ╭ Query · NORMAL · attempt 1 ───────────────────────────────────────────────╮
-│ The club is adding a new facility - a  │ │   -- write your SQL here, then press ctrl+r                               │
-│ spa. We need to add it into the        │ │                                                                           │
-│ facilities table. Use the following    │ │                                                                           │
-│ values:                                │ │                                                                           │
-│                                        │ │                                                                           │
-│ - facid: 9, Name: 'Spa', membercost:   │ │                                                                           │
-│ 20, guestcost: 30, initialoutlay:      │ │                                                                           │
-│ 100000, monthlymaintenance: 800.       │ │                                                                           │
-│                                        │ │                                                                           │
-│ tables: cd.facilities                  │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ ╰───────────────────────────────────────────────────────────────────────────╯
-│                                        │ ╭ Answer ───────────────────────────────────────────────────────────────────╮
-│                                        │ │ insert into cd.facilities                                                 │
-│                                        │ │     (facid, name, membercost, guestcost, initialoutlay, monthlymaintenan… │
-│                                        │ │     values (9, 'Spa', 20, 30, 100000, 800);                               │
-│                                        │ │                                                                           │
-│                                        │ │ y copies it into the editor · esc returns                                 │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-╰────────────────────────────────────────╯ │                                                                           │
-╭ Hint 1 of 1 ───────────────────────────╮ │                                                                           │
-│ `INSERT` can be used to insert data    │ │                                                                           │
-│ into a table.                          │ │                                                                           │
-│                                        │ │                                                                           │
-│ H for the next hint · a reveals the    │ │                                                                           │
-│ answer                                 │ │                                                                           │
-╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
+╭ Schema · s hides ────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                       ╭ bookings ──────────────────╮                                                 │
+│   ╭ members ───────────────────╮      │ bookid             int  PK │                                                 │
+│ ╭►│ memid              int  PK │◄─────│ memid              int  FK │      ╭ facilities ────────────────╮             │
+│ │ │ surname            text    │      │ facid              int  FK │─────►│ facid              int  PK │             │
+│ │ │ firstname          text    │      │ starttime          ts      │      │ name               text    │             │
+│ │ │ address            text    │      │ slots              int     │      │ membercost         num     │             │
+│ │ │ zipcode            int     │      ╰────────────────────────────╯      │ guestcost          num     │             │
+│ │ │ telephone          text    │                                          │ initialoutlay      num     │             │
+│ ╰─│ recommendedby      int  FK │                                          │ monthlymaintenance num     │             │
+│   │ joindate           ts      │                                          ╰────────────────────────────╯             │
+│   ╰────────────────────────────╯                                                                                     │
+│ PK primary key  FK foreign key, arrow points to the referenced column                                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭ Question ───────────────────────────────────────────────╮ ╭ Query · NORMAL · attempt 1 ──────────────────────────────╮
+│ The club is adding a new facility - a spa. We need to   │ │   -- write your SQL here, then press ctrl+r              │
+│ add it into the facilities table. Use the following     │ │                                                          │
+│ values:                                                 │ │                                                          │
+│                                                         │ │                                                          │
+│ - facid: 9, Name: 'Spa', membercost: 20, guestcost: 30, │ │                                                          │
+│ initialoutlay: 100000, monthlymaintenance: 800.         │ │                                                          │
+│                                                         │ │                                                          │
+│ tables: cd.facilities                                   │ ╰──────────────────────────────────────────────────────────╯
+│                                                         │ ╭ Answer ──────────────────────────────────────────────────╮
+│                                                         │ │ insert into cd.facilities                                │
+│                                                         │ │     (facid, name, membercost, guestcost, initialoutlay,… │
+│                                                         │ │     values (9, 'Spa', 20, 30, 100000, 800);              │
+╰─────────────────────────────────────────────────────────╯ │                                                          │
+╭ Hint 1 of 1 ────────────────────────────────────────────╮ │ y copies it into the editor · esc returns                │
+│ `INSERT` can be used to insert data into a table.       │ │                                                          │
+│                                                         │ │                                                          │
+│ H for the next hint · a reveals the answer              │ │                                                          │
+╰─────────────────────────────────────────────────────────╯ ╰──────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
  y copy to editor · esc close answer · ctrl+r run                                                            ◐ revealed 

@@ -1,36 +1,36 @@
  pgdojo  Categories › Basics › 1. Retrieve everything from a table                                               1 / 12 
-╭ Question ──────────────────────────────╮ ╭ Query · INSERT · attempt 4 ───────────────────────────────────────────────╮
-│ How can you retrieve all the           │ │  1 select name, membercost from facilities                                │
-│ information from the cd.facilities     │ │                                                                           │
-│ table?                                 │ │                                                                           │
-│                                        │ │                                                                           │
-│ tables: cd.facilities                  │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ ╰───────────────────────────────────────────────────────────────────────────╯
-│                                        │ ╭ Result · 3 rows · 0s ─────────────────────────────────────────────────────╮
-│                                        │ │  ✓ Correct: all 3 rows match the expected result                          │
-│                                        │ │                                                                           │
-│                                        │ │ name            membercost                                                │
-│                                        │ │ Tennis Court 1  5                                                         │
-│                                        │ │ Tennis Court 2  5                                                         │
-│                                        │ │ Massage Room 1  9.9                                                       │
-│                                        │ │                                                                           │
-│                                        │ │ Press n for the next exercise or D to read the discussion.                │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-╰────────────────────────────────────────╯ │                                                                           │
-╭ Hint 1 of 1 ───────────────────────────╮ │                                                                           │
-│ `select * ` can be used to retrieve    │ │                                                                           │
-│ all columns from a table.              │ │                                                                           │
-│                                        │ │                                                                           │
-│ H for the next hint · a reveals the    │ │                                                                           │
-│ answer                                 │ │                                                                           │
-╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
+╭ Schema · s hides ────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                       ╭ bookings ──────────────────╮                                                 │
+│   ╭ members ───────────────────╮      │ bookid             int  PK │                                                 │
+│ ╭►│ memid              int  PK │◄─────│ memid              int  FK │      ╭ facilities ────────────────╮             │
+│ │ │ surname            text    │      │ facid              int  FK │─────►│ facid              int  PK │             │
+│ │ │ firstname          text    │      │ starttime          ts      │      │ name               text    │             │
+│ │ │ address            text    │      │ slots              int     │      │ membercost         num     │             │
+│ │ │ zipcode            int     │      ╰────────────────────────────╯      │ guestcost          num     │             │
+│ │ │ telephone          text    │                                          │ initialoutlay      num     │             │
+│ ╰─│ recommendedby      int  FK │                                          │ monthlymaintenance num     │             │
+│   │ joindate           ts      │                                          ╰────────────────────────────╯             │
+│   ╰────────────────────────────╯                                                                                     │
+│ PK primary key  FK foreign key, arrow points to the referenced column                                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭ Question ───────────────────────────────────────────────╮ ╭ Query · INSERT · attempt 4 ──────────────────────────────╮
+│ How can you retrieve all the information from the       │ │  1 select name, membercost from facilities               │
+│ cd.facilities table?                                    │ │                                                          │
+│                                                         │ │                                                          │
+│ tables: cd.facilities                                   │ │                                                          │
+│                                                         │ │                                                          │
+│                                                         │ │                                                          │
+│                                                         │ │                                                          │
+│                                                         │ ╰──────────────────────────────────────────────────────────╯
+│                                                         │ ╭ Result · 3 rows · 0s ────────────────────────────────────╮
+│                                                         │ │  ✓ Correct: all 3 rows match the expected result         │
+│                                                         │ │                                                          │
+╰─────────────────────────────────────────────────────────╯ │ name            membercost                               │
+╭ Hint 1 of 1 ────────────────────────────────────────────╮ │ Tennis Court 1  5                                        │
+│ `select * ` can be used to retrieve all columns from a  │ │ Tennis Court 2  5                                        │
+│ table.                                                  │ │ Massage Room 1  9.9                                      │
+│                                                         │ │                                                          │
+│ H for the next hint · a reveals the answer              │ │ Press n for the next exercise or D to read the discussi… │
+╰─────────────────────────────────────────────────────────╯ ╰──────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
  ctrl+r run · esc normal mode · tab next pane · ctrl+l clear                                                   ✓ solved 

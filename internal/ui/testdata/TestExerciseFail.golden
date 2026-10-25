@@ -1,36 +1,36 @@
  pgdojo  Categories › Basics › 1. Retrieve everything from a table                                               1 / 12 
-╭ Question ──────────────────────────────╮ ╭ Query · NORMAL · attempt 4 ───────────────────────────────────────────────╮
-│ How can you retrieve all the           │ │   -- write your SQL here, then press ctrl+r                               │
-│ information from the cd.facilities     │ │                                                                           │
-│ table?                                 │ │                                                                           │
-│                                        │ │                                                                           │
-│ tables: cd.facilities                  │ │                                                                           │
-╰────────────────────────────────────────╯ │                                                                           │
-╭ Hint 1 of 1 ───────────────────────────╮ │                                                                           │
-│ `select * ` can be used to retrieve    │ │                                                                           │
-│ all columns from a table.              │ │                                                                           │
-│                                        │ │                                                                           │
-│ H for the next hint · a reveals the    │ │                                                                           │
-│ answer                                 │ ╰───────────────────────────────────────────────────────────────────────────╯
-╰────────────────────────────────────────╯ ╭ Result · 3 rows · 0s · diff ──────────────────────────────────────────────╮
-╭ Diff summary ──────────────────────────╮ │  ✗ Not quite: 1 row missing and 1 extra row.                              │
-│ expected rows  3                       │ │                                                                           │
-│ your rows      3                       │ │   name            membercost                                              │
-│ − missing      1                       │ │   Tennis Court 1  5                                                       │
-│ + extra        1                       │ │ − Tennis Court 2  5                                                       │
-│ columns        2 / 2 ✓                 │ │   Massage Room 1  9.9                                                     │
-│                                        │ │ + Squash Court    ∅                                                       │
-│ v cycles yours / expected / diff       │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-│                                        │ │                                                                           │
-╰────────────────────────────────────────╯ ╰───────────────────────────────────────────────────────────────────────────╯
+╭ Schema · s hides ────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                       ╭ bookings ──────────────────╮                                                 │
+│   ╭ members ───────────────────╮      │ bookid             int  PK │                                                 │
+│ ╭►│ memid              int  PK │◄─────│ memid              int  FK │      ╭ facilities ────────────────╮             │
+│ │ │ surname            text    │      │ facid              int  FK │─────►│ facid              int  PK │             │
+│ │ │ firstname          text    │      │ starttime          ts      │      │ name               text    │             │
+│ │ │ address            text    │      │ slots              int     │      │ membercost         num     │             │
+│ │ │ zipcode            int     │      ╰────────────────────────────╯      │ guestcost          num     │             │
+│ │ │ telephone          text    │                                          │ initialoutlay      num     │             │
+│ ╰─│ recommendedby      int  FK │                                          │ monthlymaintenance num     │             │
+│   │ joindate           ts      │                                          ╰────────────────────────────╯             │
+│   ╰────────────────────────────╯                                                                                     │
+│ PK primary key  FK foreign key, arrow points to the referenced column                                                │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭ Question ───────────────────────────────────────────────╮ ╭ Query · NORMAL · attempt 4 ──────────────────────────────╮
+│ How can you retrieve all the information from the       │ │   -- write your SQL here, then press ctrl+r              │
+│ cd.facilities table?                                    │ │                                                          │
+│                                                         │ │                                                          │
+│ tables: cd.facilities                                   │ │                                                          │
+╰─────────────────────────────────────────────────────────╯ │                                                          │
+╭ Hint 1 of 1 ────────────────────────────────────────────╮ │                                                          │
+│ `select * ` can be used to retrieve all columns from a  │ │                                                          │
+│ table.                                                  │ ╰──────────────────────────────────────────────────────────╯
+│                                                         │ ╭ Result · 3 rows · 0s · diff ─────────────────────────────╮
+│ H for the next hint · a reveals the answer              │ │  ✗ Not quite: 1 row missing and 1 extra row.             │
+╰─────────────────────────────────────────────────────────╯ │                                                          │
+╭ Diff summary ───────────────────────────────────────────╮ │   name            membercost                             │
+│ expected rows  3                                        │ │   Tennis Court 1  5                                      │
+│ your rows      3                                        │ │ − Tennis Court 2  5                                      │
+│ − missing      1                                        │ │   Massage Room 1  9.9                                    │
+│ + extra        1                                        │ │ + Squash Court    ∅                                      │
+│ columns        2 / 2 ✓                                  │ │                                                          │
+╰─────────────────────────────────────────────────────────╯ ╰──────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
  ctrl+r run · i insert · H hint · a answer · v view · D discussion · n/p next/prev · e $EDITOR · backspace ba… ✓ solved 
