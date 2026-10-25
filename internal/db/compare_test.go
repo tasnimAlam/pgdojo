@@ -166,6 +166,21 @@ func TestCheckSingleStatement(t *testing.T) {
 	}
 }
 
+func TestIsExplain(t *testing.T) {
+	for sql, want := range map[string]bool{
+		"explain select 1":                      true,
+		"  EXPLAIN (analyze, buffers) select 1": true,
+		"-- plan\nexplain analyze select 1":     true,
+		"/* explain */ select 1":                false,
+		"select 'explain'":                      false,
+		"select explain from t":                 false,
+	} {
+		if IsExplain(sql) != want {
+			t.Errorf("IsExplain(%q) = %v", sql, !want)
+		}
+	}
+}
+
 func TestReason(t *testing.T) {
 	cases := []struct {
 		want, got Result

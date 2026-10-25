@@ -276,6 +276,9 @@ func (s *exerciseView) finish(msg checkDoneMsg) tea.Cmd {
 		return func() tea.Msg { return pingNowMsg{} } // refresh the header status
 	}
 	s.mode, s.chk = resCheck, msg.chk
+	if msg.chk.Explain {
+		return nil // a plan is not an attempt
+	}
 	k, passed := s.ex.Key(), msg.chk.Passed()
 	return s.record(func(p *progress.Store) error { return p.RecordAttempt(k, passed) })
 }
@@ -425,7 +428,7 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 		s.schema = !s.schema
 		s.SetSize(s.w, s.h)
 	case key.Matches(msg, k.Diff):
-		if s.mode == resCheck && s.chk.UserErr == nil {
+		if s.mode == resCheck && s.chk.UserErr == nil && !s.chk.Explain {
 			s.view = (s.view + 1) % 3
 			s.rowOff = 0
 		}
@@ -463,6 +466,9 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 
 // lastRow is the highest useful scroll offset for the result table.
 func (s *exerciseView) lastRow() int {
+	if s.chk.Explain {
+		return max(len(s.chk.PlanLines())-1, 0)
+	}
 	rows, _ := tableRows(s.chk, s.view)
 	return max(len(rows)-1, 0)
 }
@@ -588,7 +594,7 @@ func (s *exerciseView) questionColumn(w, h int) string {
 
 	var lowerTitle string
 	var lower []string
-	if s.mode == resCheck && s.chk.UserErr == nil && !s.chk.Passed() {
+	if s.mode == resCheck && s.chk.UserErr == nil && !s.chk.Explain && !s.chk.Passed() {
 		lowerTitle, lower = "Diff summary", strings.Split(diffSummary(t, s.chk, s.ex.Ordered), "\n")
 	}
 
@@ -646,6 +652,13 @@ func (s *exerciseView) resultPane(w, h int) string {
 		lines = append(lines, "", t.Dim.Render("y copies it into the editor · esc returns"))
 	case s.chk.UserErr != nil:
 		lines = append(lines, s.userErrLines(inner)...)
+	case s.chk.Explain:
+		title = "Query plan · " + s.chk.Got.Duration.Round(10e3).String()
+		plan := s.chk.PlanLines()
+		for _, l := range plan[min(s.rowOff, len(plan)):] {
+			r := []rune(l)
+			lines = append(lines, t.Text.Render(ansiTrunc(string(r[min(s.colOff, len(r)):]), inner)))
+		}
 	default:
 		title += fmt.Sprintf(" · %s · %s", plural(len(s.chk.Got.Rows), "row"), s.chk.Got.Duration.Round(10e3))
 		var foot []string

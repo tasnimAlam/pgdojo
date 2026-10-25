@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -190,6 +191,29 @@ func TestCheckOutcomes(t *testing.T) {
 		}
 		if time.Since(start) > 2*time.Second {
 			t.Error("query was not cancelled promptly")
+		}
+	})
+
+	t.Run("explain analyze shows the plan and changes nothing", func(t *testing.T) {
+		mut := exercise.Exercise{ID: "m", Category: "test", Mutates: true,
+			Answer: "select 1", Verify: "select count(*) from cd.bookings"}
+		before, err := r.Run(ctx, mut.Verify)
+		if err != nil {
+			t.Fatal(err)
+		}
+		chk, err := r.Check(ctx, mut, "explain analyze delete from cd.bookings")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !chk.Explain || chk.Passed() || chk.UserErr != nil || !strings.Contains(strings.Join(chk.PlanLines(), "\n"), "Delete on bookings") {
+			t.Fatalf("want a plan, got %+v", chk)
+		}
+		after, err := r.Run(ctx, mut.Verify)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !Compare(before, after, true).Equal {
+			t.Error("explain analyze must not change the data")
 		}
 	})
 

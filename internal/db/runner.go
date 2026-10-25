@@ -21,10 +21,31 @@ type Check struct {
 	// UserErr is set when the user's SQL failed (syntax error, timeout,
 	// rejected input). Got and Diff are empty then; Want is still filled.
 	UserErr *UserError
+	// Explain is set when the user's SQL was an EXPLAIN: Got holds the plan
+	// and nothing was compared.
+	Explain bool
 }
 
 // Passed reports whether the user's result matched.
-func (c Check) Passed() bool { return c.UserErr == nil && c.Diff.Equal }
+func (c Check) Passed() bool { return c.UserErr == nil && !c.Explain && c.Diff.Equal }
+
+// PlanLines is an EXPLAIN result as text lines; FORMAT JSON/YAML/XML plans
+// arrive as one multi-line cell.
+func (c Check) PlanLines() []string {
+	var lines []string
+	for _, r := range c.Got.Rows {
+		if len(r) > 0 {
+			lines = append(lines, strings.Split(r[0].Text, "\n")...)
+		}
+	}
+	return lines
+}
+
+// IsExplain reports whether sql is an EXPLAIN statement.
+func IsExplain(sql string) bool {
+	words := strings.FieldsFunc(stripLiterals(sql), func(r rune) bool { return r > 127 || !isIdent(byte(r)) })
+	return len(words) > 0 && strings.EqualFold(words[0], "explain")
+}
 
 // UserError is a problem with the user's SQL, shown in the result pane.
 type UserError struct {
@@ -83,7 +104,8 @@ func (r *Runner) Check(ctx context.Context, ex exercise.Exercise, userSQL string
 	}
 	// The savepoint lets the reference answer run even if the user's SQL
 	// failed and aborted the transaction.
-	if ex.Mutates {
+	explain := IsExplain(userSQL)
+	if ex.Mutates && !explain {
 		_, err = tx.Exec(ctx, userSQL)
 		if err == nil {
 			c.Got, err = query(ctx, tx, ex.Verify)
@@ -99,6 +121,12 @@ func (r *Runner) Check(ctx context.Context, ex exercise.Exercise, userSQL string
 			return c, err
 		}
 		c.Got = Result{}
+	}
+	if explain && c.UserErr == nil {
+		// EXPLAIN ANALYZE really runs the statement; the deferred rollback
+		// undoes any changes.
+		c.Explain = true
+		return c, nil
 	}
 	if _, err := tx.Exec(ctx, "ROLLBACK TO SAVEPOINT s"); err != nil {
 		return c, err

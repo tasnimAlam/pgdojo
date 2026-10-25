@@ -263,3 +263,26 @@ func TestQueryTakesKeysWhenFocused(t *testing.T) {
 		t.Error("query title should not show a mode")
 	}
 }
+
+func TestExplainShowsPlan(t *testing.T) {
+	plan := db.Check{Explain: true, Got: db.Result{Columns: []string{"QUERY PLAN"}, Rows: [][]db.Cell{
+		{{Text: "Seq Scan on facilities  (cost=0.00..10.70 rows=70 width=200) (actual time=0.010..0.012 rows=9 loops=1)"}},
+		{{Text: "Planning Time: 0.050 ms"}},
+	}}}
+	m := openExercise(t, plan)
+	before := m.(Model).deps.Progress.Get("basics/selectall").Attempts
+	m = drive(m, typeText("explain analyze select * from facilities")...)
+	m = drive(m, keys("ctrl+r")...)
+	out := screenText(m)
+	for _, want := range []string{"Query plan", "Seq Scan on facilities", "Planning Time"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing %q:\n%s", want, out)
+		}
+	}
+	if strings.Contains(out, "Not quite") || strings.Contains(out, "Diff summary") {
+		t.Errorf("a plan must not be graded:\n%s", out)
+	}
+	if got := m.(Model).deps.Progress.Get("basics/selectall").Attempts; got != before {
+		t.Errorf("explain must not count as an attempt: %d -> %d", before, got)
+	}
+}

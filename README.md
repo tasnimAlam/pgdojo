@@ -186,6 +186,12 @@ by column position; row order matters only when the exercise says so.
 Only one statement is allowed per run, and transaction commands (`BEGIN`,
 `COMMIT`, ...) are rejected. Queries time out after 5 seconds.
 
+Prefix a query with `EXPLAIN` (or `EXPLAIN ANALYZE`, any options) to see its
+plan instead of a grade. The plan scrolls with `↑/↓`, `←/→`, `g`/`G` when the
+result pane is focused, and it doesn't count as an attempt. `EXPLAIN ANALYZE`
+really runs the statement, inside the same rolled-back transaction, so even
+`EXPLAIN ANALYZE DELETE ...` changes nothing.
+
 ## Tests
 
 `make test` runs unit tests and, when docker or podman is available and

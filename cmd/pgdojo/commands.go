@@ -51,6 +51,9 @@ func checkCmd(a *app) *cobra.Command {
 			}
 			out := cmd.OutOrStdout()
 			printCheck(out, ex, string(sql), chk)
+			if chk.Explain {
+				return nil // a plan is not an attempt
+			}
 
 			if store, err := a.progress(); err == nil {
 				if err := store.RecordAttempt(ex.Key(), chk.Passed()); err != nil {
@@ -68,6 +71,10 @@ func checkCmd(a *app) *cobra.Command {
 }
 
 func printCheck(w io.Writer, ex exercise.Exercise, sql string, chk db.Check) {
+	if chk.Explain {
+		fmt.Fprintln(w, strings.Join(chk.PlanLines(), "\n"))
+		return
+	}
 	if e := chk.UserErr; e != nil {
 		fmt.Fprintln(w, "✗ ERROR:", e.Message)
 		if e.Detail != "" {
