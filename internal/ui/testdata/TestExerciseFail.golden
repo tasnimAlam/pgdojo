@@ -13,8 +13,8 @@
 │   ╰────────────────────────────╯                                                                                     │
 │ PK primary key  FK foreign key, arrow points to the referenced column                                                │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭ Question ───────────────────────────────────────────────╮ ╭ Query · NORMAL · attempt 4 ──────────────────────────────╮
-│ How can you retrieve all the information from the       │ │   -- write your SQL here, then press ctrl+r              │
+╭ Question ───────────────────────────────────────────────╮ ╭ Query · attempt 4 ───────────────────────────────────────╮
+│ How can you retrieve all the information from the       │ │ -- write your SQL here, then press ctrl+r                │
 │ cd.facilities table?                                    │ │                                                          │
 │                                                         │ │                                                          │
 │ tables: cd.facilities                                   │ │                                                          │
@@ -33,4 +33,4 @@
 │ columns        2 / 2 ✓                                  │ │                                                          │
 ╰─────────────────────────────────────────────────────────╯ ╰──────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
- ctrl+r run · i insert · H hint · a answer · v view · D discussion · n/p next/prev · e $EDITOR · backspace ba… ✓ solved 
+ ctrl+r run · tab next pane · H hint · a answer · v view · D discussion · n/p next/prev · e $EDITOR · backspa… ✓ solved 

@@ -13,8 +13,8 @@
 │   ╰────────────────────────────╯                                                                                     │
 │ PK primary key  FK foreign key, arrow points to the referenced column                                                │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭ Question ───────────────────────────────────────────────╮ ╭ Query · NORMAL · attempt 1 ──────────────────────────────╮
-│ The club is adding a new facility - a spa. We need to   │ │   -- write your SQL here, then press ctrl+r              │
+╭ Question ───────────────────────────────────────────────╮ ╭ Query · attempt 1 ───────────────────────────────────────╮
+│ The club is adding a new facility - a spa. We need to   │ │ -- write your SQL here, then press ctrl+r                │
 │ add it into the facilities table. Use the following     │ │                                                          │
 │ values:                                                 │ │                                                          │
 │                                                         │ │                                                          │

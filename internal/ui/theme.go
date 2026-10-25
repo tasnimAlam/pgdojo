@@ -60,7 +60,7 @@ type Theme struct {
 
 	// Exercise view
 	PassBanner, FailBanner, WarnBanner, MissingRow, ExtraGutter, TableHead lipgloss.Style
-	LineNo, SQLKeyword, SQLString, SQLComment, SQLNumber, Cursor           lipgloss.Style
+	LineNo, SQLKeyword, SQLString, SQLComment, SQLNumber                   lipgloss.Style
 }
 
 func NewTheme(accent string) Theme {
@@ -97,7 +97,6 @@ func NewTheme(accent string) Theme {
 		SQLString:   s().Foreground(p.Warn),
 		SQLComment:  s().Foreground(p.Dim).Italic(true),
 		SQLNumber:   s().Foreground(p.Accent),
-		Cursor:      s().Foreground(p.Bg).Background(p.Accent),
 	}
 }
 

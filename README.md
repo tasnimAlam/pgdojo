@@ -89,13 +89,12 @@ the last exercise. With `vim_keys = true` (the default) lists also take
 `ctrl+u`/`ctrl+d` to page; `g`/`G`/`ctrl+u`/`ctrl+d` also scroll a focused
 result table.
 
-An exercise opens in NORMAL mode with the query focused. Press `i` to type
-(INSERT mode) and `esc` to return to NORMAL; only `i` enters INSERT, so
-`tab` back into the query keeps NORMAL. In NORMAL mode the query shows a
-block cursor and `w` / `b` hop to the next / previous word as in vim, so `i`
-inserts right there. `ctrl+r` runs the query in either mode. In NORMAL mode single keys work: `backspace` back to the list, `H` (shift+h) hint, `a`
-reveal answer, `v` cycle yours / expected / diff, `D` (shift+d) discussion, `s`
-hide / show the schema, `n`/`p` next/previous, `e` edit in `$EDITOR`.
+An exercise opens with the query focused: just type. `ctrl+r` runs it, and
+`tab` / `shift+tab` move between query, result and question. With the result
+or question focused, single keys work: `H` (shift+h) hint, `a` reveal answer,
+`v` cycle yours / expected / diff, `D` (shift+d) discussion, `s` hide / show
+the schema, `n`/`p` next/previous, `e` edit in `$EDITOR`. `esc` or
+`backspace` on the question pane goes back to the list.
 `ctrl+c` cancels a running query.
 
 The exercise view shows the schema (tables, keys and how they relate) across

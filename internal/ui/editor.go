@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
-	"unicode"
 
 	"charm.land/bubbles/v2/textarea"
 	tea "charm.land/bubbletea/v2"
@@ -59,127 +58,21 @@ func (e *editor) Update(msg tea.Msg) tea.Cmd {
 	return cmd
 }
 
-// View shows the textarea while typing; otherwise highlighted SQL, with a
-// block cursor when cursor is set (NORMAL mode in the query pane).
-func (e *editor) View(cursor bool) string {
+// View shows the textarea while typing, otherwise highlighted SQL.
+func (e *editor) View() string {
 	if e.ta.Focused() {
 		return e.ta.View()
 	}
 	if e.ta.Value() == "" {
-		if cursor {
-			return e.t.Cursor.Render(" ") + " " + e.t.Faint.Render(e.ta.Placeholder)
-		}
 		return e.t.Faint.Render(e.ta.Placeholder)
 	}
 	src := strings.Split(e.ta.Value(), "\n")
-	row, col := e.ta.Line(), e.ta.Column()
 	numW := len(fmt.Sprint(len(src)))
-	start := 0
-	if cursor && row >= e.h { // keep the cursor line on screen
-		start = row - e.h + 1
-	}
 	out := make([]string, 0, e.h)
-	for i := start; i < len(src) && len(out) < e.h; i++ {
-		line := highlightSQL(e.t, src[i])
-		if cursor && i == row {
-			r := []rune(src[i])
-			col = min(col, len(r))
-			under := " "
-			if col < len(r) {
-				under = string(r[col])
-			}
-			line = highlightSQL(e.t, string(r[:col])) + e.t.Cursor.Render(under)
-			if col < len(r) {
-				line += highlightSQL(e.t, string(r[col+1:]))
-			}
-		}
-		out = append(out, e.t.LineNo.Render(fmt.Sprintf(" %*d ", numW, i+1))+line)
+	for i := 0; i < len(src) && len(out) < e.h; i++ {
+		out = append(out, e.t.LineNo.Render(fmt.Sprintf(" %*d ", numW, i+1))+highlightSQL(e.t, src[i]))
 	}
 	return strings.Join(out, "\n")
-}
-
-// WordForward moves the cursor to the start of the next word, like vim's w.
-func (e *editor) WordForward() { e.moveWord(nextWordStart) }
-
-// WordBackward moves the cursor to the start of the previous word, like
-// vim's b.
-func (e *editor) WordBackward() { e.moveWord(prevWordStart) }
-
-func (e *editor) moveWord(motion func([]rune, int) int) {
-	text := []rune(e.ta.Value())
-	pos := 0 // rune offset of the cursor in the whole text
-	for i, l := range strings.Split(string(text), "\n") {
-		if i == e.ta.Line() {
-			pos += min(e.ta.Column(), len([]rune(l)))
-			break
-		}
-		pos += len([]rune(l)) + 1
-	}
-	pos = motion(text, pos)
-	row := strings.Count(string(text[:pos]), "\n")
-	col := pos - lastNewline(text[:pos]) - 1
-	e.ta.MoveToBegin()
-	for i := 0; i < row; i++ {
-		e.ta.CursorDown()
-	}
-	e.ta.SetCursorColumn(col)
-}
-
-func lastNewline(r []rune) int {
-	for i := len(r) - 1; i >= 0; i-- {
-		if r[i] == '\n' {
-			return i
-		}
-	}
-	return -1
-}
-
-// charClass groups runes the way vim's w and b see them.
-func charClass(r rune) int {
-	switch {
-	case r == ' ' || r == '\t' || r == '\n':
-		return 0
-	case r == '_' || unicode.IsLetter(r) || unicode.IsDigit(r):
-		return 1
-	default:
-		return 2 // punctuation
-	}
-}
-
-// nextWordStart is vim's w: skip the rest of the current word, then
-// whitespace. It stays on the last rune at the end of the text.
-func nextWordStart(t []rune, i int) int {
-	if len(t) == 0 {
-		return 0
-	}
-	if i < len(t) {
-		if c := charClass(t[i]); c != 0 {
-			for i < len(t) && charClass(t[i]) == c {
-				i++
-			}
-		}
-	}
-	for i < len(t) && charClass(t[i]) == 0 {
-		i++
-	}
-	return min(i, len(t)-1)
-}
-
-// prevWordStart is vim's b: skip whitespace backwards, then go to the
-// start of that word.
-func prevWordStart(t []rune, i int) int {
-	i = min(i, len(t))
-	for i > 0 && charClass(t[i-1]) == 0 {
-		i--
-	}
-	if i == 0 {
-		return 0
-	}
-	c := charClass(t[i-1])
-	for i > 0 && charClass(t[i-1]) == c {
-		i--
-	}
-	return i
 }
 
 // highlightSQL colors SQL with the theme's token styles.

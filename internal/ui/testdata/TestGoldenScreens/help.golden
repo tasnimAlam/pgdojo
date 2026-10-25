@@ -16,8 +16,8 @@
 │                 │ enter/l   open             shift+tab  previous pane                              │                 │
 │                 │ esc       back / close     ctrl+l     clear editor                               │                 │
 │                 │ h         back (lists)     v          cycle diff                                 │                 │
-│                 │ /         filter           w          next word                                  │                 │
-│                 │ c         continue         b          previous word                              │                 │
+│                 │ /         filter                                                                 │                 │
+│                 │ c         continue                                                               │                 │
 │                 │ n         next exercise                                                          │                 │
 │                 │ p         previous exerc…                                                        │                 │
 │                 │ R         reset progress                                                         │                 │

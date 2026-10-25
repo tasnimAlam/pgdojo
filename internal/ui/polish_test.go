@@ -17,7 +17,7 @@ func TestNarrowLayout(t *testing.T) {
 	d := testDeps(t)
 	d.Checker = fakeChecker{check: func(context.Context, string) (db.Check, error) { return failCheck(), nil }}
 	m := drive(New(d), tea.WindowSizeMsg{Width: 100, Height: 30}, pingMsg{})
-	m = drive(m, keys("enter", "enter", "ctrl+r", "esc")...)
+	m = drive(m, keys("enter", "enter", "ctrl+r", "tab")...)
 	out := screenText(m)
 	assertSize(t, out, 100, 30)
 	if strings.Contains(out, "Diff summary") {
@@ -104,7 +104,7 @@ func TestRunOfflinePingsNow(t *testing.T) {
 func TestSchemaWindow(t *testing.T) {
 	m := drive(start(t, 120, 36), keys("j", "l", "l")...) // joins/simplejoin
 	out := screenText(m)
-	for _, want := range []string{"Schema · s hides", "╭ members", "╭ bookings", "╭ facilities", "◄─────", "─────►", "╭►", "Query · NORMAL", "Question"} {
+	for _, want := range []string{"Schema · s hides", "╭ members", "╭ bookings", "╭ facilities", "◄─────", "─────►", "╭►", "Query · attempt", "Question"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("schema diagram missing %q:\n%s", want, out)
 		}
@@ -112,7 +112,7 @@ func TestSchemaWindow(t *testing.T) {
 	assertSize(t, out, 120, 36)
 	golden.RequireEqual(t, out)
 
-	m = drive(m, keys("esc", "s")...)
+	m = drive(m, keys("tab", "s")...)
 	if out := screenText(m); strings.Contains(out, "╭ members") || !strings.Contains(out, "Question") {
 		t.Errorf("s should hide the schema pane:\n%s", out)
 	}

@@ -13,7 +13,7 @@
 │   ╰────────────────────────────╯                                                                                     │
 │ PK primary key  FK foreign key, arrow points to the referenced column                                                │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭ Question ───────────────────────────────────────────────╮ ╭ Query · INSERT · attempt 4 ──────────────────────────────╮
+╭ Question ───────────────────────────────────────────────╮ ╭ Query · attempt 4 ───────────────────────────────────────╮
 │ How can you retrieve all the information from the       │ │  1 select name, membercost from facilities               │
 │ cd.facilities table?                                    │ │                                                          │
 │                                                         │ │                                                          │
@@ -33,4 +33,4 @@
 │ H for the next hint · a reveals the answer              │ │ Press n for the next exercise or D to read the discussi… │
 ╰─────────────────────────────────────────────────────────╯ ╰──────────────────────────────────────────────────────────╯
 ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
- ctrl+r run · esc normal mode · tab next pane · ctrl+l clear                                                   ✓ solved 
+ ctrl+r run · tab next pane · ctrl+l clear · ctrl+c cancel                                                     ✓ solved 

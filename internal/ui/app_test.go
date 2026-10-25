@@ -227,11 +227,11 @@ func TestNavigation(t *testing.T) {
 	if last, _ := m.(Model).deps.Progress.Last(); last.Exercise != "simplejoin2" {
 		t.Errorf("opening an exercise should record it as last, got %+v", last)
 	}
-	m = drive(m, keys("esc", "esc")...) // esc only leaves INSERT mode
+	m = drive(m, keys("esc", "esc")...)
 	if _, ok := top().(*exerciseView); !ok {
 		t.Fatalf("esc in the query must not leave the exercise, got %T", top())
 	}
-	m = drive(m, keys("backspace")...)
+	m = drive(m, keys("shift+tab", "esc")...) // question pane, back
 	if _, ok := top().(*exerciseList); !ok {
 		t.Fatalf("esc should go back to the list, got %T", top())
 	}
@@ -264,7 +264,7 @@ func TestFilter(t *testing.T) {
 	if p, ok := m.(Model).top().(*exerciseView); !ok || p.ex.ID != "sub" {
 		t.Fatalf("enter on filtered item should open it, got %T", m.(Model).top())
 	}
-	m = drive(m, keys("esc", "backspace", "esc")...) // NORMAL mode, back, clear filter
+	m = drive(m, keys("shift+tab", "esc", "esc")...) // question pane, back, clear filter
 	if _, ok := m.(Model).top().(*exerciseList); !ok {
 		t.Fatal("esc on a filtered list should clear the filter, not go back")
 	}
@@ -344,7 +344,7 @@ func TestVimKeys(t *testing.T) {
 	}
 
 	// In an exercise, h is not back; H shows a hint.
-	m = drive(m, keys("k", "l", "j", "l", "h")...) // basics/selectspecific, no hints used yet
+	m = drive(m, keys("k", "l", "j", "l", "tab", "h")...) // basics/selectspecific, result pane, no hints used yet
 	if v, ok := top().(*exerciseView); !ok || v.hintsShown != 0 {
 		t.Errorf("h in an exercise should do nothing, got %T", top())
 	}
@@ -392,7 +392,7 @@ func TestQuitConfirm(t *testing.T) {
 
 func TestCtrlCDoesNotQuit(t *testing.T) {
 	m := start(t, 120, 36)
-	for _, msgs := range [][]tea.Msg{nil, keys("enter"), keys("enter", "i")} {
+	for _, msgs := range [][]tea.Msg{nil, keys("enter"), keys("enter", "enter")} {
 		m := drive(m, msgs...)
 		_, cmd := m.Update(keyPress("ctrl+c"))
 		if cmd != nil {

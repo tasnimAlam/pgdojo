@@ -57,7 +57,7 @@ func openExercise(t *testing.T, chk db.Check) tea.Model {
 	d := testDeps(t)
 	d.Checker = fakeChecker{check: func(context.Context, string) (db.Check, error) { return chk, nil }}
 	m := drive(New(d), tea.WindowSizeMsg{Width: 120, Height: 36}, pingMsg{})
-	return drive(m, keys("enter", "enter", "i")...) // open, then INSERT mode
+	return drive(m, keys("enter", "enter")...) // open, query focused
 }
 
 func view(m tea.Model) *exerciseView { return m.(Model).top().(*exerciseView) }
@@ -83,7 +83,7 @@ func TestExercisePass(t *testing.T) {
 	}
 	golden.RequireEqual(t, out)
 
-	m = drive(m, keys("esc", "n")...)
+	m = drive(m, keys("tab", "n")...)
 	if v := view(m); v.ex.Key() != "basics/selectspecific" || len(m.(Model).stack) != 3 {
 		t.Errorf("n should replace the view with the next exercise, got %s (stack %d)", v.ex.Key(), len(m.(Model).stack))
 	}
@@ -102,7 +102,7 @@ func TestExerciseFail(t *testing.T) {
 		t.Errorf("a failed run must not downgrade solved, got %s", s)
 	}
 
-	m = drive(m, keys("esc", "v", "v")...)
+	m = drive(m, keys("tab", "v", "v")...)
 	out = screenText(m)
 	if !strings.Contains(out, "· diff") || !strings.Contains(out, "− Tennis Court 2") || !strings.Contains(out, "+ Squash Court    ∅") {
 		t.Errorf("diff view wrong:\n%s", out)
@@ -126,7 +126,7 @@ func TestExerciseUserError(t *testing.T) {
 func TestExerciseRevealAndHints(t *testing.T) {
 	d := testDeps(t)
 	m := drive(New(d), tea.WindowSizeMsg{Width: 120, Height: 36}, pingMsg{})
-	m = drive(m, keys("down", "down", "enter", "enter", "esc")...) // modifying/insert, normal mode
+	m = drive(m, keys("down", "down", "enter", "enter", "tab")...) // modifying/insert, result pane
 
 	m = drive(m, keys("H", "H")...) // the second H has no more hints to show
 	if out := screenText(m); !strings.Contains(out, "Hint 1 of 1") || !strings.Contains(out, "can be used to insert data") {
@@ -153,8 +153,8 @@ func TestExerciseRevealAndHints(t *testing.T) {
 
 	m = drive(m, keys("y")...)
 	v := view(m)
-	if !strings.HasPrefix(v.editor.Value(), "insert into cd.facilities") || v.focus != focusEditor || v.inserting() {
-		t.Errorf("y should copy the answer into the editor and focus it in NORMAL mode, got %q", v.editor.Value())
+	if !strings.HasPrefix(v.editor.Value(), "insert into cd.facilities") || !v.inserting() {
+		t.Errorf("y should copy the answer into the editor and focus it, got %q", v.editor.Value())
 	}
 }
 
@@ -169,7 +169,7 @@ func TestExerciseDiscussionAndClear(t *testing.T) {
 	if v := view(m).editor.Value(); v != "" {
 		t.Errorf("editor not cleared: %q", v)
 	}
-	m = drive(m, keys("esc", "d")...) // d alone does nothing
+	m = drive(m, keys("tab", "d")...) // d alone does nothing
 	if view(m).disc != nil {
 		t.Fatal("d must not open the discussion")
 	}
@@ -201,12 +201,12 @@ func TestExerciseCancel(t *testing.T) {
 	tm.Send(keyPress("enter"))
 	wait("Preview")
 	tm.Send(keyPress("enter"))
-	wait("NORMAL")
+	wait("Query · attempt")
 	tm.Send(keyPress("ctrl+r"))
 	wait("running")
 	tm.Send(keyPress("ctrl+c"))
 	wait("Query cancelled")
-	tm.Send(keyPress("esc"))
+	tm.Send(keyPress("tab"))
 	tm.Send(keyPress("q"))
 	tm.Send(keyPress("y"))
 	fm := tm.FinalModel(t, teatest.WithFinalTimeout(3*time.Second)).(Model)
@@ -225,29 +225,17 @@ func TestF5DoesNotRun(t *testing.T) {
 
 func TestEscInQuery(t *testing.T) {
 	m := openExercise(t, passCheck())
-	m = drive(m, keys("esc")...)
-	v := view(m)
-	if v.inserting() || v.focus != focusEditor {
-		t.Fatalf("esc should switch to NORMAL mode and keep the query focused (insert=%v focus=%v)", v.insert, v.focus)
-	}
-	if !strings.Contains(screenText(m), "Query · NORMAL") {
-		t.Error("query title should say NORMAL")
-	}
-	m = drive(m, keys("esc", "esc")...)
-	if _, ok := m.(Model).top().(*exerciseView); !ok {
-		t.Fatal("esc in NORMAL mode must not leave the exercise")
-	}
-	m = drive(m, keys("i")...)
-	if !view(m).inserting() {
-		t.Error("i should return to INSERT mode")
-	}
+	m = drive(m, typeText("select 1")...)
 	m = drive(m, keys("esc", "backspace")...)
-	if _, ok := m.(Model).top().(*exerciseList); !ok {
-		t.Errorf("backspace in NORMAL mode should go back, got %T", m.(Model).top())
+	if _, ok := m.(Model).top().(*exerciseView); !ok {
+		t.Fatal("esc in the query must not leave the exercise")
+	}
+	if v := view(m).editor.Value(); v != "select " {
+		t.Errorf("backspace in the query should delete a character, got %q", v)
 	}
 
 	// From the result pane esc does nothing; from the question it goes back.
-	m = drive(m, keys("enter", "tab", "esc")...)
+	m = drive(m, keys("tab", "esc")...)
 	if _, ok := m.(Model).top().(*exerciseView); !ok {
 		t.Fatalf("esc with the result pane focused must not leave, got %T", m.(Model).top())
 	}
@@ -257,26 +245,21 @@ func TestEscInQuery(t *testing.T) {
 	}
 }
 
-func TestOnlyIEntersInsert(t *testing.T) {
+func TestQueryTakesKeysWhenFocused(t *testing.T) {
 	m := drive(start(t, 120, 36), keys("enter", "enter")...)
-	if v := view(m); v.inserting() || v.focus != focusEditor {
-		t.Fatal("an exercise should open in NORMAL mode with the query focused")
+	if v := view(m); !v.inserting() {
+		t.Fatal("an exercise should open with the query ready to type")
 	}
-	m = drive(m, keys("tab", "tab", "tab")...) // result, question, back to query
-	if v := view(m); v.focus != focusEditor || v.inserting() {
-		t.Errorf("tab back to the query should stay in NORMAL mode (focus=%v insert=%v)", v.focus, v.insert)
-	}
-	m = drive(m, keys("enter")...)
-	if view(m).inserting() {
-		t.Error("enter must not enter INSERT mode")
-	}
-	m = drive(m, keys("i")...)
-	m = drive(m, typeText("select 1")...)
-	if v := view(m); !v.inserting() || v.editor.Value() != "select 1" {
-		t.Errorf("i should enter INSERT mode and accept typing, got %q", v.editor.Value())
+	m = drive(m, typeText("select hi")...) // single-letter keys type, not trigger actions
+	if v := view(m); v.editor.Value() != "select hi" || v.overlay != overlayNone || v.mode != resNone {
+		t.Errorf("letters should type into the query, got %q", v.editor.Value())
 	}
 	m = drive(m, keys("tab", "shift+tab")...)
-	if v := view(m); v.focus != focusEditor || v.inserting() {
-		t.Error("leaving and returning with tab should land in NORMAL mode")
+	m = drive(m, typeText("!")...)
+	if v := view(m); !v.inserting() || v.editor.Value() != "select hi!" {
+		t.Errorf("returning with shift+tab should keep typing, got %q", v.editor.Value())
+	}
+	if !strings.Contains(screenText(m), "Query · attempt") {
+		t.Error("query title should not show a mode")
 	}
 }

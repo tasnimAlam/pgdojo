@@ -71,7 +71,6 @@ type exerciseView struct {
 
 	editor     editor
 	focus      focusArea
-	insert     bool // editor focused and taking keys (INSERT mode)
 	hintsShown int
 	confirm    confirmKind
 
@@ -122,7 +121,7 @@ func (s *exerciseView) Init() tea.Cmd {
 		}
 		return nil
 	}
-	return tea.Batch(load, setLast) // starts in NORMAL mode; i enters INSERT
+	return tea.Batch(load, setLast, s.editor.Focus()) // opens with the query ready to type
 }
 
 // Capturing is true when keys must reach the editor or a prompt.
@@ -232,26 +231,17 @@ func (s *exerciseView) SetSize(w, h int) {
 	}
 }
 
-// inserting reports INSERT mode: keys go to the editor.
-func (s *exerciseView) inserting() bool { return s.focus == focusEditor && s.insert }
+// inserting reports that the query is focused: keys go to the editor.
+func (s *exerciseView) inserting() bool { return s.focus == focusEditor }
 
-// setFocus moves focus in NORMAL mode; only i enters INSERT mode.
+// setFocus moves focus; the editor takes keys whenever it is focused.
 func (s *exerciseView) setFocus(f focusArea) tea.Cmd {
 	s.focus = f
-	s.normalMode()
-	return nil
-}
-
-// insertMode focuses the query editor for typing.
-func (s *exerciseView) insertMode() tea.Cmd {
-	s.focus, s.insert = focusEditor, true
-	return s.editor.Focus()
-}
-
-// normalMode leaves INSERT mode but keeps the query pane focused.
-func (s *exerciseView) normalMode() {
-	s.insert = false
+	if f == focusEditor {
+		return s.editor.Focus()
+	}
 	s.editor.Blur()
+	return nil
 }
 
 func (s *exerciseView) run() tea.Cmd {
@@ -393,8 +383,7 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 	if s.inserting() {
 		switch {
 		case key.Matches(msg, k.Back):
-			s.normalMode()
-			return nil
+			return nil // esc leaves only from the question pane
 		case key.Matches(msg, k.Clear):
 			if strings.TrimSpace(s.editor.Value()) != "" {
 				s.confirm = confirmClear
@@ -415,12 +404,6 @@ func (s *exerciseView) handleKey(msg tea.KeyPressMsg) tea.Cmd {
 		return nil // esc leaves only from the question pane
 	case key.Matches(msg, k.Back), msg.String() == "backspace":
 		return tea.Batch(s.Leave(), func() tea.Msg { return backMsg{} })
-	case msg.String() == "i":
-		return s.insertMode()
-	case s.focus == focusEditor && key.Matches(msg, k.WordNext):
-		s.editor.WordForward()
-	case s.focus == focusEditor && key.Matches(msg, k.WordPrev):
-		s.editor.WordBackward()
 	case msg.String() == "y" && s.mode == resAnswer:
 		s.editor.SetValue(strings.TrimSpace(s.ex.Answer))
 		s.mode = s.prevMode
@@ -553,11 +536,11 @@ func (s *exerciseView) helpItems() []helpItem {
 	case s.confirm != confirmNone:
 		return []helpItem{{"y", "yes"}, {"n", "no"}}
 	case s.inserting():
-		return []helpItem{short(k.Run, "run"), {"esc", "normal mode"}, short(k.Focus, "next pane"), short(k.Clear, "clear")}
+		return []helpItem{short(k.Run, "run"), short(k.Focus, "next pane"), short(k.Clear, "clear"), short(k.Cancel, "cancel")}
 	case s.mode == resAnswer:
 		return []helpItem{{"y", "copy to editor"}, short(k.Back, "close answer"), short(k.Run, "run")}
 	}
-	return []helpItem{short(k.Run, "run"), {"i", "insert"}, short(k.Hint, "hint"), short(k.Answer, "answer"),
+	return []helpItem{short(k.Run, "run"), short(k.Focus, "next pane"), short(k.Hint, "hint"), short(k.Answer, "answer"),
 		short(k.Diff, "view"), short(k.Discussion, "discussion"), {"n/p", "next/prev"}, short(k.Editor, "$EDITOR"), {"backspace", "back"}}
 }
 
@@ -631,12 +614,8 @@ func (s *exerciseView) questionColumn(w, h int) string {
 }
 
 func (s *exerciseView) editorPane(w, h int) string {
-	mode := "NORMAL"
-	if s.inserting() {
-		mode = "INSERT"
-	}
-	title := fmt.Sprintf("Query · %s · attempt %d", mode, s.d.Progress.Get(s.ex.Key()).Attempts+1)
-	return s.d.Theme.Pane(title, s.editor.View(s.focus == focusEditor), w, h, s.focus == focusEditor)
+	title := fmt.Sprintf("Query · attempt %d", s.d.Progress.Get(s.ex.Key()).Attempts+1)
+	return s.d.Theme.Pane(title, s.editor.View(), w, h, s.focus == focusEditor)
 }
 
 func (s *exerciseView) resultPane(w, h int) string {
