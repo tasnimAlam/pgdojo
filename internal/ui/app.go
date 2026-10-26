@@ -3,6 +3,7 @@ package ui
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -30,6 +31,7 @@ const (
 	connUnknown connState = iota
 	connUp
 	connDown
+	connStarting
 )
 
 const pingInterval = 30 * time.Second
@@ -45,7 +47,8 @@ type Deps struct {
 	Editor   string // external editor command, e.g. "nvim" or "emacsclient -t"
 	Theme    Theme
 	Keys     KeyMap
-	Now      func() time.Time // nil means time.Now; tests pin it
+	Now      func() time.Time            // nil means time.Now; tests pin it
+	StartDB  func(context.Context) error // starts the database container; nil if unavailable
 
 	conn    connState
 	columns map[string]columnsMsg // expected column names, cached per session
@@ -145,12 +148,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, k.Quit):
 			m.confirmQuit = true
 			return m, nil
+		case key.Matches(msg, k.StartDB):
+			return m.startDB()
 		}
 
 	case pingMsg:
 		was := m.deps.conn
 		m.deps.conn = connUp
-		if msg.err != nil {
+		if msg.err != nil && was == connStarting {
+			m.deps.conn = connStarting // a periodic ping while the container boots
+		} else if msg.err != nil {
 			m.deps.conn = connDown
 		} else if was == connDown {
 			// Back online: retry column lookups that failed while offline.
@@ -164,6 +171,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		return m, tea.Tick(pingInterval, func(time.Time) tea.Msg { return pingTickMsg{} })
+
+	case dbStartedMsg:
+		note := "Database started."
+		if msg.err != nil {
+			note = "Could not start the database: " + msg.err.Error()
+		}
+		m.deps.conn = connDown // let the ping below set the real state
+		next, _ := m.Update(pingMsg{err: msg.err})
+		return next.(Model).Update(noteMsg{note})
 
 	case pingTickMsg:
 		return m, m.ping(true)
@@ -197,6 +213,42 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	s, cmd := m.top().Update(msg)
 	m.stack[len(m.stack)-1] = s
 	return m, cmd
+}
+
+// startDB starts the database container when it is not reachable, then
+// waits until it accepts connections.
+func (m Model) startDB() (tea.Model, tea.Cmd) {
+	switch {
+	case m.deps.conn == connUp:
+		return m.Update(noteMsg{"The database is already running."})
+	case m.deps.conn == connStarting:
+		return m, nil
+	case m.deps.StartDB == nil:
+		return m.Update(noteMsg{"Starting the database is not available here; run 'make db-up'."})
+	}
+	m.deps.conn = connStarting
+	start, c := m.deps.StartDB, m.deps.Checker
+	return m, func() tea.Msg {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		if err := start(ctx); err != nil {
+			return dbStartedMsg{err}
+		}
+		// Postgres needs a few seconds after the container starts.
+		for {
+			pctx, pcancel := context.WithTimeout(ctx, time.Second)
+			err := c.Ping(pctx)
+			pcancel()
+			if err == nil {
+				return dbStartedMsg{}
+			}
+			select {
+			case <-ctx.Done():
+				return dbStartedMsg{errors.New("it started but does not accept connections; check 'pgdojo doctor'")}
+			case <-time.After(time.Second):
+			}
+		}
+	}
 }
 
 // quit lets the current screen save its state, then exits.

@@ -8,8 +8,8 @@ type KeyMap struct {
 	Vim bool // vim-style keys (h/j/k/l, g/G, ctrl+d/u) are enabled
 
 	// Navigation
-	Up, Down, Open, Back, ListBack, Filter, Continue, Next, Prev, Help, Quit, Reset key.Binding
-	Top, Bottom, PageUp, PageDown                                                   key.Binding
+	Up, Down, Open, Back, ListBack, Filter, Continue, Next, Prev, Help, Quit, Reset, StartDB key.Binding
+	Top, Bottom, PageUp, PageDown                                                            key.Binding
 	// Query
 	Run, Cancel, Editor, Focus, FocusBack, Clear, Diff key.Binding
 	// Learning
@@ -54,7 +54,8 @@ func NewKeyMap(vim bool) KeyMap {
 		Prev:     b([]string{"p"}, "p", "previous exercise"),
 		Help:     b([]string{"?"}, "?", "help"),
 		Quit:     b([]string{"q"}, "q", "quit (asks y/n)"),
-		Reset:    b([]string{"R"}, "R", "reset progress"),
+		Reset:    b([]string{"X"}, "X", "reset progress"),
+		StartDB:  b([]string{"R"}, "R", "start database"),
 
 		Run:       b([]string{"ctrl+r"}, "ctrl+r", "run query"),
 		Cancel:    b([]string{"ctrl+c"}, "ctrl+c", "cancel run"),
@@ -75,7 +76,7 @@ func NewKeyMap(vim bool) KeyMap {
 func (k KeyMap) HelpGroups() []helpGroup {
 	return []helpGroup{
 		{"Navigation", append(append(items(k.Up, k.Down), k.jumpHelp()...),
-			items(k.Open, k.Back, k.ListBack, k.Filter, k.Continue, k.Next, k.Prev, k.Reset, k.Help, k.Quit)...)},
+			items(k.Open, k.Back, k.ListBack, k.Filter, k.Continue, k.Next, k.Prev, k.StartDB, k.Reset, k.Help, k.Quit)...)},
 		{"Query", items(k.Run, k.Cancel, k.Editor, k.Focus, k.FocusBack, k.Clear, k.Diff)},
 		{"Learning", items(k.Hint, k.Answer, k.Discussion, k.Schema)},
 	}

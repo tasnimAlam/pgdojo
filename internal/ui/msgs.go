@@ -51,5 +51,9 @@ type draftLoadedMsg struct {
 // editorDoneMsg is sent when the external editor exits.
 type editorDoneMsg struct{ err error }
 
+// dbStartedMsg is sent when starting the database container finished,
+// err is nil once it accepts connections.
+type dbStartedMsg struct{ err error }
+
 // noteMsg shows a short message in the footer, e.g. a failed save.
 type noteMsg struct{ text string }

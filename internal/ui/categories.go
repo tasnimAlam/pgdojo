@@ -178,6 +178,8 @@ func (s *categories) view() string {
 		conn = t.Accent.Render("● connected")
 	case connDown:
 		conn = t.Fail.Render("● offline")
+	case connStarting:
+		conn = t.Warn.Render("● starting…")
 	}
 	header := t.Header([]string{"PostgreSQL exercises in your terminal"},
 		t.Dim.Render("db ")+t.Text.Render(s.d.DBLabel)+" "+conn, s.w)

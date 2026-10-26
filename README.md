@@ -106,7 +106,13 @@ vertically and `H` opens hints as an overlay.
 `q` asks `Quit pgdojo? y/n` before quitting. `ctrl+c` never quits; it only
 cancels a running query.
 
-On the home screen `R` resets all progress after you type `reset` (drafts are
+`R` (shift+r) starts the database container when it's offline, like
+`make db-up` (outside the query box). It runs podman-compose, `podman compose`
+or `docker compose` on `db/compose.yaml` in the current folder, or on
+`~/.local/share/pgdojo/db/compose.yaml`, then waits until Postgres accepts
+connections.
+
+On the home screen `X` (shift+x) resets all progress after you type `reset` (drafts are
 kept).
 
 ## Config

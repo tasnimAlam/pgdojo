@@ -58,7 +58,7 @@ func TestReset(t *testing.T) {
 	m := start(t, 120, 36)
 	d := m.(Model).deps
 
-	m = drive(m, keys("R")...)
+	m = drive(m, keys("X")...)
 	m = drive(m, typeText("nope")...)
 	m = drive(m, keys("enter")...)
 	if d.Progress.Get("basics/selectall").Status != progress.Solved {
@@ -68,9 +68,9 @@ func TestReset(t *testing.T) {
 		t.Error("cancel note missing")
 	}
 
-	m = drive(m, keys("R")...)
+	m = drive(m, keys("X")...)
 	if out := screenText(m); !strings.Contains(out, "Reset all progress") {
-		t.Fatalf("R should open the reset prompt:\n%s", out)
+		t.Fatalf("X should open the reset prompt:\n%s", out)
 	}
 	m = drive(m, typeText("reset")...) // q, ? etc. must not trigger while typing
 	if m.(Model).help {
@@ -120,5 +120,33 @@ func TestSchemaWindow(t *testing.T) {
 	m = drive(m, keys("s")...)
 	if !strings.Contains(screenText(m), "╭ members") {
 		t.Error("s should show the schema pane again")
+	}
+}
+
+func TestStartDB(t *testing.T) {
+	d := testDeps(t)
+	var up bool
+	starts := 0
+	d.Checker = fakeChecker{offline: true}
+	d.StartDB = func(context.Context) error { starts++; up = true; return nil }
+	m := drive(New(d), tea.WindowSizeMsg{Width: 120, Height: 36}, pingMsg{err: errors.New("down")})
+	d.Checker = fakeChecker{} // online once started
+	m = drive(m, keys("R")...)
+	if starts != 1 || !up || d.conn != connUp {
+		t.Fatalf("R offline should start the database (starts=%d conn=%v)", starts, d.conn)
+	}
+	if out := screenText(m); !strings.Contains(out, "Database started.") || !strings.Contains(out, "● connected") {
+		t.Errorf("want started note and connected header:\n%s", out)
+	}
+	m = drive(m, keys("R")...)
+	if starts != 1 || !strings.Contains(screenText(m), "already running") {
+		t.Error("R while connected must not start it again")
+	}
+
+	d.conn = connDown
+	d.StartDB = func(context.Context) error { return errors.New("podman compose failed: no such image") }
+	m = drive(m, keys("R")...)
+	if out := screenText(m); d.conn != connDown || !strings.Contains(out, "Could not start the database: podman compose failed") {
+		t.Errorf("want failure note and offline state (conn=%v):\n%s", d.conn, out)
 	}
 }

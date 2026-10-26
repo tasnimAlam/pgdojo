@@ -20,14 +20,14 @@
 │                 │ c         continue                                                               │                 │
 │                 │ n         next exercise                                                          │                 │
 │                 │ p         previous exerc…                                                        │                 │
-│                 │ R         reset progress                                                         │                 │
+│                 │ R         start database                                                         │                 │
+│                 │ X         reset progress                                                         │                 │
 │                 │ ?         help                                                                   │                 │
 │                 │ q         quit (asks y/n)                                                        │                 │
 │                 │                                                                                  │                 │
 │                 │ Revealing the answer asks for confirmation and marks the exercise as revealed,   │                 │
 │                 │ not solved.                                                                      │                 │
-│                 ╰──────────────────────────────────────────────────────────────────────────────────╯                 │
-│                                                    │ ╰───────────────────────────────────────────────────────────────╯
+│                 ╰──────────────────────────────────────────────────────────────────────────────────╯─────────────────╯
 │                                                    │ ╭ Continue where you left off ──────────────────────────────────╮
 │                                                    │ │ → Joins and Subqueries › 3. Produce a list of all members wh… │
 │                                                    │ │ press c to continue                                           │

@@ -272,7 +272,7 @@ func (s *exerciseView) finish(msg checkDoneMsg) tea.Cmd {
 		return nil
 	case msg.err != nil:
 		s.mode, s.errTitle = resError, "Could not reach the database"
-		s.errText = "Start it with 'make db-up', then run again. Check the setup with 'pgdojo doctor'."
+		s.errText = "Press tab, then R to start it (or run 'make db-up'), then run again. Check the setup with 'pgdojo doctor'."
 		return func() tea.Msg { return pingNowMsg{} } // refresh the header status
 	}
 	s.mode, s.chk = resCheck, msg.chk

@@ -140,6 +140,7 @@ func (a *app) tui(ctx context.Context) error {
 		Editor:   cfg.EditorCommand(),
 		Theme:    ui.NewTheme(cfg.Accent),
 		Keys:     ui.NewKeyMap(cfg.UseVimKeys()),
+		StartDB:  startDB,
 	})
 	_, err = tea.NewProgram(m, tea.WithContext(ctx)).Run()
 	if errors.Is(err, tea.ErrInterrupted) || errors.Is(err, context.Canceled) {
